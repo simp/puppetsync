@@ -1,0 +1,4 @@
+---
+sources:
+deploy:
+  purge_levels: ['environment']
