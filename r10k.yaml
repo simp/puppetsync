@@ -2,3 +2,4 @@
 sources:
 deploy:
   purge_levels: ['environment']
+  purge_whitelist: ['**/src/puppet','puppet']
