@@ -3,4 +3,11 @@ require 'yaml'
 require 'tmpdir' # Not needed if you are using rails.
 require 'fileutils'
 
-Puppetsync::Rake::Tasks.new
+namespace :puppetsync do
+  Puppetsync::Rake::Tasks.new
+end
+
+###require 'concourse'
+###
+###Concourse.new("myproject").create_tasks!
+###

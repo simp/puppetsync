@@ -20,17 +20,26 @@ puppetsync:
     jira_project: 'SIMP'
 
 stages:
-  ### # PuppetSync!  Use this Puppet control repo to sync your assets according to
-  ### # declarative rules.  The name 'puppet' is magical and means Puppet will run.
-  ### puppet:
-  ###   enabled: false
-
-  tag_check:
-    enabled: true
-    description: 'Check to see if this module has been tagged on this ref'
+  ensure_jira_subtask:
+    enabled: false
+    description: 'Ensure a Jira subtask exists'
     steps:
-      - 'tag_time.rb'
-    skip_repo_on_failure: true
+      - 'ensure_jira_subtask.rb'
+  # PuppetSync!  Use this Puppet control repo to sync your assets according to
+  # declarative rules.  The name 'puppet' is magical and means Puppet will run.
+  puppet:
+    enabled: true
+  ###gitlab_ci_to_half:
+  ###  enabled: true
+  ###  description: 'pipeline fixes'
+  ###  steps:
+  ###    - 'do.sh'
+  #  tag_check:
+  #    enabled: true
+  #    description: 'Check to see if this module has been tagged on this ref'
+  #    steps:
+  #      - 'tag_time.rb'
+  #    skip_repo_on_failure: true
   # TODO: fail repo if tests fail
 ###  tests:
 ###    enabled: false
@@ -39,10 +48,10 @@ stages:
 ###      - 'module_tests.rb'
 ###    skip_repo_on_failure: true
 ###
-###  commit:
-###    enabled: false
-###    description: 'Add updates into a Git commit w/message'
-###    steps:
-###      - 'git_commit.rb'
-###    skip_repo_on_failure: true
+  commit:
+    enabled: true
+    description: 'Add updates into a Git commit w/message'
+    steps:
+      - 'git_commit.rb'
+    skip_repo_on_failure: true
 

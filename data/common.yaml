@@ -1,0 +1,3 @@
+---
+classes:
+  - 'role::pupmod_travis_only'

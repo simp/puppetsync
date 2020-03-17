@@ -1,0 +1,11 @@
+---
+version: 2
+groups:
+  - name: repo_targets
+    targets: []
+    config:
+      transport: local
+    facts:
+      puppetsync:
+        - _plugin: yaml
+          filepath: puppetsync_planconfig.yaml

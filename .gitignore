@@ -4,3 +4,4 @@ Gemfile.lock
 _src
 Puppetfile.*
 .jira-cli
+concourse/private.yml

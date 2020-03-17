@@ -1,0 +1,12 @@
+---
+jira:
+  parent_task: SIMP-7035
+github:
+  user: op-ct
+
+repos:
+  - https://github.com/simp/pupmod-simp-at
+  - https://github.com/simp/pupmod-simp-chkrootkit
+  - https://github.com/simp/pupmod-simp-cron
+
+
