@@ -1,7 +1,8 @@
 /modules/
+/_repos/
 Gemfile.lock
 *.sw[onprqstuvlmn]
 _src
 Puppetfile.*
 .jira-cli
-concourse/private.yml
+.env
