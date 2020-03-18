@@ -5,7 +5,11 @@ groups:
     targets: []
     config:
       transport: local
-    facts:
+      local:
+        tmpdir:
+          _plugin: env_var
+          var: PWD
+    vars:
       puppetsync:
         - _plugin: yaml
           filepath: puppetsync_planconfig.yaml

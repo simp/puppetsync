@@ -1,0 +1,9 @@
+---
+fixtures:
+  repositories:
+    debug:
+      repo: https://github.com/nwops/puppet-debug
+    repl:
+      repo: https://github.com/nwops/puppet-repl-module
+  symlinks:
+    puppetsync: "#{source_dir}"

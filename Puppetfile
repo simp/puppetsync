@@ -1,3 +1,12 @@
+moduledir 'modules'
+
+mod 'stdlib',
+  :git => 'https://github.com/puppetlabs/puppetlabs-stdlib.git',
+  :tag => 'v6.2.0'
+
+mod 'simplib',
+  :git => 'git@github.com:simp/pupmod-simp-simplib.git',
+  :tag => '4.2.0'
 moduledir '_repos'
 
 #mod 'simp-acpid',
