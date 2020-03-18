@@ -1,12 +1,22 @@
 ---
 jira:
-  parent_task: SIMP-7035
+  parent_issue: SIMP-7035
 github:
   user: op-ct
+git:
+  commit_msg: |
+    (SIMP-7035) Update to new Travis CI pipeline
+
+    This patch updates the Travis Pipeline to a static, standardized format
+    that uses project variables for secrets. It includes an optional
+    diagnostic mode to test the project's variables against their respective
+    deployment APIs (GitHub and Puppet Forge).
+
+    SIMP-7035 #comment Add new pipeline to %COMPONENT%
+    %JIRA_SUBTASK% #close
+
 
 # repos:
 #   - https://github.com/simp/pupmod-simp-at
 #   - https://github.com/simp/pupmod-simp-chkrootkit
 #   - https://github.com/simp/pupmod-simp-cron
-
-

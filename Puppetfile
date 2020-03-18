@@ -7,6 +7,7 @@ mod 'stdlib',
 mod 'simplib',
   :git => 'git@github.com:simp/pupmod-simp-simplib.git',
   :tag => '4.2.0'
+
 moduledir '_repos'
 
 #mod 'simp-acpid',

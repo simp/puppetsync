@@ -1,0 +1,14 @@
+{
+  "description": "Checks out new git branch in each repo",
+  "input_method": "stdin",
+  "parameters": {
+    "branch": {
+      "description": "Name of new git branch",
+      "type": "String[1]"
+    },
+    "repo_paths": {
+      "description": "List of paths to each repo",
+      "type": "Array[String[1]]"
+    }
+  }
+}

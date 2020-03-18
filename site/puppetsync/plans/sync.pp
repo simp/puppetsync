@@ -8,6 +8,10 @@ plan puppetsync::sync(
   $puppetfile = "${pwd}/Puppetfile"
   $puppetfile_data = file::read($puppetfile)
 
+  $puppetsync_config_path = "${pwd}/puppetsync_planconfig.yaml"
+  $puppetsync_config      = loadyaml($puppetsync_config_path)
+
+
   $pf_mods = puppetsync::parse_puppetfile($puppetfile_data)
   $pf_repos = $pf_mods.filter |$mod, $mod_data| { $mod_data['install_path'] == '_repos' }
 
@@ -50,11 +54,22 @@ plan puppetsync::sync(
     }
   }
 
-  # - [ ] git checkout -b BRANCHNAME
+  # - [x] git checkout -b BRANCHNAME
   # - [ ] ensure jira subtask exists for repo
   # - [ ] run transformations?
-  # - [ ] puppet apply
   # - [ ] set up facts
+  # - [x] puppet apply
+  #   - [ ] remove _noop
+  # - [ ] commit changes
+  # - [ ] push changes
+  # - [ ] PR changes
+  warning( "\n\n==  \$puppetsync_config: ${puppetsync_config}" )
+  return run_task(
+    'puppetsync::checkout_modules_to_new_branch',
+    'localhost',
+    'branch'     => $puppetsync_config['jira']['parent_issue'],
+    'repo_paths' => $repos.map |$target| { $target.vars['repo_path'] }
+  )
 
   #  return run_command('/usr/bin/date', 'repo_targets' )
   return apply(

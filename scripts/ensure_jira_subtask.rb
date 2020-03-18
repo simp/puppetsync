@@ -11,8 +11,6 @@ require 'jira-ruby'
 #  - don't creat a subtask if a subtask already exists
 #     - but either way, record the child issue number
 
-require 'facter'
-ENV.fetch('FACTERLIB','').split(':').each{|x| Facter.search x }
 
 
 # TODO: write these somewhere so the git message:
@@ -31,7 +29,7 @@ options = {
 }
 
 require 'pp'
-_c = Facter['repo_git_name'].value
+_c = 'pupmod-simp-at' # repo_git_name'
 puts _c
 pp options
 puts 'x1'
