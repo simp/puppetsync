@@ -1,49 +1,12 @@
 plan puppetsync::sync(
-  TargetSpec $targets = get_targets('default'),
-  $pwd = system::env('PWD'), # FIXME hacky workaround to get PWD; doesn't work on Windows
+  TargetSpec           $targets                = get_targets('default'),
+  Stdlib::Absolutepath $pwd                    = system::env('PWD'), # FIXME hacky workaround to get PWD; doesn't work on Windows
+  Stdlib::Absolutepath $puppetfile             = "${pwd}/Puppetfile"
+  Stdlib::Absolutepath $puppetsync_config_path = "${pwd}/puppetsync_planconfig.yaml"
 ) {
-
-  # read repos from Puppetfile
-  # --------------------------------------
-  $puppetfile = "${pwd}/Puppetfile"
-  $puppetfile_data = file::read($puppetfile)
-
-  $puppetsync_config_path = "${pwd}/puppetsync_planconfig.yaml"
   $puppetsync_config      = loadyaml($puppetsync_config_path)
+  $repos = puppetsync::puppetfile_to_repo_targets( $puppetfile, 'repo_targets')
 
-
-  $pf_mods = puppetsync::parse_puppetfile($puppetfile_data)
-  $pf_repos = $pf_mods.filter |$mod, $mod_data| { $mod_data['install_path'] == '_repos' }
-
-  # add a localhost targets for each repo
-  # --------------------------------------
-  warning("\n=== PF_REPOS: (${pf_repos.size})")
-  $pf_repos.each |$mod, $mod_data| {
-    warning( "% $mod"  )
-    warning( "   $mod_data"  )
-
-    $repo_path = "${pwd}/${mod_data['mod_rel_path']}"
-    $metadata_json = "${repo_path}/metadata.json"
-    $name = $mod_data['name']
-
-    $target = Target.new(
-      'name'   => $mod_data['name'],
-      'config' => { 'transport' => 'local', },
-      'vars'   => { 'mod_data' => $mod_data }
-    )
-    $target.add_to_group('repo_targets')
-    $target.set_var('repo_path', $repo_path )
-
-    if !file::exists($metadata_json) {
-      warning( "WARNING: File does not exist: ${metadata_json}" )
-    }
-    else {
-      $module_metadata = loadjson($metadata_json)
-      $target.set_var('module_metadata', $module_metadata)
-    }
-  }
-
-  $repos = get_targets('repo_targets')
   out::message( "Targets: ${repos.size}" )
   out::message( "Puppetfile: ${puppetfile}")
   $repos.each |$target| {
