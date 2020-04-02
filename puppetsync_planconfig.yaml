@@ -1,8 +1,17 @@
 ---
 jira:
   parent_issue: SIMP-7035
+  projecte: SIMP
+  jira_site: https://simp-project.atlassian.net
+  subtask_title: 'Update .travis.yml pipeline in %COMPONENT%'
+  subtask_story_points: 1
+  subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
+  assignee: '%SELF%'
+
+
 github:
   user: op-ct
+
 git:
   commit_msg: |
     (SIMP-7035) Update to new Travis CI pipeline
@@ -14,9 +23,3 @@ git:
 
     SIMP-7035 #comment Add new pipeline to %COMPONENT%
     %JIRA_SUBTASK% #close
-
-
-# repos:
-#   - https://github.com/simp/pupmod-simp-at
-#   - https://github.com/simp/pupmod-simp-chkrootkit
-#   - https://github.com/simp/pupmod-simp-cron

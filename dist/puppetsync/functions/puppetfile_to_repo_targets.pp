@@ -14,8 +14,8 @@ function puppetsync::puppetfile_to_repo_targets(
   # --------------------------------------
   warning("\n=== PF_REPOS: (${pf_repos.size})")
   $pf_repos.each |$mod, $mod_data| {
-    warning( "% $mod"  )
-    warning( "   $mod_data"  )
+    warning( "% ${mod}"  )
+    warning( "   ${mod_data}"  )
 
     $repo_path = "${pwd}/${mod_data['mod_rel_path']}"
     $metadata_json = "${repo_path}/metadata.json"

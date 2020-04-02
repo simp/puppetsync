@@ -7,7 +7,9 @@ Puppet::Functions.create_function(:'puppetsync::parse_puppetfile') do
 
   def parse_puppetfile(content)
     Puppet.lookup(:bolt_executor) {}&.report_function_call(self.class.name)
+    Puppet::Util::Log.log_func(closure_scope, :warning, ["=======","======="])
     pdsl = PuppetfileDSLReader.new(content)
+
     # Stringify all keys (because Puppet can't handle symbols)
     Hash[pdsl.modules.map{|k,v| [k, Hash[v.map{|x,y| [x.to_s,y]} ]] }]
   end
@@ -18,18 +20,22 @@ Puppet::Functions.create_function(:'puppetsync::parse_puppetfile') do
     # @api private
     @lines = []
     def initialize(librarian)
+    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : librarian='#{librarian}'" )
       @librarian = librarian
     end
 
     def mod(name, args = nil)
+    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : name='#{name}'" )
       @librarian.add_module(name, args)
     end
 
     def forge(location)
+    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : location='#{location}'" )
       @librarian.set_forge(location)
     end
 
     def moduledir(location)
+    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : location='#{location}'" )
       @librarian.set_moduledir(location)
     end
 
@@ -50,7 +56,10 @@ Puppet::Functions.create_function(:'puppetsync::parse_puppetfile') do
       @modules = {}
 
       dsl = PuppetfileDSL.new(self)
+    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : puppetfile_data:\n\n#{puppetfile_data}" )
+    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : BEFORE dsl.instance_eval(puppetfile_data)" )
       dsl.instance_eval(puppetfile_data)
+    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : AFTER dsl.instance_eval(puppetfile_data)" )
     end
 
     def self.from_puppetfile(path)

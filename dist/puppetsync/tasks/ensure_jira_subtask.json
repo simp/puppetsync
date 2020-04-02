@@ -1,0 +1,49 @@
+{
+  "description": "Ensure a subtask exists under a Jira issue",
+  "input_method": "stdin",
+  "parameters": {
+    "parent_issue": {
+      "description": "The Jira issue under which to create the subtask",
+      "type": "String[1]"
+    },
+    "jira_site": {
+      "description": "Defaults to https://simp-project.atlassian.net",
+      "type": "Optional[Stdlib::Httpurl]"
+    },
+    "project": {
+      "description": "Defaults to SIMP",
+      "type": "Optional[String[1]]"
+    },
+    "component_name": {
+      "description": "The component (repo) the subtask tracks",
+      "type": "String[1]"
+    },
+    "subtask_title": {
+      "description": "Subtask title (templated)",
+      "type": "Optional[String[1]]"
+    },
+    "subtask_description": {
+      "description": "Subtask description (templated)",
+      "type": "Optional[String[1]]"
+    },
+    "subtask_story_points": {
+      "description": "Subtask story points",
+      "type": "Optional[Integer]"
+    },
+    "jira_username": {
+      "description": "Jira API username (probably an email address)",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "jira_token": {
+      "description": "Jira API token \n\t--- NOTES ---\n\t- You MUST generate an API token (basic auth no longer works). \n\t- To do so, you must have Jira instance access rights. \n\t- You can generate a token here: https://id.atlassian.com/manage/api-tokens",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "extra_gem_paths": {
+      "description": "Additional gem paths to look for ruby gems (e.g., `jira-ruby`)",
+      "type": "Optional[Array[Stdlib::Absolutepath]]"
+    }
+  },
+  "files": ["ruby_task_helper/files/task_helper.rb" ]
+}
