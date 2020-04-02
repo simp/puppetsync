@@ -30,6 +30,10 @@
       "description": "Subtask story points",
       "type": "Optional[Integer]"
     },
+    "subtask_assignee": {
+      "description": "Subtask assignee",
+      "type": "Optional[String[1]]"
+    },
     "jira_username": {
       "description": "Jira API username (probably an email address)",
       "type": "String[1]",

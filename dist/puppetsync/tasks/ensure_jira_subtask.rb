@@ -1,3 +1,4 @@
+#!/opt/puppetlabs/bolt/bin/ruby
 class JiraHelper
   def initialize(
     username     = ENV['JIRA_USER'],

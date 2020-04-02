@@ -65,6 +65,7 @@ _jql = "project = #{project_name} " +
 subtasks = client.Issue.jql( _jql )
 
 parent_issue_object = client.Issue.find(parent_ticket)
+
 # id 5 is 'SubTask' in our Jira
 # TODO: more robust / less magic numbers, please
 subtask_issuetype = client.Issuetype.all.select{|x| x.name == 'Sub-task' }.first.id

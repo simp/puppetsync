@@ -1,12 +1,12 @@
 ---
 jira:
   parent_issue: SIMP-7035
-  projecte: SIMP
+  project: SIMP
   jira_site: https://simp-project.atlassian.net
   subtask_title: 'Update .travis.yml pipeline in %COMPONENT%'
   subtask_story_points: 1
   subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
-  assignee: '%SELF%'
+  assignee: 'chris.tessmer'
 
 
 github:
