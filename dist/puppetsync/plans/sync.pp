@@ -1,5 +1,6 @@
 plan puppetsync::sync(
   TargetSpec           $targets                = get_targets('default'),
+  String[1]            $puppet_role            = 'role::pupmod_travis_only',
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   Stdlib::Absolutepath $pwd                    = system::env('PWD'), # FIXME hacky workaround to get PWD; doesn't work on Windows
@@ -35,10 +36,13 @@ plan puppetsync::sync(
   # - [ ] PR changes (fork repos, if necessary)
   # ----------------------------------------------------------------------------
   warning( "\n\n==  \$puppetsync_config: ${puppetsync_config}" )
+
+  $feature_branch = $puppetsync_config['jira']['parent_issue']
   $checkout_results = run_task(
-    'puppetsync::checkout_modules_to_new_branch',
+    'puppetsync::checkout_git_feature_branch_in_each_repo',
     'localhost',
-    'branch'     => $puppetsync_config['jira']['parent_issue'],
+    "Check out git branch '${feature_branch} in all repos'",
+    'branch'     => $feature_branch,
     'repo_paths' => $repos.map |$target| { $target.vars['repo_path'] }
   )
 
@@ -76,24 +80,22 @@ plan puppetsync::sync(
     out::message("Jira subtask for '${target.name}': ${subtask_key}")
   }
 
-###  return apply(
-###    'repo_targets',
-###    '_description' => "Apply Puppet role ",
-###    '_noop' => true,
-###    _catch_errors => true
-###  ) {
-###    warning( "\$::repo_path = '${::repo_path}'" )
-###    warning( "\$::module_metadata = '${::module_metadata}'" )
-###    warning( "\$::module_metadata['forge_org'] = '${::module_metadata['forge_org']}'" )
-###
-###    if !defined('$::repo_path'){
-###      fail ( 'The $::repo_path variable must be defined!  Hint: use `rake apply`' )
-###    }
-###
-###    lookup('classes', {'value_type'    => Array[String],
-###                       'merge'         => 'unique',
-###                       'default_value' => [],
-###                      }).include
-###  }
+  $apply_results = apply(
+    $repos,
+    '_description' => "Apply Puppet role '$puppet_role'",
+    '_noop' => false,
+    _catch_errors => true
+  ) {
+    warning( "\$::repo_path = '${::repo_path}'" )
+    warning( "\$::module_metadata = '${::module_metadata}'" )
+    warning( "\$::module_metadata['forge_org'] = '${::module_metadata['forge_org']}'" )
+
+    if !defined('$::repo_path'){
+      fail ( 'The $::repo_path variable must be defined!  Hint: use `rake apply`' )
+    }
+    include $puppet_role
+  }
+
+  return $apply_results
   #return run_task('puppetsync::test', 'repo_targets')
 }

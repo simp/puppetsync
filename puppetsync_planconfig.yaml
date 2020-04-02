@@ -6,8 +6,7 @@ jira:
   subtask_title: 'Update .travis.yml pipeline in %COMPONENT%'
   subtask_story_points: 1
   subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
-  assignee: 'chris.tessmer'
-
+  subtask_assignee: 'chris.tessmer'
 
 github:
   user: op-ct
