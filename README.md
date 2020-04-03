@@ -19,7 +19,9 @@ fork-friendly workflow.
 
 * [Puppet Bolt 2.x](https://puppet.com/docs/bolt/latest/bolt.html)
 
-* To create Jira subtasks, these environment variables are necessary:
+* To create Jira subtasks
+
+  these environment variables are necessary:
   | Env variable | Purpose |     |
   | ------------ | ------- | --- |
   | `JIRA_API_TOKEN` | Jira API token |
@@ -28,8 +30,14 @@ fork-friendly workflow.
 ## Setup
 
 1. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
-2. Add the repos you want to update as `mod` entries in `Puppetfile.repos`
-3. Download the modules:
+2. Install helper gems into a `gem` directory:
+
+   ```sh
+   GEM_HOME=gems /opt/puppetlabs/bolt/bin/gem install jira-ruby
+   ```
+
+3. Add the repos you want to update as `mod` entries in `Puppetfile.repos`
+4. Download the modules:
    ```sh
    /opt/puppetlabs/bin/bolt puppetfile install
    ```
@@ -44,6 +52,8 @@ fork-friendly workflow.
 
 ### `puppetsync_planconfig.yaml`
 
+Example:
+
 ```yaml
 ---
 jira:
@@ -51,13 +61,11 @@ jira:
   project: SIMP
   jira_site: https://simp-project.atlassian.net
   subtask_title: 'Update .travis.yml pipeline in %COMPONENT%'
-  # optional:
+
+  # optional subtask fields:
   subtask_story_points: 1
   subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
   subtask_assignee: 'chris.tessmer'
-
-github:
-  user: op-ct
 
 git:
   commit_message: |
@@ -70,4 +78,7 @@ git:
 
     %JIRA_PARENT_ISSUE% #comment Update to latest pipeline in %COMPONENT%
     %JIRA_SUBTASK% #close
+
+github:
+  user: op-ct
 ```
