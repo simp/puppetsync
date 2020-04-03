@@ -1,0 +1,15 @@
+{
+  "description": "Commit current changes in a git repo",
+  "input_method": "stdin",
+  "parameters": {
+    "repo_path": {
+      "description": "Path to repository",
+      "type": "String[1]"
+    },
+    "commit_message": {
+      "description": "Commit message",
+      "type": "String[1]"
+    }
+  }
+}
+

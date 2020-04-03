@@ -3,6 +3,5 @@
 Gemfile.lock
 *.sw[onprqstuvlmn]
 _src
-Puppetfile.*
 .jira-cli
 .env

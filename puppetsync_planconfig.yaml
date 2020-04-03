@@ -4,6 +4,7 @@ jira:
   project: SIMP
   jira_site: https://simp-project.atlassian.net
   subtask_title: 'Update .travis.yml pipeline in %COMPONENT%'
+  # optional:
   subtask_story_points: 1
   subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
   subtask_assignee: 'chris.tessmer'
@@ -12,13 +13,13 @@ github:
   user: op-ct
 
 git:
-  commit_msg: |
-    (SIMP-7035) Update to new Travis CI pipeline
+  commit_message: |
+    (%JIRA_PARENT_ISSUE%) Update to new Travis CI pipeline
 
     This patch updates the Travis Pipeline to a static, standardized format
     that uses project variables for secrets. It includes an optional
     diagnostic mode to test the project's variables against their respective
     deployment APIs (GitHub and Puppet Forge).
 
-    SIMP-7035 #comment Add new pipeline to %COMPONENT%
+    %JIRA_PARENT_ISSUE% #comment Update to latest pipeline in %COMPONENT%
     %JIRA_SUBTASK% #close

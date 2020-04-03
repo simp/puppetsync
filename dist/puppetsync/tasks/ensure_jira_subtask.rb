@@ -162,7 +162,7 @@ class MyTask < TaskHelper
       kwargs[:jira_token],
       kwargs[:jira_site],
     )
-# TODO: optional labels []
+    # TODO: optional labels []
     subtask_key = api.ensure_subtask(
       kwargs[:project] || 'SIMP',
       kwargs[:parent_issue],
