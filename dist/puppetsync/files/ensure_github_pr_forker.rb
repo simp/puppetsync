@@ -6,7 +6,7 @@ class GitHubPRForker
     @user = github_user
   end
 
-  def forked_user_repo (upstream_reponame)
+  def forked_user_repo(upstream_reponame)
     upstream_repo =  @client.repo upstream_reponame
     forks = @client.forks(upstream_repo.full_name)
     forks = forks.select{|x| x[:owner][:login] == @user }
@@ -21,6 +21,7 @@ class GitHubPRForker
     @client.fork(upstream_reponame)
   end
 
+  # TODO: implement PR logic
   def ensure_pr(upstream_reponame, opts)
     repo_fork = forked_user_repo(upstream_repo)
     upstream_repo =  @client.repo upstream_reponame

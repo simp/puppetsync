@@ -1,0 +1,25 @@
+{
+  "description": "Ensure user has a GitHub fork of the upstream project",
+  "input_method": "stdin",
+  "parameters": {
+    "github_repo": {
+      "description": "GitHub repo to fork (e.g., 'simp/pupmod-simp-simplib')",
+      "type": "String[1]"
+    },
+    "github_username": {
+      "description": "GitHub username",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "github_authtoken": {
+      "description": "GitHub API token",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "extra_gem_paths": {
+      "description": "Additional gem paths to look for ruby gems (e.g., `jira-ruby`)",
+      "type": "Optional[Array[Stdlib::Absolutepath]]"
+    }
+  },
+  "files": ["puppetsync/files/ensure_github_pr_forker.rb",  "ruby_task_helper/files/task_helper.rb" ]
+}

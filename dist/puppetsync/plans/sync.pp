@@ -58,8 +58,9 @@ plan puppetsync::sync(
   $gem_install_results = run_task( 'puppetsync::install_gems', 'localhost',
     'Install required RubyGems on localhost',
     {
-      'gem_install_path' => $extra_gem_paths[0],
-      '_catch_errors'    => false,
+      'path'          => $extra_gem_paths[0],
+      'gems'          => ['jira-ruby', 'octokit'],
+      '_catch_errors' => false,
     }
   )
 

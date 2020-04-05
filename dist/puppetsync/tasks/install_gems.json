@@ -2,9 +2,13 @@
   "description": "Install prerequisite gems on target",
   "input_method": "environment",
   "parameters": {
-    "gem_install_path": {
-      "description": "Path to install gems",
+    "path": {
+      "description": "Path to gems folder (ex: '/path/to/gems')",
       "type": "String[1]"
+    },
+    "gems": {
+      "description": "Gems to install",
+      "type": "Array[String[1]]"
     }
   }
 }
