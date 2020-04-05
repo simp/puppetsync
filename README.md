@@ -40,7 +40,7 @@ fork-friendly workflow.
 ## Usage
 
 ```sh
-/opt/puppetlabs/bin/bolt plan run puppetsync::sync  [--debug]
+/opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
 ```
 
 ## Reference

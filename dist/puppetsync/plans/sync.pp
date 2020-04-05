@@ -41,8 +41,8 @@ plan puppetsync::sync(
   # - [ ] support --noop
   # - [ ] move templating logic from jira task's ruby code into plan
   # - [ ] spec tests
-  # - [ ] move task scripts into files/ and convert tasks into shims
-  #   - [ ] goal: make logic in each task easy to smoke test on its own
+  # - [x] move task scripts into files/ and convert tasks into shims
+  #   - [x] goal: make logic in each task easy to smoke test on its own
   # ----------------------------------------------------------------------------
 
   # ----------------------------------------------------------------------------
