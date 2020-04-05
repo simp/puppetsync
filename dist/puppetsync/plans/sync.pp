@@ -2,20 +2,24 @@ plan puppetsync::sync(
   TargetSpec           $targets                = get_targets('default'),
   String[1]            $puppet_role            = 'role::pupmod_travis_only',
   Stdlib::Absolutepath $project_dir            = system::env('PWD'), # FIXME hacky workaround to get PWD; doesn't work on Windows?
-  Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile",
+  Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
   Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
   Array[Stdlib::Absolutepath] $extra_gem_paths = ["${project_dir}/gems"],
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   String[1]            $github_user            = system::env('GITHUB_USER'),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
+  String[1]            $default_repo_moduledir = '_repos',
+  Boolean              $exclude_repos_from_other_module_dirs = true,
 ) {
   $puppetsync_config      = loadyaml($puppetsync_config_path)
-  $repos = puppetsync::repo_targets_from_puppetfile( $puppetfile, 'repo_targets')
+
+  $repos = puppetsync::repo_targets_from_puppetfile($puppetfile, 'repo_targets', $default_repo_moduledir, $exclude_repos_from_other_module_dirs)
+  if $repos.size == 0 { fail_plan( "No repos found to sync!  Is $puppetfile set up correctly?" ) }
 
   # Report what we've got so far
-  out::message( "===== puppetfile: '${puppetfile}'" ) #########################
-  out::message( "===== project_dir: '${project_dir}'" ) #########################
+  out::message( "===== puppetfile: '${puppetfile}'" ) ########################
+  out::message( "===== project_dir: '${project_dir}'" ) ######################
   ###out::message( "Puppetfile: ${puppetfile}")
   out::message( "Targets: ${repos.size}" )
   $repos.each |$idx, $target| {
@@ -28,6 +32,7 @@ plan puppetsync::sync(
   warning( "\n\n==  \$puppetsync_config: ${puppetsync_config}" )
 
   # ----------------------------------------------------------------------------
+  # - [x] Install repos from Puppetfile.repos
   # - [x] git checkout -b BRANCHNAME
   # - [x] ensure jira subtask exists for repo
   # - [ ] run transformations?
@@ -46,6 +51,15 @@ plan puppetsync::sync(
   # - [x] move task scripts into files/ and convert tasks into shims
   #   - [x] goal: make logic in each task easy to smoke test on its own
   # ----------------------------------------------------------------------------
+
+  # ----------------------------------------------------------------------------
+  $puppetfile_install_results = run_task( 'puppetsync::puppetfile_install', 'localhost',
+    "Install repos from '${puppetfile}' (default moduledir: '${default_repo_moduledir}')",
+    'project_dir'       => $project_dir,
+    'puppetfile'        => $puppetfile,
+    'default_moduledir' => $default_repo_moduledir,
+    '_catch_errors'     => false,
+  )
 
   # ----------------------------------------------------------------------------
   $feature_branch = $puppetsync_config['jira']['parent_issue']
@@ -106,7 +120,7 @@ plan puppetsync::sync(
       }
     )
     unless $git_commit_results.ok {
-      $msg = "Running puppetsync::git_commit failed on ${target.name}:\n${git_commit_results.first.error.msg}\n\n${git_commit_results.first.error.details}\n"
+      $msg = "!! Running puppetsync::git_commit failed on ${target.name}:\n${git_commit_results.first.error.msg}\n\n${git_commit_results.first.error.details}\n"
       out::message($msg)
       fail_plan($git_commit_results.first.error)
     }
@@ -124,7 +138,7 @@ plan puppetsync::sync(
       }
     )
     if $ensure_fork_results.ok {
-      out::message( "GitHub user's repo fork: '${ensure_fork_results.first.value['user_fork']}'")
+      out::message( "-- GitHub user's repo fork: '${ensure_fork_results.first.value['user_fork']}'")
     } else {
       $msg = "Running puppetsync::ensure_github_fork failed on ${target.name}:\n${ensure_fork_results.first.error.msg}\n\n${ensure_fork_results.first.error.details}\n"
       out::message($msg)

@@ -33,19 +33,31 @@ back to each repo as a Pull Request from a forked repository.
 ## Requirements
 
 * [Puppet Bolt 2.x][bolt]
+* Puppet modules (in bolt project's `Puppetfile`):
+  * [puppetlabs-stdlib](https://github.com/puppetlabs/puppetlabs-stdlib.git)
+  * [puppetlabs/ruby_task_helper](https://github.com/puppetlabs/puppetlabs-ruby_task_helper.git)
 * API authentication tokens for Jira and GitLab
 * Probably only works from an \*nix host
 
+
 ## Setup
 
-1. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
-2. Set [environment variables](#environment-variables) for JIRA and GitHub API authentication
-3. Add the repos you want to update as `mod` entries in `Puppetfile.repos`
-4. Use `bolt` to download the repos:
+1. Use `bolt` to download the project's dependencies from `Puppetfile`:
 
         /opt/puppetlabs/bin/bolt puppetfile install
 
+1. Add `mod` entries for the repos you want to sync in `Puppetfile.repos`
+1. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
+2. Set [environment variables](#environment-variables) for JIRA and GitHub API authentication
+
 ## Usage
+
+After [setup](#setup), sync all repos by running:
+
+        /opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
+
+To see what's going on under the hood (potentially less irritating when
+`apply_puppet` appears to hang for a long time when updating a lot of repos):
 
         /opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
 
@@ -55,17 +67,17 @@ back to each repo as a Pull Request from a forked repository.
 
 To create Jira subtasks, these environment variables are necessary:
 
-| Env variable | Purpose |     |
-| ------------ | ------- | --- |
-| `JIRA_USER`      | Jira user      |
-| `JIRA_API_TOKEN` | Jira API token |
+| Env variable | Purpose   |                           |
+| ------------ | -------   | ------------------------- |
+| `JIRA_USER`  | Jira user | Probably an email address |
+| `JIRA_API_TOKEN` | Jira API token | You MUST generate an API token (basic auth no longer works). To do so, you must have Jira instance access rights.  You can generate a token here: https://id.atlassian.com/manage/api-tokens |
 
 To fork GitHub repositories and submit Pull Requests, these environment variables are necessary:
 
-| Env variable | Purpose |     |
-| ------------ | ------- | --- |
-| `GITHUB_USER`      | GitHub user      |
-| `GITHUB_API_TOKEN` | GitHub API token |
+| Env variable       | Purpose          |     |
+| ------------       | -------          | --- |
+| `GITHUB_USER`      | GitHub user      |     |
+| `GITHUB_API_TOKEN` | GitHub API token |     |
 
 ### `puppetsync_planconfig.yaml`
 
