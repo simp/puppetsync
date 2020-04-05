@@ -30,14 +30,9 @@ fork-friendly workflow.
 ## Setup
 
 1. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
-2. Install helper gems into a `gem` directory:
+2. Add the repos you want to update as `mod` entries in `Puppetfile.repos`
+3. Download the modules:
 
-   ```sh
-   GEM_HOME=gems /opt/puppetlabs/bolt/bin/gem install jira-ruby
-   ```
-
-3. Add the repos you want to update as `mod` entries in `Puppetfile.repos`
-4. Download the modules:
    ```sh
    /opt/puppetlabs/bin/bolt puppetfile install
    ```

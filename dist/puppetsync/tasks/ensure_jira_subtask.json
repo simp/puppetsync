@@ -49,5 +49,5 @@
       "type": "Optional[Array[Stdlib::Absolutepath]]"
     }
   },
-  "files": ["ruby_task_helper/files/task_helper.rb" ]
+  "files": ["puppetsync/files/ensure_jira_subtask.rb",  "ruby_task_helper/files/task_helper.rb" ]
 }

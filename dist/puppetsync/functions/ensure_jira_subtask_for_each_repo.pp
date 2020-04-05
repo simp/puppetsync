@@ -7,8 +7,16 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
 ) {
   $repos.each |$target| {
     assert_type( Hash, $puppetsync_config['jira'])
-    $assignee =  $puppetsync_config['jira']['assignee'].empty ? {
-      false   =>  $puppetsync_config['jira']['assignee'],
+    $assignee = $puppetsync_config['jira']['subtask_assignee'].empty ? {
+      false   =>  $puppetsync_config['jira']['subtask_assignee'],
+      default => undef,
+    }
+    $description = $puppetsync_config['jira']['subtask_description'].empty ? {
+      false   =>  $puppetsync_config['jira']['subtask_description'],
+      default => undef,
+    }
+    $story_points = $puppetsync_config['jira']['subtask_story_points'].empty ? {
+      false   =>  $puppetsync_config['jira']['subtask_story_points'],
       default => undef,
     }
 
@@ -21,8 +29,8 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
         'parent_issue'   => $puppetsync_config['jira']['parent_issue'],
         'project'        => $puppetsync_config['jira']['project'],
         'subtask_title'        => $puppetsync_config['jira']['subtask_title'],
-        'subtask_description'  => $puppetsync_config['jira']['subtask_description'],
-        'subtask_story_points' => $puppetsync_config['jira']['subtask_story_points'],
+        'subtask_description'  => $description,
+        'subtask_story_points' => $story_points,
         'subtask_assignee'     => $assignee,
         'jira_site'            => $puppetsync_config['jira']['jira_site'],
         'jira_username'        => $jira_username,

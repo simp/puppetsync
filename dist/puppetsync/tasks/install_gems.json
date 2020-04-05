@@ -1,0 +1,11 @@
+{
+  "description": "Install prerequisite gems on target",
+  "input_method": "environment",
+  "parameters": {
+    "gem_install_path": {
+      "description": "Path to install gems",
+      "type": "String[1]"
+    }
+  }
+}
+

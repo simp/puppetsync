@@ -47,16 +47,22 @@ plan puppetsync::sync(
 
   # ----------------------------------------------------------------------------
   $feature_branch = $puppetsync_config['jira']['parent_issue']
-  $checkout_results = run_task(
-    'puppetsync::checkout_git_feature_branch_in_each_repo',
-    'localhost',
+  $checkout_results = run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo', 'localhost',
     "Check out git branch '${feature_branch} in all repos'",
     'branch'        => $feature_branch,
     'repo_paths'    => $repos.map |$target| { $target.vars['repo_path'] },
-    '_catch_errors' => true,
+    '_catch_errors' => false,
   )
 
   # ----------------------------------------------------------------------------
+  $gem_install_results = run_task( 'puppetsync::install_gems', 'localhost',
+    'Install required RubyGems on localhost',
+    {
+      'gem_install_path' => $extra_gem_paths[0],
+      '_catch_errors'    => false,
+    }
+  )
+
   puppetsync::ensure_jira_subtask_for_each_repo(
     $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_paths,
   )
@@ -95,7 +101,7 @@ plan puppetsync::sync(
       {
         'repo_path'      => $target.vars['repo_path'],
         'commit_message' => $commit_message,
-        '_catch_errors'  => true,
+        '_catch_errors'  => false,
       }
     )
     unless $results.ok {
