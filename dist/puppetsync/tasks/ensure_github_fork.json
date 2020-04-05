@@ -6,7 +6,7 @@
       "description": "GitHub repo to fork (e.g., 'simp/pupmod-simp-simplib')",
       "type": "String[1]"
     },
-    "github_username": {
+    "github_user": {
       "description": "GitHub username",
       "type": "String[1]",
       "sensitive": true

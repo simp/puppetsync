@@ -15,7 +15,7 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
       false   =>  $puppetsync_config['jira']['subtask_description'],
       default => undef,
     }
-    $story_points = $puppetsync_config['jira']['subtask_story_points'].empty ? {
+    $story_points = "${puppetsync_config['jira']['subtask_story_points']}".empty ? {
       false   =>  $puppetsync_config['jira']['subtask_story_points'],
       default => undef,
     }

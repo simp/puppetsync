@@ -1,19 +1,21 @@
 plan puppetsync::sync(
   TargetSpec           $targets                = get_targets('default'),
   String[1]            $puppet_role            = 'role::pupmod_travis_only',
+  Stdlib::Absolutepath $project_dir            = system::env('PWD'), # FIXME hacky workaround to get PWD; doesn't work on Windows?
+  Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile",
+  Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
+  Array[Stdlib::Absolutepath] $extra_gem_paths = ["${project_dir}/gems"],
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
-  Stdlib::Absolutepath $pwd                    = system::env('PWD'), # FIXME hacky workaround to get PWD; doesn't work on Windows
-  Stdlib::Absolutepath $puppetfile             = "${pwd}/Puppetfile",
-  Stdlib::Absolutepath $puppetsync_config_path = "${pwd}/puppetsync_planconfig.yaml",
-  Array[Stdlib::Absolutepath] $extra_gem_paths = ["${pwd}/gems"]
+  String[1]            $github_user            = system::env('GITHUB_USER'),
+  Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
 ) {
   $puppetsync_config      = loadyaml($puppetsync_config_path)
-  $repos = puppetsync::puppetfile_to_repo_targets( $puppetfile, 'repo_targets')
+  $repos = puppetsync::repo_targets_from_puppetfile( $puppetfile, 'repo_targets')
 
   # Report what we've got so far
   out::message( "===== puppetfile: '${puppetfile}'" ) #########################
-  out::message( "===== pwd: '${pwd}'" ) #########################
+  out::message( "===== project_dir: '${project_dir}'" ) #########################
   ###out::message( "Puppetfile: ${puppetfile}")
   out::message( "Targets: ${repos.size}" )
   $repos.each |$idx, $target| {
@@ -33,7 +35,7 @@ plan puppetsync::sync(
   # - [x] puppet apply
   #   - [x] remove _noop
   # - [x] commit changes
-  # - [ ] ensure GitHub fork of upstream repo exists
+  # - [x] ensure GitHub fork of upstream repo exists
   # - [ ] push changes to user's GitHub fork
   # - [ ] PR changes to upstream repository on GitHub
   #
@@ -93,38 +95,41 @@ plan puppetsync::sync(
     $component_name    = $target.vars['mod_data']['repo_name']
     $commit_message = $commmit_template.regsubst('%JIRA_SUBTASK%', $subtask_key, 'G' ).regsubst('%JIRA_PARENT_ISSUE%', $parent_issue, 'G').regsubst('%COMPONENT%', $component_name, 'G')
 
-    out::message( "\n-- ${target.name}:\n\n${commit_message}\n\n" )
+    out::message( "\n---------------------------------------\n${target.name}:\n\n${commit_message}\n\n" )
     ### $target.set_var('git_commit_message', $commit_message )
-    $results = run_task(
-      'puppetsync::git_commit',
-      $target,
+    $git_commit_results = run_task( 'puppetsync::git_commit', $target,
       "Commit changes with git",
       {
         'repo_path'      => $target.vars['repo_path'],
         'commit_message' => $commit_message,
-        '_catch_errors'  => false,
+        '_catch_errors'  => true,
       }
     )
-    unless $results.ok {
-      $msg = "Running puppetsync::git_commit failed on ${target.name}:\n${results.first.error.msg}\n\n${results.first.error.details}\n"
+    unless $git_commit_results.ok {
+      $msg = "Running puppetsync::git_commit failed on ${target.name}:\n${git_commit_results.first.error.msg}\n\n${git_commit_results.first.error.details}\n"
       out::message($msg)
-      fail("$msg") # FIXME: fail_plan would be better?
+      fail_plan($git_commit_results.first.error)
     }
 
     # Ensure a GitHub fork exists for each repo
     # ----------------------------------------------------------------------------
-    $gem_install_results = run_task( 'puppetsync::ensure_github_fork', 'localhost',
-      'Ensure we have a GitHub fork of the upstream repo'
+    $ensure_fork_results = run_task( 'puppetsync::ensure_github_fork', $target,
+      'Ensure our GitHub user has a fork of the upstream repo',
       {
-        'github_repo'      => $github_repo, #TODO
-        'github_username'  => $github_username, #TODO
-        'github_authtoken' => $github_authtoken.unwrap, #TODO
+        'github_repo'      => $target.vars['repo_url_path'],
+        'github_user'      => $github_user,
+        'github_authtoken' => $github_token.unwrap,
         'extra_gem_paths'  => $extra_gem_paths,
         '_catch_errors'    => false,
       }
     )
+    if $ensure_fork_results.ok {
+      out::message( "GitHub user's repo fork: '${ensure_fork_results.first.value['user_fork']}'")
+    } else {
+      $msg = "Running puppetsync::ensure_github_fork failed on ${target.name}:\n${ensure_fork_results.first.error.msg}\n\n${ensure_fork_results.first.error.details}\n"
+      out::message($msg)
+      fail_plan($ensure_fork_results.first.error)
+    }
   }
-
-
 
 }

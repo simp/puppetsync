@@ -1,4 +1,13 @@
 ---
+## stages:
+##   - puppetsync::checkout_git_feature_branch_in_each_repo
+##   - puppetsync::install_gems
+##   - puppetsync::ensure_jira_subtask_for_each_repo
+##   - puppetsync::ensure_github_fork
+##   - puppet_apply
+##   - puppetsync::git_commit
+##   - puppetsync::ensure_github_pr
+
 jira:
   parent_issue: SIMP-7035
   project: SIMP
