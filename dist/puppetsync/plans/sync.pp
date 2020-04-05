@@ -1,3 +1,10 @@
+# Sync changes across multiple repositories, with workflow support for Jira and PRs from forked GitHub repositories.
+#
+# @usage
+#
+#   /opt/puppetlabs/bin/bolt plan run puppetsync::sync
+#
+#
 plan puppetsync::sync(
   TargetSpec           $targets                = get_targets('default'),
   String[1]            $puppet_role            = 'role::pupmod_travis_only',

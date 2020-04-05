@@ -1,13 +1,9 @@
-require 'puppetsync/rake/tasks'
-require 'yaml'
-require 'tmpdir' # Not needed if you are using rails.
-require 'fileutils'
+desc <<~DESC
+  Generate REFERENCE.md for puppetsync
 
-namespace :puppetsync do
-  Puppetsync::Rake::Tasks.new
+  (TODO: after breaking puppetsync into its own module, document roles & profiles)
+DESC
+
+task :strings do
+  sh '/opt/puppetlabs/bolt/bin/puppet strings generate --format markdown'
 end
-
-###require 'concourse'
-###
-###Concourse.new("myproject").create_tasks!
-###
