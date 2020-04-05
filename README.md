@@ -7,43 +7,65 @@
 * [Setup](#setup)
 * [Usage](#usage)
 * [Reference](#reference)
+  * [Environment variables](#environment-variables)
   * [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
 
 <!-- vim-markdown-toc -->
 
 ## Description
 
-Sync files across multiple git repositories using Puppet, and submit the changes as GitHub PRs.
-fork-friendly workflow.
+A [bolt][bolt] plan to sync changes across multiple repositories, with workflow
+support for Jira and PRs from forked GitHub repositories.
+
+1. Clones repositories defined in a `Puppetfile.repos` (using `bolt puppetfile install`)
+2. Checks out a new feature branch in each repository
+3. Ensures a Jira subtask exists for each repository
+4. Updates repository files using Puppet
+5. Commits changes with a templated commit message
+6. TODO: (in progress) Ensures a forked repository exists on GitHub
+7. TODO: pushes changes up to each fork
+8. TODO: ensures a Pull Request exists back to the original repository
+
+
+Update files in multiple git repositories using Puppet, and submit changes
+back to each repo as a Pull Request from a forked repository.
+
 ## Requirements
 
-* [Puppet Bolt 2.x](https://puppet.com/docs/bolt/latest/bolt.html)
-
-* To create Jira subtasks
-
-  these environment variables are necessary:
-  | Env variable | Purpose |     |
-  | ------------ | ------- | --- |
-  | `JIRA_API_TOKEN` | Jira API token |
-  | `JIRA_USER`      | Jira user      |
+* [Puppet Bolt 2.x][bolt]
+* API authentication tokens for Jira and GitLab
+* Probably only works from an \*nix host
 
 ## Setup
 
 1. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
-2. Add the repos you want to update as `mod` entries in `Puppetfile.repos`
-3. Download the modules:
+2. Set [environment variables](#environment-variables) for JIRA and GitHub API authentication
+3. Add the repos you want to update as `mod` entries in `Puppetfile.repos`
+4. Use `bolt` to download the repos:
 
-   ```sh
-   /opt/puppetlabs/bin/bolt puppetfile install
-   ```
+        /opt/puppetlabs/bin/bolt puppetfile install
 
 ## Usage
 
-```sh
-/opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
-```
+        /opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
 
 ## Reference
+
+### Environment variables
+
+To create Jira subtasks, these environment variables are necessary:
+
+| Env variable | Purpose |     |
+| ------------ | ------- | --- |
+| `JIRA_USER`      | Jira user      |
+| `JIRA_API_TOKEN` | Jira API token |
+
+To fork GitHub repositories and submit Pull Requests, these environment variables are necessary:
+
+| Env variable | Purpose |     |
+| ------------ | ------- | --- |
+| `GITHUB_USER`      | GitHub user      |
+| `GITHUB_API_TOKEN` | GitHub API token |
 
 ### `puppetsync_planconfig.yaml`
 
@@ -77,3 +99,5 @@ git:
 github:
   user: op-ct
 ```
+
+[bolt]: https://puppet.com/docs/bolt/latest/bolt.html
