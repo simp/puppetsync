@@ -36,7 +36,7 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
         'jira_username'        => $jira_username,
         'jira_token'           => $jira_token.unwrap,
         'extra_gem_paths'      => $extra_gem_paths,
-        '_catch_errors'        => true,
+        '_catch_errors'        => false,
       }
     )
 

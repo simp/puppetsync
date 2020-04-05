@@ -108,8 +108,23 @@ plan puppetsync::sync(
     unless $results.ok {
       $msg = "Running puppetsync::git_commit failed on ${target.name}:\n${results.first.error.msg}\n\n${results.first.error.details}\n"
       out::message($msg)
-      fail("$msg") }
+      fail("$msg") # FIXME: fail_plan would be better?
+    }
+
+    # Ensure a GitHub fork exists for each repo
+    # ----------------------------------------------------------------------------
+    $gem_install_results = run_task( 'puppetsync::ensure_github_fork', 'localhost',
+      'Ensure we have a GitHub fork of the upstream repo'
+      {
+        'github_repo'      => $github_repo, #TODO
+        'github_username'  => $github_username, #TODO
+        'github_authtoken' => $github_authtoken.unwrap, #TODO
+        'extra_gem_paths'  => $extra_gem_paths,
+        '_catch_errors'    => false,
+      }
+    )
   }
+
 
 
 }
