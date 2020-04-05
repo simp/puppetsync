@@ -30,7 +30,6 @@ class JiraHelper
 
     st_summary      = subtask_opts[:subtask_title].gsub('%COMPONENT%', component_name)
     st_description  = subtask_opts[:subtask_description] ? subtask_opts[:subtask_description].gsub('%COMPONENT%', component_name) : nil
-    st_assignee     = subtask_opts[:subtask_assignee] ? subtask_opts[:subtask_assignee].sub(/@.*$/,'') : nil
     st_story_points = subtask_opts[:subtask_story_points] ? subtask_opts[:subtask_story_points] : nil
 
     component = project.components.select{|x| x.name == component_name }
@@ -40,26 +39,34 @@ class JiraHelper
     existing_subtasks_for_target = undone_target_component_subtasks( project_string, parent_issue_string, component_name)
 
     target_subtask_issue_key = nil
-    if existing_subtasks_for_target.empty?
-      data = {
-        'fields' => {
-          'summary'   => st_summary.to_s,
-          'project'   =>  { 'id'=> project.id },
-          'parent'    =>  { 'id'=> parent_issue.id },
-          'issuetype'  => { 'id' => subtask_issuetype_id },
-          'components' => [{'id' => component.id }],
-        }
+    data = {
+      'fields' => {
+        'summary'   => st_summary.to_s,
+        'project'   =>  { 'id'=> project.id },
+        'parent'    =>  { 'id'=> parent_issue.id },
+        'issuetype'  => { 'id' => subtask_issuetype_id },
+        'components' => [{'id' => component.id }],
       }
-      data['fields']['assignee'] = { 'name' => st_assignee } if st_assignee
-      data['fields'][story_points_field_id] = st_story_points.to_f if st_story_points
+    }
+    ###    data['fields']['description'] = st_description if st_description
+    data['fields'][story_points_field_id] = st_story_points.to_f if st_story_points
+    unless existing_subtasks_for_target.empty?
+      data['key'] = existing_subtasks_for_target.first.attrs['key']
+      data['id'] = existing_subtasks_for_target.first.attrs['id']
+    end
 
+    if existing_subtasks_for_target.empty? || true
       begin
         issue = @client.Issue.build data
         issue.save! data
+        if subtask_opts[:subtask_assignee]
+           st_assignee = @client.User.find( subtask_opts[:subtask_assignee].sub(/@.*$/,'') ).attrs['accountId']
+           issue.save( {'fields' => {'assignee' => { 'accountId' => st_assignee }}} )
+        end
       rescue JIRA::HTTPError => e
         require 'yaml'
         warn e.to_yaml
-        require 'irb'
+        require 'pry'
         binding.irb
         raise e
       end
@@ -135,8 +142,6 @@ end
 
 
 if __FILE__ == $0
-  ###require 'yaml'
-  ###kwargs = YAML.load_file('y.yaml')
   kwargs = JSON.parse(File.read('y.json'))
   api = JiraHelper.new(
     ENV['JIRA_USER'],
