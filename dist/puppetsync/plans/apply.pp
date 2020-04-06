@@ -13,7 +13,7 @@ plan puppetsync::apply(
   $both_targets.each |$target| {
     out::message( "==== target ${target} apply:" )
     apply(
-      $targets,
+      $target,
       '_description' => "Test puppet apply",
       '_noop' => false,
       _catch_errors => false

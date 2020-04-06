@@ -4,6 +4,8 @@ version: 2
 config:
   transport: local
   local:
+    interpreters:
+      .rb: /opt/puppetlabs/bolt/bin/ruby
     tmpdir:
      _plugin: env_var
      var: PWD
