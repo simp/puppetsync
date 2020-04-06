@@ -1,0 +1,19 @@
+{
+  "description": "Ensure local repository has a specific git remote",
+  "input_method": "stdin",
+  "parameters": {
+    "repo_path": {
+      "description": "Path to local repository directory",
+      "type": "String[1]"
+    },
+    "remote_url": {
+      "description": "URL for git remote",
+      "type": "String[1]"
+    },
+    "remote_name": {
+      "description": "Name for local git remote (default: '')",
+      "type": "Optional[String[1]]"
+    }
+  },
+  "files": ["puppetsync/files/git_repo_remote_tasks.rb",  "ruby_task_helper/files/task_helper.rb" ]
+}
