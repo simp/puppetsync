@@ -79,6 +79,12 @@ To fork GitHub repositories and submit Pull Requests, these environment variable
 | `GITHUB_USER`      | GitHub user      |     |
 | `GITHUB_API_TOKEN` | GitHub API token |     |
 
+(Recommended) To prevent bolt from collecting analytics, set this environment variable:
+
+| Env variable                  | Purpose                                                                           |     |
+| ------------                  | -------                                                                           | --- |
+| `BOLT_DISABLE_ANALYTICS=true` | Prevent bolt's analytics from phoning home to tell Puppet about everything you do |     |
+
 ### `puppetsync_planconfig.yaml`
 
 Example:
