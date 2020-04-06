@@ -42,12 +42,9 @@ function puppetsync::repo_targets_from_puppetfile(
     $metadata_json = "${repo_path}/metadata.json"
     $name = $mod_data['name']
 
-    $target = Target.new(
-      'name'   => $mod_data['name'],
-      'config' => { 'transport' => 'local', },
-      'vars'   => { 'mod_data' => $mod_data }
-    )
+    $target = Target.new('name' => $mod_data['name'])
     $target.add_to_group( $inventory_group )
+    $target.set_var('mod_data', $mod_data )
     $target.set_var('repo_path', $repo_path )
     $target.set_var('repo_url_path', $repo_url_path )
 

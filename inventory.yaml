@@ -1,15 +1,16 @@
 ---
 version: 2
+
+config:
+  transport: local
+  local:
+    tmpdir:
+     _plugin: env_var
+     var: PWD
+
 groups:
   - name: repo_targets
     targets: []
-    config:
-      transport: local
-      local:
-        tmpdir:
-          _plugin: env_var
-          var: PWD
-          #var: TMPDIR
     vars:
       puppetsync:
         - _plugin: yaml

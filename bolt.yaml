@@ -1,7 +1,10 @@
+---
+modulepath: modules:site-modules:site:dist:custom
+save-rerun: false
+transport: local
 log:
   console:
     level: error
   ~/.puppetlabs/bolt/debug.log:
     level: debug
 
-modulepath: modules:site-modules:site:dist:custom
