@@ -21,15 +21,6 @@ plan puppetsync::sync(
 ) {
   $puppetsync_config      = loadyaml($puppetsync_config_path)
 
-  $puppetfile_install_results = run_task( 'puppetsync::puppetfile_install', 'localhost',
-    # -------------------------------------------------------------------------
-    "Install repos from '${puppetfile}' (default moduledir: '${default_repo_moduledir}')",
-    'project_dir'       => $project_dir,
-    'puppetfile'        => $puppetfile,
-    'default_moduledir' => $default_repo_moduledir,
-    '_catch_errors'     => false,
-  )
-
   $repos = puppetsync::repo_targets_from_puppetfile($puppetfile, 'repo_targets', $default_repo_moduledir, $exclude_repos_from_other_module_dirs)
   if $repos.size == 0 { fail_plan( "No repos found to sync!  Is $puppetfile set up correctly?" ) }
 
@@ -46,6 +37,29 @@ plan puppetsync::sync(
     }
   }
   warning( "\n\n==  \$puppetsync_config: ${puppetsync_config}" )
+
+  $puppetfile_install_results = run_task( 'puppetsync::puppetfile_install', 'localhost',
+    # -------------------------------------------------------------------------
+    "Install repos from '${puppetfile}' (default moduledir: '${default_repo_moduledir}')",
+    'project_dir'       => $project_dir,
+    'puppetfile'        => $puppetfile,
+    'default_moduledir' => $default_repo_moduledir,
+    '_catch_errors'     => false,
+  )
+
+  # add repo content info to target data
+  # ------------------------------------
+  $repos.each |$target| {
+    $metadata_json = "${target.vars['repo_path']}/metadata.json"
+    if !file::exists($metadata_json) {
+      warning( "WARNING: File does not exist: ${metadata_json}" )
+    }
+    else {
+      $module_metadata = loadjson($metadata_json)
+      $target.set_var('module_metadata', $module_metadata)
+    }
+  }
+
 
   # ----------------------------------------------------------------------------
   # - [x] Install repos from Puppetfile.repos
