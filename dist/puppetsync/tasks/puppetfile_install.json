@@ -1,0 +1,19 @@
+{
+  "description": "Install repos from Puppetfile on target",
+  "input_method": "environment",
+  "parameters": {
+    "project_dir": {
+      "description": "Absolute path to project directory (ex: '/path/to/proj_dir').",
+      "type": "String[1]"
+    },
+    "puppetfile": {
+      "description": "Path (relative from project_dir) to Puppetfile.repos (Default: 'Puppetfile.repos').\n\nNOTE: `Puppetfile.repos` defines repos to be puppetsynced--it should not be the same file as the `Puppetfile` the bolt project directory uses to manage its own dependencies",
+      "type": "String[1]"
+    },
+    "default_moduledir": {
+      "description": "Relative path to clone repos into (Default: _repos)",
+      "type": "Optional[String[1]]"
+    }
+  }
+}
+
