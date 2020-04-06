@@ -21,6 +21,15 @@ plan puppetsync::sync(
 ) {
   $puppetsync_config      = loadyaml($puppetsync_config_path)
 
+  $puppetfile_install_results = run_task( 'puppetsync::puppetfile_install', 'localhost',
+    # -------------------------------------------------------------------------
+    "Install repos from '${puppetfile}' (default moduledir: '${default_repo_moduledir}')",
+    'project_dir'       => $project_dir,
+    'puppetfile'        => $puppetfile,
+    'default_moduledir' => $default_repo_moduledir,
+    '_catch_errors'     => false,
+  )
+
   $repos = puppetsync::repo_targets_from_puppetfile($puppetfile, 'repo_targets', $default_repo_moduledir, $exclude_repos_from_other_module_dirs)
   if $repos.size == 0 { fail_plan( "No repos found to sync!  Is $puppetfile set up correctly?" ) }
 
@@ -48,6 +57,7 @@ plan puppetsync::sync(
   #   - [x] remove _noop
   # - [x] commit changes
   # - [x] ensure GitHub fork of upstream repo exists
+  # - [ ] ensure a remote exists in the local git repo for the forked GitHub repo
   # - [ ] push changes to user's GitHub fork
   # - [ ] PR changes to upstream repository on GitHub
   #
@@ -59,14 +69,6 @@ plan puppetsync::sync(
   #   - [x] goal: make logic in each task easy to smoke test on its own
   # ----------------------------------------------------------------------------
 
-  # ----------------------------------------------------------------------------
-  $puppetfile_install_results = run_task( 'puppetsync::puppetfile_install', 'localhost',
-    "Install repos from '${puppetfile}' (default moduledir: '${default_repo_moduledir}')",
-    'project_dir'       => $project_dir,
-    'puppetfile'        => $puppetfile,
-    'default_moduledir' => $default_repo_moduledir,
-    '_catch_errors'     => false,
-  )
 
   # ----------------------------------------------------------------------------
   $feature_branch = $puppetsync_config['jira']['parent_issue']
@@ -91,22 +93,22 @@ plan puppetsync::sync(
     $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_paths,
   )
 
-  ### # ----------------------------------------------------------------------------
-  ### $apply_results = apply(
-  ###   $repos,
-  ###   '_description' => "Apply Puppet role '$puppet_role'",
-  ###   '_noop' => false,
-  ###   _catch_errors => true
-  ### ) {
-  ###   warning( "\$::repo_path = '${::repo_path}'" )
-  ###   warning( "\$::module_metadata = '${::module_metadata}'" )
-  ###   warning( "\$::module_metadata['forge_org'] = '${::module_metadata['forge_org']}'" )
+  # ----------------------------------------------------------------------------
+  $apply_results = apply(
+    $repos,
+    '_description' => "Apply Puppet role '$puppet_role'",
+    '_noop' => false,
+    _catch_errors => false,
+  ) {
+    warning( "\$::repo_path = '${::repo_path}'" )
+    warning( "\$::module_metadata = '${::module_metadata}'" )
+    #warning( "\$::module_metadata['forge_org'] = '${::module_metadata['forge_org']}'" )
 
-  ###   if !defined('$::repo_path'){
-  ###     fail ( 'The $::repo_path variable must be defined!  Hint: use `rake apply`' )
-  ###   }
-  ###   include $puppet_role
-  ### }
+    if !defined('$::repo_path'){
+      fail ( 'The $::repo_path variable must be defined!  Hint: use `rake apply`' )
+    }
+    include $puppet_role
+  }
 
   # ----------------------------------------------------------------------------
   $repos.each |$target| {
@@ -116,9 +118,11 @@ plan puppetsync::sync(
     $component_name    = $target.vars['mod_data']['repo_name']
     $commit_message = $commmit_template.regsubst('%JIRA_SUBTASK%', $subtask_key, 'G' ).regsubst('%JIRA_PARENT_ISSUE%', $parent_issue, 'G').regsubst('%COMPONENT%', $component_name, 'G')
 
-    out::message( "\n---------------------------------------\n${target.name}:\n\n${commit_message}\n\n" )
+    ### out::message( "\n-----------\n${target.name}:\n\n${commit_message}\n\n" )
     ### $target.set_var('git_commit_message', $commit_message )
+
     $git_commit_results = run_task( 'puppetsync::git_commit', $target,
+      # -----------------------------------------------------------------------
       "Commit changes with git",
       {
         'repo_path'      => $target.vars['repo_path'],
@@ -132,9 +136,8 @@ plan puppetsync::sync(
       fail_plan($git_commit_results.first.error)
     }
 
-    # Ensure a GitHub fork exists for each repo
-    # ----------------------------------------------------------------------------
     $ensure_fork_results = run_task( 'puppetsync::ensure_github_fork', $target,
+      # -----------------------------------------------------------------------
       'Ensure our GitHub user has a fork of the upstream repo',
       {
         'github_repo'      => $target.vars['repo_url_path'],
@@ -151,6 +154,33 @@ plan puppetsync::sync(
       out::message($msg)
       fail_plan($ensure_fork_results.first.error)
     }
+    $user_repo_fork = $ensure_fork_results.first.value
+    warning( "\n------------------ user_repo_fork:\n${user_repo_fork}\n------------------\n")
+    $remote_name = 'user_forked_repo'
+
+    $ensure_remote_results = run_task( 'puppetsync::ensure_git_remote', $target,
+      # -----------------------------------------------------------------------
+      'Ensure local git repo has a remote for the forked repository',
+      {
+        'repo_path'     => $target.vars['repo_path'],
+        'remote_url'    => $user_repo_fork['ssh_url'],
+        'remote_name'   => $remote_name,
+        '_catch_errors' => false,
+      }
+    )
+    if !$ensure_fork_results.ok {
+      $msg = "Running puppetsync::ensure_git_remote failed on ${target.name}:\n${ensure_fork_results.first.error.msg}\n\n${ensure_fork_results.first.error.details}\n"
+      out::message($msg)
+      fail_plan($ensure_fork_results.first.error)
+    }
+
+    $git_push_results = run_command(
+      "cd '${target.vars['repo_path']}'; git push '${remote_name}' '${feature_branch}' -f",
+      $target,
+      "Push branch '${feature_branch}' to forked repository",
+      { '_catch_errors' => false }
+    )
+    warning( "\n------------------ git_push_results:\n${git_push_results}\n------------------\n")
   }
 
 }

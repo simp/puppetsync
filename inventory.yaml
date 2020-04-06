@@ -9,6 +9,7 @@ groups:
         tmpdir:
           _plugin: env_var
           var: PWD
+          #var: TMPDIR
     vars:
       puppetsync:
         - _plugin: yaml
