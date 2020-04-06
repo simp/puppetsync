@@ -31,7 +31,7 @@ end
 
 if __FILE__ == $0
   forker = GitHubPRForker.new( ENV['GITHUB_USER'], ENV['GITHUB_API_TOKEN'])
-  fail( 'set ENV var UPSTREAM_REPO' ) unless ENV['UPSTREAM_REPO']
+  fail( 'set ENV var UPSTREAM_REPO (ex: \'UPSTREAM_REPO=simp/pupmod-simp-acpid\')' ) unless ENV['UPSTREAM_REPO']
   repo_fork = forker.ensure_fork(ENV['UPSTREAM_REPO'] || 'simp/pupmod-simp-acpid')
 require 'pry'; binding.pry
 end
