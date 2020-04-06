@@ -18,7 +18,13 @@ class MyTask < TaskHelper
     require_relative '../../puppetsync/files/ensure_github_pr_forker.rb'
     forker = GitHubPRForker.new( kwargs[:github_user], kwargs[:github_authtoken] )
     repo_fork = forker.ensure_fork( kwargs[:github_repo] )
-    { user_fork: repo_fork.full_name, upstream_repo: kwargs[:github_repo] }
+    {
+      user_fork: repo_fork.full_name,
+      owner: repo_fork.owner[:login],
+      ssh_url: repo_fork[:ssh_url],
+      clone_url: repo_fork[:clone_url],
+      upstream_repo: kwargs[:github_repo]
+    }
   end
 end
 
