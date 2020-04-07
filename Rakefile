@@ -4,6 +4,11 @@ desc <<~DESC
   (TODO: after breaking puppetsync into its own module, document roles & profiles)
 DESC
 
-task :strings do
-  sh '/opt/puppetlabs/bolt/bin/puppet strings generate --format markdown'
+task :strings, [:verbose] do |t,args|
+  args.with_defaults(:verbose => false)
+  sh %Q[/opt/puppetlabs/bolt/bin/puppet strings generate \
+     #{args.verbose ? ' --verbose' : '' } --format markdown \
+     "{dist,site-modules}/**/*.{pp,rb,json}"].gsub(/ {3,}/,' ')
 end
+
+task :default => :strings

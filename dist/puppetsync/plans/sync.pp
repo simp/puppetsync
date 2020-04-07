@@ -1,17 +1,42 @@
-# Sync changes across multiple repositories, with workflow support for Jira and PRs from forked GitHub repositories.
+# Update assets across multiple git repos using Bolt tasks and Puppet
+#
+# Supports workflow tasks, like:
+#   - Ensuring a Jira subtask exists for each issue
+#   - Ensuring a GitHub user has fork of the upstream repo
+#   - Submitting PRs exists repos/submitting PRs on GitHub
+#
+# Files:
+#   - Puppetfile.repos:           Defines repos to clone and update
+#   - puppetsync_planconfig.yaml: Defines settings for this update
+#
+# @summary Update assets across multiple git repos using Bolt tasks and Puppet
 #
 # @usage
+#   bolt plan run puppetsync::sync
 #
-#   /opt/puppetlabs/bin/bolt plan run puppetsync::sync
+# @param targets
+#   The parameter is required to exist, but is unused.
+#   All targets are generated as `transport: local` during execution
 #
+# @param puppet_role
+#   A Puppet class to classify and apply to all repos
+#
+# @param project_dir
+#   The bolt project directory.  Defaults to `$PWD`.
+#
+# @param puppetfile
+#   (Default: `${project_dir}/Puppetfile.repos`)
+#   Puppetfile that defines the repos to update
+#
+# @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
 plan puppetsync::sync(
   TargetSpec           $targets                = get_targets('default'),
   String[1]            $puppet_role            = 'role::pupmod_travis_only',
-  Stdlib::Absolutepath $project_dir            = system::env('PWD'), # FIXME hacky workaround to get PWD; doesn't work on Windows?
+  Stdlib::Absolutepath $project_dir            = system::env('PWD'), # FIXME make a function? (hacky workaround to get PWD; doesn't work on Windows?)
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
   Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
-  Array[Stdlib::Absolutepath] $extra_gem_paths = ["${project_dir}/gems"],
+  Array[Stdlib::Absolutepath] $extra_gem_paths = ["${project_dir}/.gems"], ###
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   String[1]            $github_user            = system::env('GITHUB_USER'),
@@ -73,11 +98,11 @@ plan puppetsync::sync(
   # - [x] ensure GitHub fork of upstream repo exists
   # - [x] ensure a remote exists in the local git repo for the forked GitHub repo
   # - [x] push changes to user's GitHub fork
-  # - [ ] PR changes to upstream repository on GitHub
+  # - [x] PR changes to upstream repository on GitHub
   #
   # - [ ] feature flag each step (on, off, noop?)
   # - [ ] support --noop
-  # - [ ] move templating logic from jira task's ruby code into plan
+  # - [ ] move templating logic from jira task's ruby code into plan logic
   # - [ ] spec tests
   # - [ ] push changes using HTTPS basic auth + the GitHub token (CI friendly)
   # - [x] move task scripts into files/ and convert tasks into shims

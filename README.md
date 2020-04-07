@@ -3,8 +3,9 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Description](#description)
-* [Requirements](#requirements)
 * [Setup](#setup)
+  * [Requirements](#requirements)
+  * [Getting started](#getting-started)
 * [Usage](#usage)
 * [Reference](#reference)
   * [Environment variables](#environment-variables)
@@ -31,18 +32,19 @@ support for Jira and PRs from forked GitHub repositories.
 Update files in multiple git repositories using Puppet, and submit changes
 back to each repo as a Pull Request from a forked repository.
 
-## Requirements
+## Setup
+
+### Requirements
 
 * [Puppet Bolt 2.x][bolt]
 * Puppet modules (in bolt project's `Puppetfile`):
   * [puppetlabs-stdlib](https://github.com/puppetlabs/puppetlabs-stdlib.git)
   * [puppetlabs/ruby_task_helper](https://github.com/puppetlabs/puppetlabs-ruby_task_helper.git)
-* API authentication tokens for Jira and GitLab
+* API authentication tokens for Jira and GitHub
 * The `git` command must be available
   * SSH + ssh-agent must be set up to push changes
 
-
-## Setup
+### Getting started
 
 1. Use `bolt` to download the project's dependencies from `Puppetfile`:
 
@@ -59,7 +61,7 @@ After [setup](#setup), sync all repos by running:
         /opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
 
 To see what's going on under the hood (potentially less irritating when
-`apply_puppet` appears to hang for a long time when updating a lot of repos):
+`apply()` appears to hang for a long time when updating a lot of repos):
 
         /opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
 
