@@ -1,0 +1,37 @@
+{
+  "description": "Ensure GitHub PR from fork:branch to target:branch",
+  "input_method": "stdin",
+  "parameters": {
+    "target_repo": {
+      "description": "GitHub repo to receive the PR (e.g., 'simp/pupmod-simp-simplib')",
+      "type": "String[1]"
+    },
+    "target_branch": {
+      "description": "Branch in target_repo to receive PR",
+      "type": "String[1]"
+    },
+    "fork_branch": {
+      "description": "Branch in forked_repo to provide PR",
+      "type": "String[1]"
+    },
+    "commit_message": {
+      "description": "Git commit message (the first line will be the title of PR)",
+      "type": "String[1]"
+    },
+    "github_user": {
+      "description": "GitHub username",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "github_authtoken": {
+      "description": "GitHub API token",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "extra_gem_paths": {
+      "description": "Additional gem paths to look for ruby gems (e.g., `octokit`)",
+      "type": "Optional[Array[Stdlib::Absolutepath]]"
+    }
+  },
+  "files": ["puppetsync/files/ensure_github_pr_forker.rb",  "ruby_task_helper/files/task_helper.rb" ]
+}

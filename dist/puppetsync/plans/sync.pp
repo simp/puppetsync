@@ -71,14 +71,15 @@ plan puppetsync::sync(
   #   - [x] remove _noop
   # - [x] commit changes
   # - [x] ensure GitHub fork of upstream repo exists
-  # - [ ] ensure a remote exists in the local git repo for the forked GitHub repo
-  # - [ ] push changes to user's GitHub fork
+  # - [x] ensure a remote exists in the local git repo for the forked GitHub repo
+  # - [x] push changes to user's GitHub fork
   # - [ ] PR changes to upstream repository on GitHub
   #
   # - [ ] feature flag each step (on, off, noop?)
   # - [ ] support --noop
   # - [ ] move templating logic from jira task's ruby code into plan
   # - [ ] spec tests
+  # - [ ] push changes using HTTPS basic auth + the GitHub token (CI friendly)
   # - [x] move task scripts into files/ and convert tasks into shims
   #   - [x] goal: make logic in each task easy to smoke test on its own
   # ----------------------------------------------------------------------------
@@ -161,6 +162,7 @@ plan puppetsync::sync(
         '_catch_errors'    => false,
       }
     )
+
     if $ensure_fork_results.ok {
       out::message( "-- GitHub user's repo fork: '${ensure_fork_results.first.value['user_fork']}'")
     } else {
@@ -182,10 +184,15 @@ plan puppetsync::sync(
         '_catch_errors' => false,
       }
     )
-    if !$ensure_fork_results.ok {
-      $msg = "Running puppetsync::ensure_git_remote failed on ${target.name}:\n${ensure_fork_results.first.error.msg}\n\n${ensure_fork_results.first.error.details}\n"
-      out::message($msg)
-      fail_plan($ensure_fork_results.first.error)
+    if !$ensure_remote_results.ok {
+      out::message( @("END")
+        Running puppetsync::ensure_git_remote failed on ${target.name}:
+        ${ensure_remote_results.first.error.msg}
+
+        ${ensure_remote_results.first.error.details}
+        END
+      )
+      fail_plan($ensure_remote_results.first.error)
     }
 
     $git_push_results = run_command(
@@ -195,6 +202,33 @@ plan puppetsync::sync(
       { '_catch_errors' => false }
     )
     warning( "\n------------------ git_push_results:\n${git_push_results}\n------------------\n")
+
+    $ensure_pr_results = run_task( 'puppetsync::ensure_github_pr', $target,
+      # -----------------------------------------------------------------------
+      'Ensure there is a GitHub PR for this commit',
+      {
+        'target_repo'      => $target.vars['repo_url_path'],
+        'target_branch'    => $target.vars['mod_data']['branch'],
+        'fork_branch'      => $feature_branch,
+        'commit_message'   => $commit_message,
+        'github_user'      => $github_user,
+        'github_authtoken' => $github_token.unwrap,
+        'extra_gem_paths'  => $extra_gem_paths,
+        '_catch_errors'    => false,
+      }
+    )
+
+    if $ensure_pr_results.ok {
+      $created_status = $ensure_pr_results.first.value['pr_created'] ? {
+        true    => ' (just created)',
+        default => '',
+      }
+      out::message( "-- GitHub user's repo pr: '${ensure_pr_results.first.value['pr_url']}'${created_status}")
+    } else {
+      $msg = "Running puppetsync::ensure_github_pr failed on ${target.name}:\n${ensure_pr_results.first.error.msg}\n\n${ensure_pr_results.first.error.details}\n"
+      out::message($msg)
+      fail_plan($ensure_pr_results.first.error)
+    }
   }
 
 }
