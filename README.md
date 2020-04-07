@@ -9,6 +9,7 @@
 * [Reference](#reference)
   * [Environment variables](#environment-variables)
   * [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
+* [Limitations](#limitations)
 
 <!-- vim-markdown-toc -->
 
@@ -37,7 +38,8 @@ back to each repo as a Pull Request from a forked repository.
   * [puppetlabs-stdlib](https://github.com/puppetlabs/puppetlabs-stdlib.git)
   * [puppetlabs/ruby_task_helper](https://github.com/puppetlabs/puppetlabs-ruby_task_helper.git)
 * API authentication tokens for Jira and GitLab
-* Probably only works from an \*nix host
+* The `git` command must be available
+  * SSH + ssh-agent must be set up to push changes
 
 
 ## Setup
@@ -46,9 +48,9 @@ back to each repo as a Pull Request from a forked repository.
 
         /opt/puppetlabs/bin/bolt puppetfile install
 
-1. Add `mod` entries for the repos you want to sync in `Puppetfile.repos`
-1. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
-2. Set [environment variables](#environment-variables) for JIRA and GitHub API authentication
+2. Add `mod` entries for the repos you want to sync in `Puppetfile.repos`
+3. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
+4. Set [environment variables](#environment-variables) for JIRA and GitHub API authentication
 
 ## Usage
 
@@ -117,5 +119,10 @@ git:
 github:
   user: op-ct
 ```
+
+## Limitations
+
+* Requires git to be configured with SSH, with keys loaded into a running agent
+* Probably only works from an \*nix host
 
 [bolt]: https://puppet.com/docs/bolt/latest/bolt.html
