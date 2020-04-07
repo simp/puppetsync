@@ -94,6 +94,7 @@ plan puppetsync::sync(
   # - [ ] set up facts
   # - [x] puppet apply
   #   - [x] remove _noop
+  # - [ ] (stretch) validate changes (e.g., gitlab_ci lint)
   # - [x] commit changes
   # - [x] ensure GitHub fork of upstream repo exists
   # - [x] ensure a remote exists in the local git repo for the forked GitHub repo
