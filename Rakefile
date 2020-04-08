@@ -1,3 +1,5 @@
+require 'rake/clean'
+
 desc <<~DESC
   Generate REFERENCE.md for puppetsync
 
@@ -11,4 +13,7 @@ task :strings, [:verbose] do |t,args|
      "{dist,site-modules}/**/*.{pp,rb,json}"].gsub(/ {3,}/,' ')
 end
 
+CLEAN.include( Dir['????????-????-????-????-????????????'].reject{|x| x.strip !~ /^[\h-]{36}$/ } )
+
 task :default => :strings
+
