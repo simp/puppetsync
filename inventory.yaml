@@ -13,7 +13,3 @@ config:
 groups:
   - name: repo_targets
     targets: []
-    vars:
-      puppetsync:
-        - _plugin: yaml
-          filepath: puppetsync_planconfig.yaml

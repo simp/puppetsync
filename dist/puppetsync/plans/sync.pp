@@ -44,54 +44,31 @@ plan puppetsync::sync(
   String[1]            $default_repo_moduledir = '_repos',
   Boolean              $exclude_repos_from_other_module_dirs = true,
 ) {
-  $puppetsync_config      = loadyaml($puppetsync_config_path)
+  $puppetsync_config = loadyaml($puppetsync_config_path)
 
-  $repos = puppetsync::repo_targets_from_puppetfile($puppetfile, 'repo_targets', $default_repo_moduledir, $exclude_repos_from_other_module_dirs)
-  if $repos.size == 0 { fail_plan( "No repos found to sync!  Is $puppetfile set up correctly?" ) }
-
-  # Report what we've got so far
-  out::message( "===== puppetfile: '${puppetfile}'" ) ########################
-  out::message( "===== project_dir: '${project_dir}'" ) ######################
-  ###out::message( "Puppetfile: ${puppetfile}")
-  out::message( "Targets: ${repos.size}" )
-  $repos.each |$idx, $target| {
-    out::message( "  [${idx}]: ${target.name}" )
-    warning( '=============')
-    $target.vars.each |$k,$v| {
-      warning( "== ${target.name}.vars[ ${k} ]: ${v}" )
-    }
-  }
-  warning( "\n\n==  \$puppetsync_config: ${puppetsync_config}" )
-
-  $puppetfile_install_results = run_task( 'puppetsync::puppetfile_install', 'localhost',
-    # -------------------------------------------------------------------------
-    "Install repos from '${puppetfile}' (default moduledir: '${default_repo_moduledir}')",
-    'project_dir'       => $project_dir,
-    'puppetfile'        => $puppetfile,
-    'default_moduledir' => $default_repo_moduledir,
-    '_catch_errors'     => false,
+  $repos = puppetsync::repo_targets_from_puppetfile(
+    $puppetfile, 'repo_targets', $default_repo_moduledir, $exclude_repos_from_other_module_dirs
   )
 
-  # add repo content info to target data
-  # ------------------------------------
-  $repos.each |$target| {
-    $metadata_json = "${target.vars['repo_path']}/metadata.json"
-    if !file::exists($metadata_json) {
-      warning( "WARNING: File does not exist: ${metadata_json}" )
-    }
-    else {
-      $module_metadata = loadjson($metadata_json)
-      $target.set_var('module_metadata', $module_metadata)
-    }
-  }
+  if $repos.size == 0 { fail_plan( "No repos found to sync!  Is $puppetfile set up correctly?" ) }
 
+  out::message( "===== puppetfile: '${puppetfile}'\n===== project_dir: '${project_dir}'" )
+  out::message(puppetsync::summarize_repo_targets($repos))
+  warning(puppetsync::summarize_repo_targets($repos,true))
+  warning( "\n\n==  \$puppetsync_config:\n${puppetsync_config.to_yaml.regsubst('^','    ','G')}" )
+
+  $puppetfile_install_results = puppetsync::install_puppetfile(
+    $project_dir, $puppetfile, $default_repo_moduledir, $exclude_repos_from_other_module_dirs
+  )
+
+  puppetsync::setup_repos_facts( $repos )
 
   # ----------------------------------------------------------------------------
   # - [x] Install repos from Puppetfile.repos
   # - [x] git checkout -b BRANCHNAME
   # - [x] ensure jira subtask exists for repo
+  # - [x] set up facts
   # - [ ] run transformations?
-  # - [ ] set up facts
   # - [x] puppet apply
   #   - [x] remove _noop
   # - [ ] (stretch) validate changes (e.g., gitlab_ci lint)
@@ -130,9 +107,10 @@ plan puppetsync::sync(
     }
   )
 
-  puppetsync::ensure_jira_subtask_for_each_repo(
-    $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_paths,
-  )
+  ###  # ----------------------------------------------------------------------------
+  ###  puppetsync::ensure_jira_subtask_for_each_repo(
+  ###    $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_paths,
+  ###  )
 
   # ----------------------------------------------------------------------------
   $apply_results = apply(
@@ -150,6 +128,7 @@ plan puppetsync::sync(
     }
     include $puppet_role
   }
+  fail_plan("FAIL ON PURPOSE")
 
   # ----------------------------------------------------------------------------
   $repos.each |$target| {
@@ -163,7 +142,7 @@ plan puppetsync::sync(
     ### $target.set_var('git_commit_message', $commit_message )
 
     $git_commit_results = run_task( 'puppetsync::git_commit', $target,
-      # -----------------------------------------------------------------------
+    # --------------
       "Commit changes with git",
       {
         'repo_path'      => $target.vars['repo_path'],
@@ -178,7 +157,7 @@ plan puppetsync::sync(
     }
 
     $ensure_fork_results = run_task( 'puppetsync::ensure_github_fork', $target,
-      # -----------------------------------------------------------------------
+    # --------------
       'Ensure our GitHub user has a fork of the upstream repo',
       {
         'github_repo'      => $target.vars['repo_url_path'],
@@ -201,7 +180,7 @@ plan puppetsync::sync(
     $remote_name = 'user_forked_repo'
 
     $ensure_remote_results = run_task( 'puppetsync::ensure_git_remote', $target,
-      # -----------------------------------------------------------------------
+    # --------------
       'Ensure local git repo has a remote for the forked repository',
       {
         'repo_path'     => $target.vars['repo_path'],
@@ -222,6 +201,7 @@ plan puppetsync::sync(
     }
 
     $git_push_results = run_command(
+    # --------------
       "cd '${target.vars['repo_path']}'; git push '${remote_name}' '${feature_branch}' -f",
       $target,
       "Push branch '${feature_branch}' to forked repository",
@@ -230,7 +210,7 @@ plan puppetsync::sync(
     warning( "\n------------------ git_push_results:\n${git_push_results}\n------------------\n")
 
     $ensure_pr_results = run_task( 'puppetsync::ensure_github_pr', $target,
-      # -----------------------------------------------------------------------
+    # --------------
       'Ensure there is a GitHub PR for this commit',
       {
         'target_repo'      => $target.vars['repo_url_path'],
