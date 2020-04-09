@@ -33,17 +33,29 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
         'subtask_story_points' => $story_points,
         'subtask_assignee'     => $assignee,
         'jira_site'            => $puppetsync_config['jira']['jira_site'],
-        'jira_username'        => $jira_username,
+        'jira_username'        => "$jira_username",
         'jira_token'           => $jira_token.unwrap,
         'extra_gem_paths'      => $extra_gem_paths,
         '_catch_errors'        => true,
       }
     )
 
-    unless $results.ok { fail("Running puppetsync::ensure_jira_subtask failed on ${target.name}") }
+    $stage_result = {
+      'ok'   => $results.first.ok,
+      'data' => $results.first.to_data,
+    }
+    $merge_results =  $target.vars['puppetsync_stage_results'].merge(
+      Hash({ 'ensure_jira_subtask' => Hash($stage_result) })
+    )
+    $target.set_var( 'puppetsync_stage_results', Hash($merge_results) )
 
-    $subtask_key = $results.first.value['subtask_key']
-    $target.set_var( 'jira_subtask_key', $subtask_key )
-    out::message("Jira subtask for '${target.name}': ${subtask_key}")
+    if $results.ok {
+      $subtask_key = $results.first.value['subtask_key']
+      $target.set_var( 'jira_subtask_key', $subtask_key )
+      out::message("Jira subtask for '${target.name}': ${subtask_key}")
+    } else {
+      warning("WARNING: Running puppetsync::ensure_jira_subtask FAILED on ${target.name}")
+      warning("repos.count=${repos.count}")
+    }
   }
 }

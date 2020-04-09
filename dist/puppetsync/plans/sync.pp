@@ -45,19 +45,19 @@ plan puppetsync::sync(
   Boolean              $exclude_repos_from_other_module_dirs = true,
 ) {
   $puppetsync_config = loadyaml($puppetsync_config_path)
+  $feature_branch    = $puppetsync_config['jira']['parent_issue']
 
   $repos = puppetsync::repo_targets_from_puppetfile(
     $puppetfile, 'repo_targets', $default_repo_moduledir, $exclude_repos_from_other_module_dirs
   )
-
   if $repos.size == 0 { fail_plan( "No repos found to sync!  Is $puppetfile set up correctly?" ) }
 
-  out::message( "===== puppetfile: '${puppetfile}'\n===== project_dir: '${project_dir}'" )
+  out::message( "== puppetfile: '${puppetfile}'\n== project_dir: '${project_dir}'" )
   out::message(puppetsync::summarize_repo_targets($repos))
   warning(puppetsync::summarize_repo_targets($repos,true))
   warning( "\n\n==  \$puppetsync_config:\n${puppetsync_config.to_yaml.regsubst('^','    ','G')}" )
 
-  $puppetfile_install_results = puppetsync::install_puppetfile(
+  puppetsync::install_puppetfile(
     $project_dir, $puppetfile, $default_repo_moduledir, $exclude_repos_from_other_module_dirs
   )
 
@@ -67,29 +67,34 @@ plan puppetsync::sync(
   # - [x] Install repos from Puppetfile.repos
   # - [x] git checkout -b BRANCHNAME
   # - [x] ensure jira subtask exists for repo
+  #   - [ ] detect closed JIRA subtask for same issue and (by default) refuse to open a new one
   # - [x] set up facts
+  # --------
   # - [ ] run transformations?
   # - [x] puppet apply
-  #   - [x] remove _noop
-  # - [ ] (stretch) validate changes (e.g., gitlab_ci lint)
+  # - [ ] run transformations?
+  # - [ ] (stretch goal) validate changes (e.g., gitlab_ci lint, flag obvious disasters)
+  # -------
   # - [x] commit changes
   # - [x] ensure GitHub fork of upstream repo exists
   # - [x] ensure a remote exists in the local git repo for the forked GitHub repo
   # - [x] push changes to user's GitHub fork
   # - [x] PR changes to upstream repository on GitHub
+  #   - [ ] detect merged PR for same issue and (by default) refuse to open a new one
   #
+  # - [ ] error catching to filter out repos with problems
+  #   - [ ] report at the end
   # - [ ] feature flag each step (on, off, noop?)
   # - [ ] support --noop
-  # - [ ] move templating logic from jira task's ruby code into plan logic
-  # - [ ] spec tests
-  # - [ ] push changes using HTTPS basic auth + the GitHub token (CI friendly)
   # - [x] move task scripts into files/ and convert tasks into shims
   #   - [x] goal: make logic in each task easy to smoke test on its own
+  # - [ ] move templating logic from jira task's ruby code into plan logic
+  # - [ ] push changes using HTTPS basic auth + the GitHub token (CI friendly)
+  # - [ ] spec tests
   # ----------------------------------------------------------------------------
 
 
   # ----------------------------------------------------------------------------
-  $feature_branch = $puppetsync_config['jira']['parent_issue']
   $checkout_results = run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo', 'localhost',
     "Check out git branch '${feature_branch} in all repos'",
     'branch'        => $feature_branch,
@@ -102,22 +107,22 @@ plan puppetsync::sync(
     'Install required RubyGems on localhost',
     {
       'path'          => $extra_gem_paths[0],
-      'gems'          => ['jira-ruby', 'octokit'],
+      'gems'          => ["jira-ruby:~> 2.0", "octokit:~> 4.18"],
       '_catch_errors' => false,
     }
   )
 
-  ###  # ----------------------------------------------------------------------------
-  ###  puppetsync::ensure_jira_subtask_for_each_repo(
-  ###    $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_paths,
-  ###  )
+  # ----------------------------------------------------------------------------
+  puppetsync::ensure_jira_subtask_for_each_repo(
+    $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_paths,
+  )
 
   # ----------------------------------------------------------------------------
   $apply_results = apply(
-    $repos,
+    $repos.filter |$x| { $x.vars['puppetsync_stage_results'].all |$k,$v| { $v['ok'] } },
     '_description' => "Apply Puppet role '$puppet_role'",
     '_noop' => false,
-    _catch_errors => false,
+    _catch_errors => true,
   ) {
     warning( "\$::repo_path = '${::repo_path}'" )
     warning( "\$::module_metadata = '${::module_metadata}'" )
@@ -128,6 +133,18 @@ plan puppetsync::sync(
     }
     include $puppet_role
   }
+
+  $apply_results.each |$result| {
+    $stage_result = {
+      'ok'   => $result.ok,
+      'data' => $result.to_data,
+    }
+    $merge_results =  $result.target.vars['puppetsync_stage_results'].merge(
+      Hash({ 'apply_puppet_role' => Hash($stage_result) })
+    )
+    $result.target.set_var( 'puppetsync_stage_results', Hash($merge_results) )
+  }
+  debug::break()
   fail_plan("FAIL ON PURPOSE")
 
   # ----------------------------------------------------------------------------

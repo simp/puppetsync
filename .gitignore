@@ -5,4 +5,7 @@ Gemfile.lock
 _src
 .jira-cli
 .env
-gems
+.gems
+.rerun.json
+.resource_types
+.yardoc
