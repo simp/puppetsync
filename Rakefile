@@ -13,6 +13,13 @@ task :strings, [:verbose] do |t,args|
      "{dist,site-modules}/**/*.{pp,rb,json}"].gsub(/ {3,}/,' ')
 end
 
+
+desc "Install gems into #{__dir__}/.gems"
+task :install_gems do |t,args|
+  Dir.chdir __dir__
+  sh %Q[GEM_HOME=.gems /opt/puppetlabs/bolt/bin/gem install -g gem.deps.rb --no-document]
+end
+
 CLEAN.include( Dir['????????-????-????-????-????????????'].reject{|x| x.strip !~ /^[\h-]{36}$/ } )
 
 task :default => :strings
