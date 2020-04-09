@@ -3,23 +3,23 @@ require 'octokit'
 class GitHubPRForker
   attr_reader :created_pr, :created_fork
 
+  # FIXME: remove 'github_user' from everything
   def initialize(github_user=ENV['GITHUB_USER'], github_authtoken=ENV['GITHUB_API_TOKEN'])
     @client = Octokit::Client.new(:access_token => github_authtoken)
-    @user = github_user
     @created_pr = false
     @created_fork = false
   end
 
-  # return the user's fork of the upstream repo, or nil if there isn't one
-  def forked_user_repo(upstream_reponame, user=@user)
+  # return user's (defaults to @client.login) fork of the upstream repo, or nil if there isn't one
+  def user_fork_of_repo(upstream_reponame, fork_user=@client.login)
     upstream_repo =  @client.repo upstream_reponame
     forks = @client.forks(upstream_repo.full_name)
-    forks = forks.select{|x| x[:owner][:login] == user }
+    forks = forks.select{|x| x[:owner][:login] == fork_user }
     forks.empty? ? nil : forks.first
   end
 
   def ensure_fork(upstream_reponame, opts={})
-    repo_fork = forked_user_repo(upstream_reponame)
+    repo_fork = user_fork_of_repo(upstream_reponame)
     return repo_fork if repo_fork
 
     warn( "=== Forking #{upstream_reponame}" )
@@ -29,64 +29,79 @@ class GitHubPRForker
     # TODO: should we also block until the new repo is ready?  How will we know?
   end
 
-  # return array of prs that already exist for this chang
-  def existing_prs(upstream_reponame, opts)
-    user = opts[:user] || @user
-    repo_fork = forked_user_repo(upstream_reponame, user)
-    @client.pull_requests( upstream_reponame ).select do |pr|
-      pr.user.login == user && \
+  # return array of PRs that already exist for this change
+  def existing_pr(upstream_reponame, target_branch, fork_user, fork_branch)
+    repo_fork = user_fork_of_repo(upstream_reponame, fork_user)
+    prs = @client.pull_requests( upstream_reponame ).select do |pr|
+      pr.user.login == fork_user && \
       pr.head.repo.full_name == repo_fork.full_name && \
-      pr.head.ref == opts[:fork_branch] && \
-      pr.base.ref == opts[:target_branch]
-      # TODO: should we test for merged PRs, too?
+      pr.head.ref == fork_branch && \
+      pr.base.ref == target_branch
+      # TODO: should we test for merged PRs, too?   How?
     end
+    return nil unless prs
+    raise 'More than one PR already exists for this change' if prs.size > 1
+    prs.first
   end
 
-  def create_pr(upstream_reponame, opts)
-    repo_fork = forked_user_repo(upstream_reponame)
+  def create_pr(upstream_reponame, target_branch, fork_branch, commit_message)
+    repo_fork = user_fork_of_repo(upstream_reponame)
     unless repo_fork
-      fail("ERROR: no fork of '#{upstream_reponame}' found for user #{@user}")
+      fail("ERROR: no fork of '#{upstream_reponame}' found for user #{@client.login}")
     end
-    commit_msg_lines = opts[:commit_message].split("\n")
+    commit_msg_lines = commit_message.split("\n")
     title = commit_msg_lines.shift
     body  = commit_msg_lines.join("\n").strip
-    head  = "#{repo_fork.owner.login}:#{opts[:fork_branch]}"
-    warn( "=== Creating PR #{head} -> #{upstream_reponame}:#{opts[:target_branch]}" )
-    pr =  @client.create_pull_request( upstream_reponame, opts[:target_branch], head, title, body )
+    head  = "#{repo_fork.owner.login}:#{fork_branch}"
+    warn( "=== Creating PR #{head} -> #{upstream_reponame}:#{target_branch}" )
+    pr =  @client.create_pull_request( upstream_reponame, target_branch, head, title, body )
     @created_pr = true
     pr
   end
 
   def ensure_pr(upstream_reponame, opts)
-    existing_prs_for_this_change = existing_prs(upstream_reponame, opts)
-    if existing_prs_for_this_change.empty?
-      return(create_pr(upstream_reponame, opts))
-    end
-
-    if existing_prs_for_this_change.size > 1
-      raise 'More than one PR already exists for this change'
-    end
-    pr = existing_prs_for_this_change.first
-    warn( "--- PR ##{pr.number} already exists for: #{opts[:fork_branch]} -> #{upstream_reponame}:#{opts[:target_branch]}" )
+    fork_branch, target_branch, commit_message =  opts[:fork_branch], opts[:target_branch], opts[:commit_message]
+    pr = existing_pr(upstream_reponame, target_branch, @client.login, fork_branch)
+    return(create_pr(upstream_reponame, target_branch, fork_branch, commit_message)) unless pr
+    warn( "--- PR ##{pr.number} already exists for: #{fork_branch} -> #{upstream_reponame}:#{target_branch}" )
     return pr
   end
 
-  def approve_pr(upstream_reponame, opts )
-    existing_prs_for_this_change = existing_prs(upstream_reponame, opts)
-    # TODO: Check for existing approvals from us, too
-    raise 'No PR exists to approve' if existing_prs_for_this_change.empty?
-    raise 'More than one PR already exists for this change' if existing_prs_for_this_change.size > 1
-    pr = existing_prs_for_this_change.first
-    review_opts = { event: opts[:approval_type], body: opts[:approval_message] || nil }
-    review = @client.create_pull_request_review( upstream_reponame, pr.number, review_opts )
-require 'pry'; binding.pry
+  # return array of approvals that already exist for this pr
+  def pr_approvals(pr, approving_user=nil)
+    reviews = @client.pull_request_reviews( pr.base.repo.full_name, pr.number )
+    reviews.select do |r|
+      r.state == 'APPROVED' && (approving_user ? (r.user.login == approving_user ) : true)
+    end
+  end
+
+  # Should this be fancy and dismiss of our revious REQUEST_CHANGES comments?
+  def approve_pr(pr, approval_message)
+    raise 'No PR exists to approve' unless pr
+    approval_tag = "<!-- #{pr.head.ref}:#{@client.login}:AUTOAPPROVER -->"
+    tagged_approval_message = "#{approval_message||''}\n#{approval_tag}"
+    my_approvals = pr_approvals(pr, @client.login)
+    opts = { event: 'APPROVE', body: tagged_approval_message }
+    if my_approvals.empty?
+      warn("== Approving PR #{pr.html_url}")
+      review = @client.create_pull_request_review( pr.base.repo.full_name, pr.number, opts )
+    elsif old_review = my_approvals.select{|x| x.body =~ Regexp.new(approval_tag)}.last
+      puts "== we have already left an approval with this software; updating"
+      review = @client.update_pull_request_review(
+        pr.base.repo.full_name, pr.number, old_review.id, "#{tagged_approval_message}\n<!-- updated by robot -->"
+      )
+    else
+      warn("!! we have already approved PR ##{pr.number}, but not with this software")
+      warn("== Approving PR #{pr.html_url}")
+      review = @client.create_pull_request_review( pr.base.repo.full_name, pr.number, opts )
+    end
+    review
   end
 
   def merge_pr(upstream_reponame, opts )
-    existing_prs_for_this_change = existing_prs(upstream_reponame, opts)
-    raise 'No PR exists to approve' if existing_prs_for_this_change.empty?
-    raise 'More than one PR already exists for this change' if existing_prs_for_this_change.size > 1
-    pr = existing_prs_for_this_change.first
+    fork_branch, target_branch, commit_message =  opts[:fork_branch], opts[:target_branch], opts[:commit_message]
+    pr = existing_pr(upstream_reponame, target_branch, fork_user, fork_branch)
+    raise 'No PR exists to approve' unless pr
 require 'pry'; binding.pry
 
   end
@@ -99,6 +114,8 @@ if __FILE__ == $0
   fail( 'set ENV var UPSTREAM_REPO (ex: \'UPSTREAM_REPO=simp/pupmod-simp-at\')' ) unless ENV['UPSTREAM_REPO']
   upstream_reponame = ENV['UPSTREAM_REPO'] || 'simp/pupmod-simp-at'
   repo_fork = forker.ensure_fork(upstream_reponame)
+
+  ### PR:
   ####opts = {
   ####  target_branch: 'master',
   ####  fork_branch:   'SIMP-7035',
@@ -134,17 +151,14 @@ if __FILE__ == $0
     approval_message: "Update of static, non-code file approved in https://github.com/simp/pupmod-simp-aide/pull/59",
     merge_message: nil,
   }
-  upstream_reponame = 'simp/rubygem-simp-rake-helpers'
+  upstream_reponame = 'simp/simp-doc'
   opts = {
+    fork_user: 'judyj',
     target_branch: 'master',
-    fork_branch:   'SIMP-7707',
-    user: 'trevor-vaughan',
+    fork_branch:   'RTD_update',
     approval_message: ":+1: :ghost:",
-    approval_type: 'APPROVE', # APPROVE, REQUEST_CHANGES, or COMMENT. If left blank, the review is left PENDING.
-    merge_message: nil,
   }
-  repo_pr = forker.approve_pr(upstream_reponame, opts )
-  repo_pr = forker.merge_pr(upstream_reponame, opts )
-
-require 'pry'; binding.pry
+  pr = forker.existing_pr(upstream_reponame, opts[:target_branch], opts[:fork_user], opts[:fork_branch] )
+  repo_pr = forker.approve_pr(pr, opts[:approval_message] || ':+1: :ghost:')
+  ###repo_pr = forker.merge_pr(upstream_reponame, opts )
 end
