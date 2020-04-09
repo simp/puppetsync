@@ -5,7 +5,6 @@ def checkout_modules_to_branch(branch, repo_paths)
   repo_paths.each do |dir|
     Dir.chdir dir
     STDERR.puts "== #{dir}"
-#    `git stash save && git stash drop stash@{1} &> /dev/null`
     `git branch --contains #{branch} &> /dev/null`
     if $?.success?
       warn "NOTICE: branch '#{branch}' already exists; checking it out"
