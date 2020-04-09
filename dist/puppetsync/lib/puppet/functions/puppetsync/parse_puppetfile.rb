@@ -83,16 +83,17 @@ Puppet::Functions.create_function(:'puppetsync::parse_puppetfile') do
       # emulate r10k's namespace-chopping tendencies
       mod_rel_path = File.join(File.dirname(rel_path),  rel_path.split(%r{[-/]}).last)
 
-
+      args ||= {}
       info = args.merge({
         :name         => name,
         :rel_path     => rel_path,
-        :repo_name    => File.basename(args[:git], '.git'),
         :mod_rel_path => mod_rel_path,
         # repos basename, also the second half of the `org-mod_name` convention
         :mod_name     => File.basename(mod_rel_path),
         :install_path => install_path,
       })
+
+      info[:repo_name] = File.basename(args[:git], '.git') if args.key? :git
       @modules[rel_path]=info
     end
 
