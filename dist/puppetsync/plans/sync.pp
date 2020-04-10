@@ -134,16 +134,11 @@ plan puppetsync::sync(
     'git_commit_changes',
     # --------------------------------------------------------------------------
     $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
-      $subtask_key       = $target.vars['jira_subtask_key']
-      $parent_issue      = $puppetsync_config['jira']['parent_issue']
-      $commmit_template  = $puppetsync_config['git']['commit_message']
-      $component_name    = $target.vars['mod_data']['repo_name']
-      $commit_message    = $commmit_template.regsubst('%JIRA_SUBTASK%', $subtask_key, 'G' ).regsubst('%JIRA_PARENT_ISSUE%', $parent_issue, 'G').regsubst('%COMPONENT%', $component_name, 'G')
       run_task( 'puppetsync::git_commit', $target,
         "Commit changes with git",
         {
           'repo_path'      => $target.vars['repo_path'],
-          'commit_message' => $commit_message,
+          'commit_message' => puppetsync::template_git_commit_message($target,$puppetsync_config),
           '_catch_errors'  => true,
         }
       )
@@ -229,7 +224,7 @@ plan puppetsync::sync(
           'target_repo'      => $target.vars['repo_url_path'],
           'target_branch'    => $target.vars['mod_data']['branch'],
           'fork_branch'      => $feature_branch,
-          'commit_message'   => $commit_message,
+          'commit_message'   => puppetsync::template_git_commit_message($target,$puppetsync_config),
           'github_user'      => $github_user,
           'github_authtoken' => $github_token.unwrap,
           'extra_gem_paths'  => $extra_gem_paths,
