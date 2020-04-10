@@ -48,7 +48,11 @@ back to each repo as a Pull Request from a forked repository.
 
 1. Use `bolt` to download the project's dependencies from `Puppetfile`:
 
-        /opt/puppetlabs/bin/bolt puppetfile install
+  ./Rakefile install
+
+Or:
+
+  /opt/puppetlabs/bin/bolt puppetfile install
 
 2. Add `mod` entries for the repos you want to sync in `Puppetfile.repos`
 3. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow

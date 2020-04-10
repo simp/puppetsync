@@ -30,6 +30,7 @@
 #
 # @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
+# ------------------------------------------------------------------------------
 plan puppetsync::sync(
   TargetSpec           $targets                = get_targets('default'),
   String[1]            $puppet_role            = 'role::pupmod_travis_only',
@@ -112,146 +113,144 @@ plan puppetsync::sync(
     }
   )
 
-  # ----------------------------------------------------------------------------
   puppetsync::ensure_jira_subtask_for_each_repo(
     $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_paths,
   )
 
+  puppetsync::record_stage_results(
   # ----------------------------------------------------------------------------
-  $apply_results = apply(
-    $repos.filter |$x| { $x.vars['puppetsync_stage_results'].all |$k,$v| { $v['ok'] } },
-    '_description' => "Apply Puppet role '$puppet_role'",
-    '_noop' => false,
-    _catch_errors => true,
-  ) {
-    warning( "\$::repo_path = '${::repo_path}'" )
-    warning( "\$::module_metadata = '${::module_metadata}'" )
-    #warning( "\$::module_metadata['forge_org'] = '${::module_metadata['forge_org']}'" )
-
-    if !defined('$::repo_path'){
-      fail ( 'The $::repo_path variable must be defined!  Hint: use `rake apply`' )
-    }
-    include $puppet_role
-  }
-
-  $apply_results.each |$result| {
-    $stage_result = {
-      'ok'   => $result.ok,
-      'data' => $result.to_data,
-    }
-    $merge_results =  $result.target.vars['puppetsync_stage_results'].merge(
-      Hash({ 'apply_puppet_role' => Hash($stage_result) })
-    )
-    $result.target.set_var( 'puppetsync_stage_results', Hash($merge_results) )
-  }
-  debug::break()
-  fail_plan("FAIL ON PURPOSE")
-
+    'apply_puppet_role',
   # ----------------------------------------------------------------------------
-  $repos.each |$target| {
-    $subtask_key       = $target.vars['jira_subtask_key']
-    $parent_issue      = $puppetsync_config['jira']['parent_issue']
-    $commmit_template  = $puppetsync_config['git']['commit_message']
-    $component_name    = $target.vars['mod_data']['repo_name']
-    $commit_message = $commmit_template.regsubst('%JIRA_SUBTASK%', $subtask_key, 'G' ).regsubst('%JIRA_PARENT_ISSUE%', $parent_issue, 'G').regsubst('%COMPONENT%', $component_name, 'G')
+    apply(
+      $repos.filter |$repo| { puppetsync::all_stages_ok($repo) },
+      '_description' => "Apply Puppet role '$puppet_role'",
+      '_noop' => false,
+      _catch_errors => true,
+    ){ include $puppet_role }
+  )
 
-    ### out::message( "\n-----------\n${target.name}:\n\n${commit_message}\n\n" )
-    ### $target.set_var('git_commit_message', $commit_message )
-
-    $git_commit_results = run_task( 'puppetsync::git_commit', $target,
-    # --------------
-      "Commit changes with git",
-      {
-        'repo_path'      => $target.vars['repo_path'],
-        'commit_message' => $commit_message,
-        '_catch_errors'  => true,
-      }
-    )
-    unless $git_commit_results.ok {
-      $msg = "!! Running puppetsync::git_commit failed on ${target.name}:\n${git_commit_results.first.error.msg}\n\n${git_commit_results.first.error.details}\n"
-      out::message($msg)
-      fail_plan($git_commit_results.first.error)
-    }
-
-    $ensure_fork_results = run_task( 'puppetsync::ensure_github_fork', $target,
-    # --------------
-      'Ensure our GitHub user has a fork of the upstream repo',
-      {
-        'github_repo'      => $target.vars['repo_url_path'],
-        'github_user'      => $github_user,
-        'github_authtoken' => $github_token.unwrap,
-        'extra_gem_paths'  => $extra_gem_paths,
-        '_catch_errors'    => false,
-      }
-    )
-
-    if $ensure_fork_results.ok {
-      out::message( "-- GitHub user's repo fork: '${ensure_fork_results.first.value['user_fork']}'")
-    } else {
-      $msg = "Running puppetsync::ensure_github_fork failed on ${target.name}:\n${ensure_fork_results.first.error.msg}\n\n${ensure_fork_results.first.error.details}\n"
-      out::message($msg)
-      fail_plan($ensure_fork_results.first.error)
-    }
-    $user_repo_fork = $ensure_fork_results.first.value
-    warning( "\n------------------ user_repo_fork:\n${user_repo_fork}\n------------------\n")
-    $remote_name = 'user_forked_repo'
-
-    $ensure_remote_results = run_task( 'puppetsync::ensure_git_remote', $target,
-    # --------------
-      'Ensure local git repo has a remote for the forked repository',
-      {
-        'repo_path'     => $target.vars['repo_path'],
-        'remote_url'    => $user_repo_fork['ssh_url'],
-        'remote_name'   => $remote_name,
-        '_catch_errors' => false,
-      }
-    )
-    if !$ensure_remote_results.ok {
-      out::message( @("END")
-        Running puppetsync::ensure_git_remote failed on ${target.name}:
-        ${ensure_remote_results.first.error.msg}
-
-        ${ensure_remote_results.first.error.details}
-        END
+  puppetsync::record_stage_results(
+    # --------------------------------------------------------------------------
+    'git_commit_changes',
+    # --------------------------------------------------------------------------
+    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+      $subtask_key       = $target.vars['jira_subtask_key']
+      $parent_issue      = $puppetsync_config['jira']['parent_issue']
+      $commmit_template  = $puppetsync_config['git']['commit_message']
+      $component_name    = $target.vars['mod_data']['repo_name']
+      $commit_message    = $commmit_template.regsubst('%JIRA_SUBTASK%', $subtask_key, 'G' ).regsubst('%JIRA_PARENT_ISSUE%', $parent_issue, 'G').regsubst('%COMPONENT%', $component_name, 'G')
+      run_task( 'puppetsync::git_commit', $target,
+        "Commit changes with git",
+        {
+          'repo_path'      => $target.vars['repo_path'],
+          'commit_message' => $commit_message,
+          '_catch_errors'  => true,
+        }
       )
-      fail_plan($ensure_remote_results.first.error)
     }
+  )
 
-    $git_push_results = run_command(
-    # --------------
-      "cd '${target.vars['repo_path']}'; git push '${remote_name}' '${feature_branch}' -f",
-      $target,
-      "Push branch '${feature_branch}' to forked repository",
-      { '_catch_errors' => false }
-    )
-    warning( "\n------------------ git_push_results:\n${git_push_results}\n------------------\n")
-
-    $ensure_pr_results = run_task( 'puppetsync::ensure_github_pr', $target,
-    # --------------
-      'Ensure there is a GitHub PR for this commit',
-      {
-        'target_repo'      => $target.vars['repo_url_path'],
-        'target_branch'    => $target.vars['mod_data']['branch'],
-        'fork_branch'      => $feature_branch,
-        'commit_message'   => $commit_message,
-        'github_user'      => $github_user,
-        'github_authtoken' => $github_token.unwrap,
-        'extra_gem_paths'  => $extra_gem_paths,
-        '_catch_errors'    => false,
+  puppetsync::record_stage_results(
+    # --------------------------------------------------------------------------
+    'ensure_github_fork',
+    # --------------------------------------------------------------------------
+    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+      $results = run_task( 'puppetsync::ensure_github_fork', $target,
+        'Ensure our GitHub user has a fork of the upstream repo',
+        {
+          'github_repo'      => $target.vars['repo_url_path'],
+          'github_user'      => $github_user,
+          'github_authtoken' => $github_token.unwrap,
+          'extra_gem_paths'  => $extra_gem_paths,
+          '_catch_errors'    => false,
+        }
+      )
+      if $results.ok {
+        $target.set_var('user_repo_fork', $results.first.value)
+        out::message( "-- GitHub user's repo fork: '${target.vars['user_repo_fork']['user_fork']}'")
       }
-    )
-
-    if $ensure_pr_results.ok {
-      $created_status = $ensure_pr_results.first.value['pr_created'] ? {
-        true    => ' (just created)',
-        default => '',
-      }
-      out::message( "-- GitHub user's repo pr: '${ensure_pr_results.first.value['pr_url']}'${created_status}")
-    } else {
-      $msg = "Running puppetsync::ensure_github_pr failed on ${target.name}:\n${ensure_pr_results.first.error.msg}\n\n${ensure_pr_results.first.error.details}\n"
-      out::message($msg)
-      fail_plan($ensure_pr_results.first.error)
+      $results.first
     }
-  }
+  )
 
+  puppetsync::record_stage_results(
+    # --------------------------------------------------------------------------
+    'ensure_git_remote',
+    # --------------------------------------------------------------------------
+    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+      warning( "\n------------------ user_repo_fork:\n${$target.vars['user_repo_fork'].to_yaml}\n------------------\n")
+      $target.set_var('remote_name', 'user_forked_repo')
+
+      $results = run_task( 'puppetsync::ensure_git_remote', $target,
+        'Ensure local git repo has a remote for the forked repository',
+        {
+          'repo_path'     => $target.vars['repo_path'],
+          'remote_url'    => $target.vars['user_repo_fork']['ssh_url'],
+          'remote_name'   => $target.vars['remote_name'],
+          '_catch_errors' => false,
+        }
+      )
+      if !$results.ok {
+        out::message( @("END")
+          Running puppetsync::ensure_git_remote failed on ${target.name}:
+          ${results.first.error.msg}
+
+          ${results.first.error.details}
+          END
+        )
+      }
+      $results.first
+    }
+  )
+
+  puppetsync::record_stage_results(
+    # --------------------------------------------------------------------------
+    'git_push_to_remote',
+    # --------------------------------------------------------------------------
+    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+      $results = run_command(
+        "cd '${target.vars['repo_path']}'; git push '${target.vars['remote_name']}' '${feature_branch}' -f",
+        $target,
+        "Push branch '${feature_branch}' to forked repository",
+        { '_catch_errors' => false }
+      )
+      $results.first
+    }
+  )
+
+  puppetsync::record_stage_results(
+    # --------------------------------------------------------------------------
+    'ensure_github_pr',
+    # --------------------------------------------------------------------------
+    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+      $results = run_task( 'puppetsync::ensure_github_pr', $target,
+        'Ensure there is a GitHub PR for this commit',
+        {
+          'target_repo'      => $target.vars['repo_url_path'],
+          'target_branch'    => $target.vars['mod_data']['branch'],
+          'fork_branch'      => $feature_branch,
+          'commit_message'   => $commit_message,
+          'github_user'      => $github_user,
+          'github_authtoken' => $github_token.unwrap,
+          'extra_gem_paths'  => $extra_gem_paths,
+          '_catch_errors'    => false,
+        }
+      )
+
+      if $results.ok {
+        $created_status = $results.first.value['pr_created'] ? {
+          true    => ' (just created)',
+          default => '',
+        }
+        out::message( "-- GitHub user's repo pr: '${results.first.value['pr_url']}'${created_status}")
+      } else {
+        $msg = "Running puppetsync::ensure_github_pr failed on ${target.name}:\n${results.first.error.msg}\n\n${results.first.error.details}\n"
+        out::message($msg)
+      }
+      $results.first
+    }
+  )
+
+  out::message("time to sort out what happened to $repos")
+  debug::break()
 }

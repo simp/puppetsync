@@ -30,5 +30,5 @@ git:
     diagnostic mode to test the project's variables against their respective
     deployment APIs (GitHub and Puppet Forge).
 
-    %JIRA_PARENT_ISSUE% #comment Update to latest pipeline in %COMPONENT%
-    %JIRA_SUBTASK% #close
+    [%JIRA_PARENT_ISSUE%] #comment Update to latest pipeline in %COMPONENT%
+    [%JIRA_SUBTASK%] #close

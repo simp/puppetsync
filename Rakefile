@@ -1,3 +1,4 @@
+#!/opt/puppetlabs/bolt/bin/rake -f
 require 'rake/clean'
 
 desc <<~DESC
@@ -13,14 +14,24 @@ task :strings, [:verbose] do |t,args|
      "{dist,site-modules}/**/*.{pp,rb,json}"].gsub(/ {3,}/,' ')
 end
 
+namespace :install do
+  desc "Install gems into #{__dir__}/.gems"
+  task :gems do
+    Dir.chdir __dir__
+    sh %Q[GEM_HOME=.gems /opt/puppetlabs/bolt/bin/gem install -g gem.deps.rb --no-document]
+  end
 
-desc "Install gems into #{__dir__}/.gems"
-task :install_gems do |t,args|
-  Dir.chdir __dir__
-  sh %Q[GEM_HOME=.gems /opt/puppetlabs/bolt/bin/gem install -g gem.deps.rb --no-document]
+  desc "Install modules from Puppetfile into #{__dir__}}/modules"
+  task :puppetfile do
+    Dir.chdir __dir__
+    sh %Q[GEM_HOME=.gems /opt/puppetlabs/bolt/bin/bolt puppetfile install]
+  end
 end
+
+desc 'Install prereqs'
+task :install => ['install:gems', 'install:puppetfile']
+
 
 CLEAN.include( Dir['????????-????-????-????-????????????'].reject{|x| x.strip !~ /^[\h-]{36}$/ } )
 
 task :default => :strings
-
