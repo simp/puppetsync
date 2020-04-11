@@ -7,14 +7,14 @@
 #      github_repo=simp/pupmod-simp-acpid
 #      github_user="$GITHUB_USER" \
 #      github_authtoken="$GITHUB_API_TOKEN" \
-#      extra_gem_paths='["/path/to/puppetsync/gems"]'
+#      extra_gem_path='/path/to/puppetsync/.gems'
 #
 require_relative '../../ruby_task_helper/files/task_helper.rb'
 
 class MyTask < TaskHelper
   def task(name: nil, **kwargs)
     # Ensure that extra gem paths are loaded (to find octokit)
-    kwargs[:extra_gem_paths].each{ |gempath| Dir["#{gempath}/gems/*/lib"].each{ |path| $LOAD_PATH << path }}
+    Dir["#{kwargs[:extra_gem_path]}/gems/*/lib"].each{ |path| $LOAD_PATH << path }
     require_relative '../../puppetsync/files/ensure_github_pr_forker.rb'
     forker = GitHubPRForker.new( kwargs[:github_user], kwargs[:github_authtoken] )
     repo_fork = forker.ensure_fork( kwargs[:github_repo] )

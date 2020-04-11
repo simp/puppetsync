@@ -1,0 +1,7 @@
+# Common code for all pupmod:: roles
+class profile::pupmod::base {
+  $project_type = $facts.dig('project_type').lest || {'unknown'}
+  unless $project_type == 'pupmod' {
+    fail("ERROR: reached class '${title}', but project_type is not a 'pupmod' (${project_type})")
+  }
+}

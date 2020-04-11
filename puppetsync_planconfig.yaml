@@ -8,6 +8,10 @@
 ##   - puppetsync::git_commit
 ##   - puppetsync::ensure_github_pr
 
+project_types:
+- pupmod
+
+
 jira:
   parent_issue: SIMP-7035
   project: SIMP

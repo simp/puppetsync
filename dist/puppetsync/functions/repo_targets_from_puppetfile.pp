@@ -1,3 +1,5 @@
+# Builds a collection of localhost Targets from a Puppetfile's git repos
+# Ignores any entry that does not have a :git repo
 function puppetsync::repo_targets_from_puppetfile(
   Stdlib::Absolutepath $puppetfile,
   String[1] $inventory_group,
@@ -50,9 +52,14 @@ function puppetsync::repo_targets_from_puppetfile(
       # Use the same ruby interpreter the 'localhost' target is using (which is
       # automagically configured by bolt to point to its own ruby executable)
       # This keeps the inventory as cross-platform as possible
+      $localhost = get_target('localhost')
+      $target.set_config( ['transport'], $localhost.config.dig('transport'))
       $target.set_config(
         ['local', 'interpreters', '.rb'],
-        get_target('localhost').config.dig('local', 'interpreters', '.rb')
+       $localhost.config.dig('local', 'interpreters', '.rb')
+      )
+      $target.set_config(
+        ['local', 'tmpdir'], $localhost.config.dig('local', 'tmpdir')
       )
       $target.set_var('puppetsync_stage_results',Hash({}))
     } else {

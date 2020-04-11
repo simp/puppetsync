@@ -7,4 +7,3 @@ log:
     level: error
   ~/.puppetlabs/bolt/debug.log:
     level: debug
-

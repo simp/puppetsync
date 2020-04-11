@@ -6,10 +6,13 @@ function puppetsync::summarize_repo_targets(
   $t_summ = $repos.map |$idx, $target| {
     $t_idx  = "  [${idx}]: ${target.name}"
     $t_vars = $target.vars.to_yaml.regsubst('^','       ','G')
+    $t_facts = $target.facts.to_yaml.regsubst('^','       ','G')
     $verbose ? {
-      true    => "${t_idx}\n${t_vars}",
+      true    => "${t_idx}\nvars:${t_vars}\nfacts:\n${t_facts}",
       default => "${t_idx}"
     }
   }.join("\n")
+
+
   "Targets: ${repos.size}:\n${t_summ}"
 }

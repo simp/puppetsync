@@ -16,9 +16,9 @@
       "type": "String[1]",
       "sensitive": true
     },
-    "extra_gem_paths": {
+    "extra_gem_path": {
       "description": "Additional gem paths to look for ruby gems (e.g., `jira-ruby`)",
-      "type": "Optional[Array[Stdlib::Absolutepath]]"
+      "type": "Optional[Stdlib::Absolutepath]"
     }
   },
   "files": ["puppetsync/files/ensure_github_pr_forker.rb",  "ruby_task_helper/files/task_helper.rb" ]

@@ -37,7 +37,7 @@ plan puppetsync::sync(
   Stdlib::Absolutepath $project_dir            = system::env('PWD'), # FIXME make a function? (hacky workaround to get PWD; doesn't work on Windows?)
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
   Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
-  Array[Stdlib::Absolutepath] $extra_gem_paths = ["${project_dir}/.gems"], ###
+  Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   String[1]            $github_user            = system::env('GITHUB_USER'),
@@ -55,7 +55,6 @@ plan puppetsync::sync(
 
   out::message( "== puppetfile: '${puppetfile}'\n== project_dir: '${project_dir}'" )
   out::message(puppetsync::summarize_repo_targets($repos))
-  warning(puppetsync::summarize_repo_targets($repos,true))
   warning( "\n\n==  \$puppetsync_config:\n${puppetsync_config.to_yaml.regsubst('^','    ','G')}" )
 
   puppetsync::install_puppetfile(
@@ -63,6 +62,7 @@ plan puppetsync::sync(
   )
 
   puppetsync::setup_repos_facts( $repos )
+  warning(puppetsync::summarize_repo_targets($repos,true))
 
   # ----------------------------------------------------------------------------
   # - [x] Install repos from Puppetfile.repos
@@ -83,8 +83,8 @@ plan puppetsync::sync(
   # - [x] PR changes to upstream repository on GitHub
   #   - [ ] detect merged PR for same issue and (by default) refuse to open a new one
   #
-  # - [ ] error catching to filter out repos with problems
-  #   - [ ] report at the end
+  # - [x] error catching to filter out repos with problems
+  #   - [x] report at the end
   # - [ ] feature flag each step (on, off, noop?)
   # - [ ] support --noop
   # - [x] move task scripts into files/ and convert tasks into shims
@@ -96,7 +96,8 @@ plan puppetsync::sync(
 
 
   # ----------------------------------------------------------------------------
-  $checkout_results = run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo', 'localhost',
+  $checkout_results = run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo',
+  'localhost',
     "Check out git branch '${feature_branch} in all repos'",
     'branch'        => $feature_branch,
     'repo_paths'    => $repos.map |$target| { $target.vars['repo_path'] },
@@ -107,20 +108,20 @@ plan puppetsync::sync(
   $gem_install_results = run_task( 'puppetsync::install_gems', 'localhost',
     'Install required RubyGems on localhost',
     {
-      'path'          => $extra_gem_paths[0],
+      'path'          => $extra_gem_path,
       'gems'          => ["jira-ruby:~> 2.0", "octokit:~> 4.18"],
       '_catch_errors' => false,
     }
   )
 
   puppetsync::ensure_jira_subtask_for_each_repo(
-    $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_paths,
+    $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path,
   )
 
   puppetsync::record_stage_results(
-  # ----------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     'apply_puppet_role',
-  # ----------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     apply(
       $repos.filter |$repo| { puppetsync::all_stages_ok($repo) },
       '_description' => "Apply Puppet role '$puppet_role'",
@@ -134,6 +135,7 @@ plan puppetsync::sync(
     'git_commit_changes',
     # --------------------------------------------------------------------------
     $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+      $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
       run_task( 'puppetsync::git_commit', $target,
         "Commit changes with git",
         {
@@ -156,7 +158,7 @@ plan puppetsync::sync(
           'github_repo'      => $target.vars['repo_url_path'],
           'github_user'      => $github_user,
           'github_authtoken' => $github_token.unwrap,
-          'extra_gem_paths'  => $extra_gem_paths,
+          'extra_gem_path'   => $extra_gem_path,
           '_catch_errors'    => false,
         }
       )
@@ -173,7 +175,7 @@ plan puppetsync::sync(
     'ensure_git_remote',
     # --------------------------------------------------------------------------
     $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
-      warning( "\n------------------ user_repo_fork:\n${$target.vars['user_repo_fork'].to_yaml}\n------------------\n")
+      warning( "\n------------------ user_repo_fork:\n${$target.vars['user_repo_fork'].to_yaml}" )
       $target.set_var('remote_name', 'user_forked_repo')
 
       $results = run_task( 'puppetsync::ensure_git_remote', $target,
@@ -198,6 +200,7 @@ plan puppetsync::sync(
     }
   )
 
+  # TODO: if any repos were forked, wait 5 minutes
   puppetsync::record_stage_results(
     # --------------------------------------------------------------------------
     'git_push_to_remote',
@@ -227,7 +230,7 @@ plan puppetsync::sync(
           'commit_message'   => puppetsync::template_git_commit_message($target,$puppetsync_config),
           'github_user'      => $github_user,
           'github_authtoken' => $github_token.unwrap,
-          'extra_gem_paths'  => $extra_gem_paths,
+          'extra_gem_path'  => $extra_gem_path,
           '_catch_errors'    => false,
         }
       )
@@ -239,13 +242,40 @@ plan puppetsync::sync(
         }
         out::message( "-- GitHub user's repo pr: '${results.first.value['pr_url']}'${created_status}")
       } else {
-        $msg = "Running puppetsync::ensure_github_pr failed on ${target.name}:\n${results.first.error.msg}\n\n${results.first.error.details}\n"
-        out::message($msg)
+        out::message(
+          [ "Running puppetsync::ensure_github_pr failed on ${target.name}:",
+            $results.first.error.msg,'','', $results.first.error.details,'', ].join("\n")
+        )
       }
       $results.first
     }
   )
 
-  out::message("time to sort out what happened to $repos")
-  debug::break()
+  out::message( [
+    "================================================================================",
+    "                                    FINIS                                       ",
+    "================================================================================",
+    "time to sort out what happened to:\n\t${repos}",
+    "--------------------------------------------------------------------------------",
+    ].join("\n")
+  )
+
+  $summary = format::table({
+    title => 'Results',
+    head  => [ 'Repo', 'Result', 'Final Stage' ],
+    rows  => $repos.map |$repo| {
+      $all_ok = $repo.vars['puppetsync_stage_results'].all |$k,$v| { $v['ok'] }
+      $stage = $repo.vars['puppetsync_stage_results'].keys[-1].lest || { 'STAGE?!' }
+      [
+        $all_ok ? { true => $repo.name, default => format::colorize( $repo.name, 'warning' ) },
+        $all_ok ? { true => format::colorize('ok', 'good'), default => format::colorize('failed','fatal') },
+        $all_ok ? { true =>  $stage, default => format::colorize($stage, 'warning') },
+      ]
+    }
+  })
+
+  out::message("\n${summary}\n\n")
+  $report_path = "${project_dir}/report_${Timestamp().strftime('%F_%T').regsubst(/:|-/,'','G')}.yaml"
+  file::write($report_path, $repos.to_yaml)
+  out::message("\nWrote repos summary to ${report_path}\n")
 }

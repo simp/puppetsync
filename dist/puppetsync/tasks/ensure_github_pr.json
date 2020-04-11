@@ -28,9 +28,9 @@
       "type": "String[1]",
       "sensitive": true
     },
-    "extra_gem_paths": {
-      "description": "Additional gem paths to look for ruby gems (e.g., `octokit`)",
-      "type": "Optional[Array[Stdlib::Absolutepath]]"
+    "extra_gem_path": {
+      "description": "Additional gem path to look for ruby gems (e.g., `octokit`)",
+      "type": "Optional[Stdlib::Absolutepath]"
     }
   },
   "files": ["puppetsync/files/ensure_github_pr_forker.rb",  "ruby_task_helper/files/task_helper.rb" ]

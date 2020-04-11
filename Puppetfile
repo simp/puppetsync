@@ -11,4 +11,7 @@ mod 'puppetlabs/ruby_task_helper',
 mod 'nwops-debug',
   :git => 'https://github.com/nwops/puppet-debug'
 
+mod 'voxpupuli-format',
+  :git => 'https://github.com/voxpupuli/puppet-format.git'
+
 # vim: set ft=ruby :
