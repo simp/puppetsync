@@ -1,7 +1,7 @@
 ---
 
-
 puppetsync:
+  puppet_role: 'role::pupmod_travis_only'
   permitted_project_types:
     - pupmod
   stages:

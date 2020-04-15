@@ -53,7 +53,7 @@ plan puppetsync::sync(
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
   Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
   Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
-  String[1]            $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role').lest || { 'role::pupmod_travis_only' },
+  String[1]            $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role').lest || { 'role::unset' },
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
