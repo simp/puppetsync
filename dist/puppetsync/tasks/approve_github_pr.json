@@ -1,5 +1,5 @@
 {
-  "description": "Idempotently Approve a GitHub PR from fork_repo:branch to target_repo_:branch",
+  "description": "Idempotently approve a GitHub PR from _fork_repo:branch_ to _target_repo:branch_",
   "input_method": "stdin",
   "parameters": {
     "target_repo": {

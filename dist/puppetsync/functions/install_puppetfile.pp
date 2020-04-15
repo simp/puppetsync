@@ -1,3 +1,5 @@
+# Runs the task `puppetsync::install_puppetfile` on localhost
+# @return [ResultSpec] Task results
 function puppetsync::install_puppetfile(
   Stdlib::Absolutepath $project_dir,
   Stdlib::Absolutepath $puppetfile,

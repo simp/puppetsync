@@ -39,7 +39,7 @@
       "type": "String[1]"
     },
     "jira_token": {
-      "description": "Jira API token \n\t--- NOTES ---\n\t- You MUST generate an API token (basic auth no longer works). \n\t- To do so, you must have Jira instance access rights. \n\t- You can generate a token here: https://id.atlassian.com/manage/api-tokens",
+      "description": "Jira API token \n  _NOTES_\n  - You MUST generate an API token (basic auth no longer works). \n  - To do so, you must have Jira instance access rights. \n  - You can generate a token here: https://id.atlassian.com/manage/api-tokens",
       "type": "String[1]",
       "sensitive": true
     },

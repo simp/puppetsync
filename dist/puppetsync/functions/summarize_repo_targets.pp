@@ -1,3 +1,5 @@
+# Summarize a repo target as a printable String
+# @return [String] Summary of each Target
 function puppetsync::summarize_repo_targets(
   TargetSpec $repos,
   Boolean $verbose = false,

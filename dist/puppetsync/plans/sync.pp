@@ -1,18 +1,22 @@
 # Update assets across multiple git repos using Bolt tasks and Puppet
 #
 # Supports workflow tasks, like:
-#   - Ensuring a Jira subtask exists for each issue
-#   - Ensuring a GitHub user has fork of the upstream repo
+#   - Ensuring a Jira subtask exists to track each repo (requires JIRA_API_TOKEN)
+#   - Ensuring the user's GitHub account a has fork of each upstream repo
 #   - Submitting PRs exists repos/submitting PRs on GitHub
 #
 # Files:
-#   - Puppetfile.repos:           Defines repos to clone and update
-#   - puppetsync_planconfig.yaml: Defines settings for this update
+#   - `Puppetfile.repos`:           Defines repos to clone and update
+#   - `puppetsync_planconfig.yaml`: Defines settings for this update
 #
 # @summary Update assets across multiple git repos using Bolt tasks and Puppet
 #
 # @usage
-#   bolt plan run puppetsync::sync
+#
+#   1. Set environment vars: `JIRA_USER`, `JIRA_API_TOKEN`, `GITHUB_API_TOKEN`
+#   2. Run:
+#
+#      bolt plan run puppetsync::sync
 #
 # @param targets
 #   The parameter is required to exist, but is unused.
@@ -24,17 +28,29 @@
 # @param project_dir
 #   The bolt project directory.  Defaults to `$PWD`.
 #
-# @param puppetfile
-#   (Default: `${project_dir}/Puppetfile.repos`)
-#   Puppetfile that defines the repos to update
+#   @todo make this a function? (It's a hacky way to get the project dir)
 #
-# @author Chris Tessmer <chris.tessmer@onyxpoint.com>
+# @param puppetfile
+#   A special Puppetfile with :git repos to clone, update, and PR
+#   (Default: `${project_dir}/Puppetfile.repos`)
+#
+# @param puppetsync_config_path
+#   Path to a YAML file with seetings for a specific update session
+#   See the project README.md for an example.
+#   (Default: `${project_dir}/puppetsync_planconfig.yaml`)
+#
+# @param extra_gem_path
+#   Path to a gem path with extra gems the bolt interpreter will to run
+#   some of the Ruby tasks.
+#   (Default: `${project_dir}/.gems`)
+#
+# @author Chris Tessmer <chris.essmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
 plan puppetsync::sync(
   TargetSpec           $targets                = get_targets('default'),
   String[1]            $puppet_role            = 'role::pupmod_travis_only',
-  Stdlib::Absolutepath $project_dir            = system::env('PWD'), # FIXME make a function? (hacky workaround to get PWD; doesn't work on Windows?)
+  Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
   Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
@@ -68,44 +84,46 @@ plan puppetsync::sync(
   # - [x] Install repos from Puppetfile.repos
   # - [x] git checkout -b BRANCHNAME
   # - [x] ensure jira subtask exists for repo
-  #   - [ ] detect closed JIRA subtask for same issue and (by default) refuse to open a new one
   # - [x] set up facts
   # --------
-  # - [ ] run transformations?
   # - [x] puppet apply
   # - [ ] run transformations?
-  # - [ ] (stretch goal) validate changes (e.g., gitlab_ci lint, flag obvious disasters)
   # -------
   # - [x] commit changes
   # - [x] ensure GitHub fork of upstream repo exists
   # - [x] ensure a remote exists in the local git repo for the forked GitHub repo
   # - [x] push changes to user's GitHub fork
   # - [x] PR changes to upstream repository on GitHub
-  #   - [ ] detect merged PR for same issue and (by default) refuse to open a new one
-  #
+  # -------
   # - [x] error catching to filter out repos with problems
   #   - [x] report at the end
-  # - [ ] feature flag each step (on, off, noop?)
-  # - [ ] support --noop
   # - [x] move task scripts into files/ and convert tasks into shims
   #   - [x] goal: make logic in each task easy to smoke test on its own
+  # -------
+  # stretch goals:
+  # - [ ] feature flag each step (on, off, noop?)
+  # - [ ] support --noop
+  # - [ ] push changes using HTTPS basic auth + GitHub token (CI friendly)
   # - [ ] move templating logic from jira task's ruby code into plan logic
-  # - [ ] push changes using HTTPS basic auth + the GitHub token (CI friendly)
+  # - [ ] validate changes (e.g., gitlab_ci lint, flag obvious disasters) before committing
   # - [ ] spec tests
+  # - [ ] enhanced idempotency
+  #   - [ ] detect closed JIRA subtask for same subtask and (by default) refuse to open a new one
+  #   - [ ] detect merged PR for same feature and (by default) refuse to open a new one
   # ----------------------------------------------------------------------------
 
-
+  run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo',
   # ----------------------------------------------------------------------------
-  $checkout_results = run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo',
-  'localhost',
+    'localhost',
     "Check out git branch '${feature_branch} in all repos'",
     'branch'        => $feature_branch,
     'repo_paths'    => $repos.map |$target| { $target.vars['repo_path'] },
     '_catch_errors' => false,
   )
 
+  run_task( 'puppetsync::install_gems',
   # ----------------------------------------------------------------------------
-  $gem_install_results = run_task( 'puppetsync::install_gems', 'localhost',
+    'localhost',
     'Install required RubyGems on localhost',
     {
       'path'          => $extra_gem_path,
@@ -115,6 +133,7 @@ plan puppetsync::sync(
   )
 
   puppetsync::ensure_jira_subtask_for_each_repo(
+  # ----------------------------------------------------------------------------
     $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path,
   )
 
@@ -200,7 +219,7 @@ plan puppetsync::sync(
     }
   )
 
-  # TODO: if any repos were forked, wait 5 minutes
+  # TODO if any repos were forked, wait 5 minutes
   puppetsync::record_stage_results(
     # --------------------------------------------------------------------------
     'git_push_to_remote',
@@ -275,7 +294,14 @@ plan puppetsync::sync(
   })
 
   out::message("\n${summary}\n\n")
-  $report_path = "${project_dir}/report_${Timestamp().strftime('%F_%T').regsubst(/:|-/,'','G')}.yaml"
+  $report_prefix = "${project_dir}/puppetsync__sync"
+  $report_timestamp = Timestamp().strftime('%F_%T').regsubst(/:|-/,'','G')
+
+  $summary_path = "${report_prefix}.summary.${report_timestamp}.txt"
+  file::write($summary_path, $summary)
+  out::message("\nWrote sync summary to ${summary_path}\n")
+
+  $report_path = "${report_prefix}.report.${report_timestamp}.yaml"
   file::write($report_path, $repos.to_yaml)
-  out::message("\nWrote repos summary to ${report_path}\n")
+  out::message("\nWrote repos data ${report_path}\n")
 }

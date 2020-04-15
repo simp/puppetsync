@@ -4,4 +4,6 @@ class profile::pupmod::base {
   unless $project_type == 'pupmod' {
     fail("ERROR: reached class '${title}', but project_type is not a 'pupmod' (${project_type})")
   }
+  $org = $facts.dig('module_metadata','forge_org')
+  if $org { warn("======== Forge org: ${org}") }
 }

@@ -1,5 +1,28 @@
 # Builds a collection of localhost Targets from a Puppetfile's git repos
-# Ignores any entry that does not have a :git repo
+#
+# (Ignores any `mod` entry that does not have a `:git` repo)
+#
+# @summary Builds a collection of localhost Targets from a Puppetfile's git repos
+#
+# @param puppetfile
+#   A special Puppetfile containing `mod` entries with :git repos
+#
+# @param inventory_group
+#   Name of inventory group for the repo Targets
+#
+# @param default_moduledir
+#   Path to directory where repos will be cloned
+#
+# @param exclude_repos_from_other_module_dirs
+#   When `true`, drops any repo with a moduledir or installpath that is
+#   different from `default_moduledir`.
+#
+# @param project_dir
+#   The bolt project directory.
+#
+# @return [TargetSpec] the repo Targets read from the Puppetfile
+#
+#
 function puppetsync::repo_targets_from_puppetfile(
   Stdlib::Absolutepath $puppetfile,
   String[1] $inventory_group,
@@ -63,7 +86,7 @@ function puppetsync::repo_targets_from_puppetfile(
       )
       $target.set_var('puppetsync_stage_results',Hash({}))
     } else {
-      warning( "====== WARNING: REJECTING 'mod' entry '${mod}' - it is **NOT** a git repo" )
+      warning( "====== WARNING: REJECTING Puppetfile 'mod' entry '${mod}' - it is **NOT** a :git repo" )
     }
   }
   $repos = get_targets($inventory_group)
