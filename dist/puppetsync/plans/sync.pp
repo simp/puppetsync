@@ -49,16 +49,16 @@
 # ------------------------------------------------------------------------------
 plan puppetsync::sync(
   TargetSpec           $targets                = get_targets('default'),
-  String[1]            $puppet_role            = 'role::pupmod_travis_only',
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
   Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
+  Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
+  String[1]            $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role').lest || { 'role::pupmod_travis_only' },
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
 ) {
-  $puppetsync_config = loadyaml($puppetsync_config_path)
   $repos             = puppetsync::setup_project_repos( $puppetsync_config, $project_dir, $puppetfile )
   $opts              = {}
   $feature_branch    = getvar('puppetsync_config.jira.parent_issue')
