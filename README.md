@@ -84,7 +84,6 @@ To fork GitHub repositories and submit Pull Requests, these environment variable
 
 | Env variable       | Purpose          |     |
 | ------------       | -------          | --- |
-| `GITHUB_USER`      | GitHub user      |     |
 | `GITHUB_API_TOKEN` | GitHub API token |     |
 
 (Recommended) To prevent bolt from collecting analytics, set this environment variable:
