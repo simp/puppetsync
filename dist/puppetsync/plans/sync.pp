@@ -97,8 +97,10 @@ plan puppetsync::sync(
   # ----------------------------------------------------------------------------
 
   $repos.puppetsync::pipeline_stage(
-    'install_gems', $opts
     # ---------------------------------------------------------------------------
+    'install_gems',
+    # ---------------------------------------------------------------------------
+    $opts
   ) |$ok_repos, $stage_name| {
     run_task( 'puppetsync::install_gems',
       'localhost',
@@ -112,8 +114,10 @@ plan puppetsync::sync(
   }
 
   $repos.puppetsync::pipeline_stage(
-    'checkout_git_feature_branch_in_each_repo', $opts
     # ---------------------------------------------------------------------------
+    'checkout_git_feature_branch_in_each_repo',
+    # ---------------------------------------------------------------------------
+    $opts
   ) |$ok_repos, $stage_name| {
     run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo',
       'localhost',
@@ -126,16 +130,18 @@ plan puppetsync::sync(
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
-    'ensure_jira_subtask', $opts
+    'ensure_jira_subtask',
     # --------------------------------------------------------------------------
+    $opts
   ) |$ok_repos, $stage_name| {
     puppetsync::ensure_jira_subtask_for_each_repo( $ok_repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path )
   }
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
-    'apply_puppet_role', $opts
+    'apply_puppet_role',
     # --------------------------------------------------------------------------
+    $opts
   ) |$ok_repos, $stage_name| {
     apply( $ok_repos,
       '_description' => "Apply Puppet role '$puppet_role'",
@@ -146,8 +152,9 @@ plan puppetsync::sync(
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
-    'git_commit_changes', $opts
+    'git_commit_changes',
     # --------------------------------------------------------------------------
+    $opts
   ) |$ok_repos, $stage_name| {
     $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
     $ok_repos.map |$target| {
