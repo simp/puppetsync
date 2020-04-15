@@ -56,7 +56,6 @@ plan puppetsync::sync(
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
-  String[1]            $github_user            = system::env('GITHUB_USER'),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
 ) {
   $puppetsync_config = loadyaml($puppetsync_config_path)
@@ -176,7 +175,6 @@ plan puppetsync::sync(
         'Ensure our GitHub user has a fork of the upstream repo',
         {
           'github_repo'      => $target.vars['repo_url_path'],
-          'github_user'      => $github_user,
           'github_authtoken' => $github_token.unwrap,
           'extra_gem_path'   => $extra_gem_path,
           '_catch_errors'    => false,
@@ -254,7 +252,6 @@ plan puppetsync::sync(
           'target_branch'    => $target.vars['mod_data']['branch'],
           'fork_branch'      => $feature_branch,
           'commit_message'   => puppetsync::template_git_commit_message($target,$puppetsync_config),
-          'github_user'      => $github_user,
           'github_authtoken' => $github_token.unwrap,
           'extra_gem_path'  => $extra_gem_path,
           '_catch_errors'    => false,

@@ -5,7 +5,6 @@
 #   bolt task run puppetsync::ensure_github_fork \
 #      -t localhost \
 #      github_repo=simp/pupmod-simp-acpid
-#      github_user="$GITHUB_USER" \
 #      github_authtoken="$GITHUB_API_TOKEN" \
 #      extra_gem_path='/path/to/puppetsync/.gems'
 #
@@ -17,7 +16,7 @@ class MyTask < TaskHelper
 
     require_relative '../../puppetsync/files/ensure_github_pr_forker.rb'
 
-    forker = GitHubPRForker.new( nil, kwargs[:github_authtoken] )
+    forker = GitHubPRForker.new( kwargs[:github_authtoken] )
     pr = forker.existing_pr(kwargs[:"target_repo"], kwargs[:target_branch], kwargs[:fork_user], kwargs[:fork_branch] )
     approval = forker.approve_pr(pr, kwargs[:approval_message] || ':+1: :ghost:')
     {

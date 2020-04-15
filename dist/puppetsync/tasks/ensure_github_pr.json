@@ -18,11 +18,6 @@
       "description": "Git commit message (the first line will be the title of PR)",
       "type": "String[1]"
     },
-    "github_user": {
-      "description": "GitHub username",
-      "type": "String[1]",
-      "sensitive": true
-    },
     "github_authtoken": {
       "description": "GitHub API token",
       "type": "String[1]",

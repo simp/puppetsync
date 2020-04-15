@@ -6,11 +6,6 @@
       "description": "GitHub repo to fork (e.g., 'simp/pupmod-simp-simplib')",
       "type": "String[1]"
     },
-    "github_user": {
-      "description": "GitHub username",
-      "type": "String[1]",
-      "sensitive": true
-    },
     "github_authtoken": {
       "description": "GitHub API token",
       "type": "String[1]",

@@ -25,7 +25,7 @@ class GitRepoRemoteTasks
     end
   end
 
-  def push_to_github_over_https( github_user, github_token )
+  def push_to_github_over_https(github_token)
     fail ("Remote URL '#{@remote_url}` must be https!") unless ( @remote_url =~ /^https/i )
     require 'pry'; binding.pry
     # FIXME: no such thing as shl

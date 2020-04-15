@@ -3,8 +3,7 @@ require 'octokit'
 class GitHubPRForker
   attr_reader :created_pr, :created_fork
 
-  # FIXME: remove 'github_user' from everything
-  def initialize(github_user=ENV['GITHUB_USER'], github_authtoken=ENV['GITHUB_API_TOKEN'])
+  def initialize(github_authtoken=ENV['GITHUB_API_TOKEN'])
     @client = Octokit::Client.new(:access_token => github_authtoken)
     @created_pr = false
     @created_fork = false
@@ -110,7 +109,7 @@ end
 
 if __FILE__ == $0
 
-  forker = GitHubPRForker.new( ENV['GITHUB_USER'], ENV['GITHUB_API_TOKEN'])
+  forker = GitHubPRForker.new( ENV['GITHUB_API_TOKEN'])
   fail( 'set ENV var UPSTREAM_REPO (ex: \'UPSTREAM_REPO=simp/pupmod-simp-at\')' ) unless ENV['UPSTREAM_REPO']
   upstream_reponame = ENV['UPSTREAM_REPO'] || 'simp/pupmod-simp-at'
   repo_fork = forker.ensure_fork(upstream_reponame)
