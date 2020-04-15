@@ -9,10 +9,6 @@ function puppetsync::record_stage_results(
   Variant[ApplyResult,ResultSet,Result,Array[Result],Array[ResultSet]] $results
 ){
   case $results {
-    ###ApplyResult: {
-    ###  warning( '** puppetsync::record_stage_results (${stage_name}): ApplyResult' )
-    ###  $results.results.each |$result| { puppetsync::record_stage_results($stage_name, $result) }
-    ###}
     Array[Result]: {
       warning( "** puppetsync::record_stage_results (${stage_name}): Array[Result], ResultSet" )
       $results.each |$result| { puppetsync::record_stage_results($stage_name, $result) }
