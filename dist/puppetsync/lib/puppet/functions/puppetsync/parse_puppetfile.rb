@@ -8,7 +8,6 @@ Puppet::Functions.create_function(:'puppetsync::parse_puppetfile') do
 
   def parse_puppetfile(content, default_moduledir)
     Puppet.lookup(:bolt_executor) {}&.report_function_call(self.class.name)
-    Puppet::Util::Log.log_func(closure_scope, :warning, ["=======","======="])
     pdsl = PuppetfileDSLReader.new(content, default_moduledir)
 
     # Stringify all keys (because Puppet can't handle symbols)
@@ -21,22 +20,21 @@ Puppet::Functions.create_function(:'puppetsync::parse_puppetfile') do
     # @api private
     @lines = []
     def initialize(librarian)
-    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : librarian='#{librarian}'" )
       @librarian = librarian
     end
 
     def mod(name, args = nil)
-    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : name='#{name}'" )
+      Puppet.warning("== Puppetfile:  #{__method__.to_s} : name='#{name}'" )
       @librarian.add_module(name, args)
     end
 
     def forge(location)
-    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : location='#{location}'" )
+      Puppet.warning("== Puppetfile:  #{__method__.to_s} : location='#{location}'" )
       @librarian.set_forge(location)
     end
 
     def moduledir(location)
-    Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : location='#{location}'" )
+      Puppet.warning("== Puppetfile:  #{__method__.to_s} : location='#{location}'" )
       @librarian.set_moduledir(location)
     end
 
@@ -60,10 +58,7 @@ Puppet::Functions.create_function(:'puppetsync::parse_puppetfile') do
 
       if default_moduledir
         puppetfile_data = "moduledir '#{default_moduledir}'  # <-- default_moduledir, added by PuppetfileDSLReader\n\n#{puppetfile_data}"
-        Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : puppetfile_data:\n\n#{puppetfile_data}" )
-        Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : BEFORE dsl.instance_eval(puppetfile_data)" )
         dsl.instance_eval(puppetfile_data)
-        Puppet.warning("======= #{self.class.to_s} #{__method__.to_s} : AFTER dsl.instance_eval(puppetfile_data)" )
       end
     end
 
