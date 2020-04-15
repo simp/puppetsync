@@ -23,11 +23,20 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
     Puppet.warning("filtered ok stages before running")
     results = yield(ok_targets, stage_name)
 
+    if results.class == Array && results.all? { |x| x.class == Bolt::Result }
+      Puppet.warning("++++++++ puppetsync::pipeline_stage (stage: #{stage_name}): converting Array of Bolt::Results into a Bolt::ResultSet" )
+      results = Bolt::ResultSet.new( results )
+    end
+
     if results.kind_of? Bolt::ResultSet
       call_function( 'out::message', "puppetsync::record_stage_results( #{stage_name}, #{results.class})" )
       call_function( 'puppetsync::record_stage_results', stage_name, results )
     else
       STDERR.puts "############ WARNING: results are NOT a Bolt::Result"
+      Puppet.warning "############ WARNING: results are NOT a Bolt::Result (file:#{__FILE__} stage: #{stage_name} class: #{results.class}"
+      Puppet.warning "############ WARNING: ARRAY.sze: #{results.size}"
+      Puppet.warning "############ WARNING: ARRAY.first class: #{results.first.class}"
+
       require 'pry'; binding.pry
     end
     ok_targets

@@ -7,7 +7,7 @@ source 'https://rubygems.org'
 
 gem 'octokit', '~> 4.18'
 gem 'jira-ruby', '~> 2.0'
-gem 'puppet-debugger', '~> 0.16'
+gem 'puppet-debugger', '~> 0.17'
 gem 'bundler', '~> 2.0'
 gem 'pry', '~> 0.13'
 gem 'terminal-table', '~> 1.8'

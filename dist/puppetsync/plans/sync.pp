@@ -58,27 +58,11 @@ plan puppetsync::sync(
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   String[1]            $github_user            = system::env('GITHUB_USER'),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
-  String[1]            $default_repo_moduledir = '_repos',
-  Boolean              $exclude_repos_from_other_module_dirs = true,
 ) {
   $puppetsync_config = loadyaml($puppetsync_config_path)
-  $feature_branch    = $puppetsync_config['jira']['parent_issue']
-
-  $repos = puppetsync::repo_targets_from_puppetfile(
-    $puppetfile, 'repo_targets', $default_repo_moduledir, $exclude_repos_from_other_module_dirs
-  )
-  if $repos.size == 0 { fail_plan( "No repos found to sync!  Is $puppetfile set up correctly?" ) }
-
-  out::message( "== puppetfile: '${puppetfile}'\n== project_dir: '${project_dir}'" )
-  out::message(puppetsync::summarize_repo_targets($repos))
-  warning( "\n\n==  \$puppetsync_config:\n${puppetsync_config.to_yaml.regsubst('^','    ','G')}" )
-
-  puppetsync::install_puppetfile(
-    $project_dir, $puppetfile, $default_repo_moduledir, $exclude_repos_from_other_module_dirs
-  )
-
-  puppetsync::setup_repos_facts( $repos )
-  warning(puppetsync::summarize_repo_targets($repos,true))
+  $repos             = puppetsync::setup_project_repos( $puppetsync_config, $project_dir, $puppetfile )
+  $opts              = {}
+  $feature_branch    = getvar('puppetsync_config.jira.parent_issue')
 
   # ----------------------------------------------------------------------------
   # - [x] Install repos from Puppetfile.repos
@@ -101,61 +85,74 @@ plan puppetsync::sync(
   #   - [x] goal: make logic in each task easy to smoke test on its own
   # -------
   # stretch goals:
+  # - [x] only run on repos that match a list of accepted project_types
   # - [ ] feature flag each step (on, off, noop?)
-  # - [ ] support --noop
+  # - [ ] support --noop in each pipeline_stage
   # - [ ] push changes using HTTPS basic auth + GitHub token (CI friendly)
   # - [ ] move templating logic from jira task's ruby code into plan logic
-  # - [ ] validate changes (e.g., gitlab_ci lint, flag obvious disasters) before committing
   # - [ ] spec tests
   # - [ ] enhanced idempotency
   #   - [ ] detect closed JIRA subtask for same subtask and (by default) refuse to open a new one
   #   - [ ] detect merged PR for same feature and (by default) refuse to open a new one
+  # - [ ] validate (e.g., gitlab_ci lint, flag obvious disasters) before committing changes
   # ----------------------------------------------------------------------------
 
-  run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo',
-  # ----------------------------------------------------------------------------
-    'localhost',
-    "Check out git branch '${feature_branch} in all repos'",
-    'branch'        => $feature_branch,
-    'repo_paths'    => $repos.map |$target| { $target.vars['repo_path'] },
-    '_catch_errors' => false,
-  )
+  $repos.puppetsync::pipeline_stage(
+    'install_gems', $opts
+    # ---------------------------------------------------------------------------
+  ) |$ok_repos, $stage_name| {
+    run_task( 'puppetsync::install_gems',
+      'localhost',
+      'Install RubyGems gems on localhost that are required to run tasks',
+      {
+        'path'          => $extra_gem_path,
+        'gems'          => ["jira-ruby:~> 2.0", "octokit:~> 4.18"],
+        '_catch_errors' => false,
+      }
+    )
+  }
 
-  run_task( 'puppetsync::install_gems',
-  # ----------------------------------------------------------------------------
-    'localhost',
-    'Install required RubyGems on localhost',
-    {
-      'path'          => $extra_gem_path,
-      'gems'          => ["jira-ruby:~> 2.0", "octokit:~> 4.18"],
+  $repos.puppetsync::pipeline_stage(
+    'checkout_git_feature_branch_in_each_repo', $opts
+    # ---------------------------------------------------------------------------
+  ) |$ok_repos, $stage_name| {
+    run_task( 'puppetsync::checkout_git_feature_branch_in_each_repo',
+      'localhost',
+      "Check out git branch '${feature_branch} in all repos'",
+      'branch'        => $feature_branch,
+      'repo_paths'    => $repos.map |$target| { $target.vars['repo_path'] },
       '_catch_errors' => false,
-    }
-  )
+    )
+  }
 
-  puppetsync::ensure_jira_subtask_for_each_repo(
-  # ----------------------------------------------------------------------------
-    $repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path,
-  )
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'ensure_jira_subtask', $opts
+    # --------------------------------------------------------------------------
+  ) |$ok_repos, $stage_name| {
+    puppetsync::ensure_jira_subtask_for_each_repo( $ok_repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path )
+  }
 
-  puppetsync::record_stage_results(
+  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
-    'apply_puppet_role',
+    'apply_puppet_role', $opts
     # --------------------------------------------------------------------------
-    apply(
-      $repos.filter |$repo| { puppetsync::all_stages_ok($repo) },
+  ) |$ok_repos, $stage_name| {
+    apply( $ok_repos,
       '_description' => "Apply Puppet role '$puppet_role'",
       '_noop' => false,
       _catch_errors => true,
     ){ include $puppet_role }
-  )
+  }
 
-  puppetsync::record_stage_results(
+  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
-    'git_commit_changes',
+    'git_commit_changes', $opts
     # --------------------------------------------------------------------------
-    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
-      $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
-      run_task( 'puppetsync::git_commit', $target,
+  ) |$ok_repos, $stage_name| {
+    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    $ok_repos.map |$target| {
+      $results = run_task( 'puppetsync::git_commit', $target,
         "Commit changes with git",
         {
           'repo_path'      => $target.vars['repo_path'],
@@ -163,13 +160,17 @@ plan puppetsync::sync(
           '_catch_errors'  => true,
         }
       )
+      $results.first
     }
-  )
+  }
 
-  puppetsync::record_stage_results(
+  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'ensure_github_fork',
     # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name|
+    {
     $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
       $results = run_task( 'puppetsync::ensure_github_fork', $target,
         'Ensure our GitHub user has a fork of the upstream repo',
@@ -187,13 +188,15 @@ plan puppetsync::sync(
       }
       $results.first
     }
-  )
+  }
 
-  puppetsync::record_stage_results(
+  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'ensure_git_remote',
     # --------------------------------------------------------------------------
-    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $ok_repos.map |$target| {
       warning( "\n------------------ user_repo_fork:\n${$target.vars['user_repo_fork'].to_yaml}" )
       $target.set_var('remote_name', 'user_forked_repo')
 
@@ -217,14 +220,15 @@ plan puppetsync::sync(
       }
       $results.first
     }
-  )
+  }
 
-  # TODO if any repos were forked, wait 5 minutes
-  puppetsync::record_stage_results(
+  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'git_push_to_remote',
     # --------------------------------------------------------------------------
-    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $ok_repos.map |$target| {
       $results = run_command(
         "cd '${target.vars['repo_path']}'; git push '${target.vars['remote_name']}' '${feature_branch}' -f",
         $target,
@@ -233,13 +237,16 @@ plan puppetsync::sync(
       )
       $results.first
     }
-  )
+  }
+  # TODO if any repos were forked, wait 5 minutes for GitHub to catch up
 
-  puppetsync::record_stage_results(
+  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'ensure_github_pr',
     # --------------------------------------------------------------------------
-    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $ok_repos.map |$target| {
       $results = run_task( 'puppetsync::ensure_github_pr', $target,
         'Ensure there is a GitHub PR for this commit',
         {
@@ -259,7 +266,7 @@ plan puppetsync::sync(
           true    => ' (just created)',
           default => '',
         }
-        out::message( "-- GitHub user's repo pr: '${results.first.value['pr_url']}'${created_status}")
+        out::message( "-- GitHub user's PR: '${results.first.value['pr_url']}'${created_status}")
       } else {
         out::message(
           [ "Running puppetsync::ensure_github_pr failed on ${target.name}:",
@@ -268,40 +275,7 @@ plan puppetsync::sync(
       }
       $results.first
     }
-  )
+  }
 
-  out::message( [
-    "================================================================================",
-    "                                    FINIS                                       ",
-    "================================================================================",
-    "time to sort out what happened to:\n\t${repos}",
-    "--------------------------------------------------------------------------------",
-    ].join("\n")
-  )
-
-  $summary = format::table({
-    title => 'Results',
-    head  => [ 'Repo', 'Result', 'Final Stage' ],
-    rows  => $repos.map |$repo| {
-      $all_ok = $repo.vars['puppetsync_stage_results'].all |$k,$v| { $v['ok'] }
-      $stage = $repo.vars['puppetsync_stage_results'].keys[-1].lest || { 'STAGE?!' }
-      [
-        $all_ok ? { true => $repo.name, default => format::colorize( $repo.name, 'warning' ) },
-        $all_ok ? { true => format::colorize('ok', 'good'), default => format::colorize('failed','fatal') },
-        $all_ok ? { true =>  $stage, default => format::colorize($stage, 'warning') },
-      ]
-    }
-  })
-
-  out::message("\n${summary}\n\n")
-  $report_prefix = "${project_dir}/puppetsync__sync"
-  $report_timestamp = Timestamp().strftime('%F_%T').regsubst(/:|-/,'','G')
-
-  $summary_path = "${report_prefix}.summary.${report_timestamp}.txt"
-  file::write($summary_path, $summary)
-  out::message("\nWrote sync summary to ${summary_path}\n")
-
-  $report_path = "${report_prefix}.report.${report_timestamp}.yaml"
-  file::write($report_path, $repos.to_yaml)
-  out::message("\nWrote repos data ${report_path}\n")
+  puppetsync::output_pipeline_results( $repos, $project_dir, 'final' )
 }

@@ -58,13 +58,12 @@ function puppetsync::repo_targets_from_puppetfile(
   # add a localhost Target for each repo
   # --------------------------------------
   warning("\n=== PF_REPOS: (${pf_repos.size})")
-  $pf_repos.each |$mod, $mod_data| {
+  $repos = $pf_repos.map |$mod, $mod_data| {
     warning("% ${mod}")
     warning($mod_data.to_yaml.regsubst('^','  ','G'))
 
     if ('git' in $mod_data){
       $target = Target.new('name' => $mod_data['name'])
-      $target.add_to_group( $inventory_group )
       $target.set_var('mod_data', $mod_data )
 
       $repo_path     = "${project_dir}/${mod_data['mod_rel_path']}"
@@ -85,11 +84,12 @@ function puppetsync::repo_targets_from_puppetfile(
         ['local', 'tmpdir'], $localhost.config.dig('local', 'tmpdir')
       )
       $target.set_var('puppetsync_stage_results',Hash({}))
+      $target
     } else {
       warning( "====== WARNING: REJECTING Puppetfile 'mod' entry '${mod}' - it is **NOT** a :git repo" )
+      false
     }
-  }
-  $repos = get_targets($inventory_group)
+  }.filter |$t| { $t }
   warning("repos.count=${repos.count}")
   return( $repos )
 }

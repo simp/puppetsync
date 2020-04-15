@@ -1,16 +1,17 @@
 ---
-## stages:
-##   - puppetsync::checkout_git_feature_branch_in_each_repo
-##   - puppetsync::install_gems
-##   - puppetsync::ensure_jira_subtask_for_each_repo
-##   - puppetsync::ensure_github_fork
-##   - puppet_apply
-##   - puppetsync::git_commit
-##   - puppetsync::ensure_github_pr
 
-project_types:
-- pupmod
 
+puppetsync:
+  permitted_project_types:
+    - pupmod
+  stages:
+    - puppetsync::checkout_git_feature_branch_in_each_repo
+    - puppetsync::install_gems
+    - puppetsync::ensure_jira_subtask_for_each_repo: false
+    - puppetsync::ensure_github_fork
+    - puppet_apply
+    - puppetsync::git_commit
+    - puppetsync::ensure_github_pr
 
 jira:
   parent_issue: SIMP-7035
@@ -21,9 +22,6 @@ jira:
   subtask_story_points: 1
   subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
   subtask_assignee: 'chris.tessmer'
-
-github:
-  user: op-ct
 
 git:
   commit_message: |
