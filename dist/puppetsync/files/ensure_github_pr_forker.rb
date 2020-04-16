@@ -58,15 +58,27 @@ class GitHubPRForker
     pr
   end
 
+  def update_pr(pr, commit_message)
+    commit_msg_lines = commit_message.split("\n")
+    title = commit_msg_lines.shift
+    body  = commit_msg_lines.join("\n").strip
+    head  = "#{pr.user.login}:#{pr.head.ref}"
+    warn( "=== Updating PR #{head} -> #{pr.base.repo.full_name}:#{pr.base.ref}" )
+    @client.update_pull_request( pr.base.repo.full_name, pr.number, {:title => title, :body => body} )
+  end
+
+  # Idempotently creates or updates a PR
+  #
+  # @return object of created/updated PR
   def ensure_pr(upstream_reponame, opts)
     fork_branch, target_branch, commit_message =  opts[:fork_branch], opts[:target_branch], opts[:commit_message]
     pr = existing_pr(upstream_reponame, target_branch, @client.login, fork_branch)
     return(create_pr(upstream_reponame, target_branch, fork_branch, commit_message)) unless pr
-    warn( "--- PR ##{pr.number} already exists for: #{fork_branch} -> #{upstream_reponame}:#{target_branch}" )
-    return pr
+    warn( "--- PR ##{pr.number} already exists for: #{fork_branch} -> #{upstream_reponame}:#{target_branch}; updating" )
+    update_pr(pr, commit_message)
   end
 
-  # return array of approvals that already exist for this pr
+  # @return [Array] Approvals that already exist for this PR
   def pr_approvals(pr, approving_user=nil)
     reviews = @client.pull_request_reviews( pr.base.repo.full_name, pr.number )
     reviews.select do |r|
