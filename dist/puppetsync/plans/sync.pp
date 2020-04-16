@@ -158,15 +158,14 @@ plan puppetsync::sync(
   ) |$ok_repos, $stage_name| {
     $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
     $ok_repos.map |$target| {
-      $results = run_task( 'puppetsync::git_commit', $target,
+      run_task( 'puppetsync::git_commit', $target,
         "Commit changes with git",
         {
           'repo_path'      => $target.vars['repo_path'],
           'commit_message' => puppetsync::template_git_commit_message($target,$puppetsync_config),
           '_catch_errors'  => true,
         }
-      )
-      $results.first
+      ).first
     }
   }
 
@@ -281,5 +280,5 @@ plan puppetsync::sync(
     }
   }
 
-  puppetsync::output_pipeline_results( $repos, $project_dir, 'final' )
+  puppetsync::output_pipeline_results( $repos, $project_dir)
 }

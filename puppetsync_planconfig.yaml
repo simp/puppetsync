@@ -4,14 +4,6 @@ puppetsync:
   puppet_role: 'role::pupmod_travis_only'
   permitted_project_types:
     - pupmod
-  stages:
-    - puppetsync::checkout_git_feature_branch_in_each_repo
-    - puppetsync::install_gems
-    - puppetsync::ensure_jira_subtask_for_each_repo: false
-    - puppetsync::ensure_github_fork
-    - puppet_apply
-    - puppetsync::git_commit
-    - puppetsync::ensure_github_pr
 
 jira:
   parent_issue: SIMP-7035
@@ -34,3 +26,7 @@ git:
 
     [%JIRA_PARENT_ISSUE%] #comment Update to latest pipeline in %COMPONENT%
     [%JIRA_SUBTASK%] #close
+
+github:
+  pr_user: op-ct
+  approval_message: ':+1: :ghost:'

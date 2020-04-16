@@ -97,6 +97,7 @@ class GitHubPRForker
     review
   end
 
+  # FIXME finish after approve_pr
   def merge_pr(upstream_reponame, opts )
     fork_branch, target_branch, commit_message =  opts[:fork_branch], opts[:target_branch], opts[:commit_message]
     pr = existing_pr(upstream_reponame, target_branch, fork_user, fork_branch)
