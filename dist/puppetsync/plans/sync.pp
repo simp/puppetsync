@@ -11,7 +11,7 @@
 #
 # @summary Update assets across multiple git repos using Bolt tasks and Puppet
 #
-# @usage
+# @example
 #
 #   1. Set environment vars: `JIRA_USER`, `JIRA_API_TOKEN`, `GITHUB_API_TOKEN`
 #   2. Run:
@@ -183,7 +183,7 @@ plan puppetsync::sync(
           'github_repo'      => $target.vars['repo_url_path'],
           'github_authtoken' => $github_token.unwrap,
           'extra_gem_path'   => $extra_gem_path,
-          '_catch_errors'    => false,
+          '_catch_errors'    => true,
         }
       )
       if $results.ok {
