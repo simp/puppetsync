@@ -1,6 +1,6 @@
-# Approve multiple PRs for a puppetsync sync
+# Approve multiple GitHub PRs for a puppetsync sync
 #
-# @summary Approve PRs for all repos in a puppetsync sync
+# @summary Approve GitHub PRs for all repos in a puppetsync sync
 #
 # @example
 #
@@ -36,7 +36,7 @@
 # @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
-plan puppetsync::approve_prs(
+plan puppetsync::approve_github_prs(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",

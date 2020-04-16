@@ -1,6 +1,6 @@
-# Merge multiple PRs for a puppetsync sync
+# Merge multiple GitHub PRs for a puppetsync sync
 #
-# @summary Merge PRs for all repos in a puppetsync sync
+# @summary Merge GitHub PRs for all repos in a puppetsync sync
 #
 # @example
 #
@@ -33,7 +33,7 @@
 # @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
-plan puppetsync::merge_prs(
+plan puppetsync::merge_github_prs(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
