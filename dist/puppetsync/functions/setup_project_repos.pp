@@ -1,3 +1,6 @@
+# @ summary Read, clone, add facts, and filter repo Targets from the project's Puppetfile.repos file
+#
+# @return [Array[Target]] Project repo Targets
 function puppetsync::setup_project_repos(
   Hash                 $puppetsync_config,
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
