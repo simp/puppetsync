@@ -41,7 +41,7 @@ function puppetsync::repo_targets_from_puppetfile(
 
   if !$pf_alt_moduledir_repos.empty {
     warning( @("END")
-      ====== WARNING: found repos with moduledir != '$default_moduledir':
+      ====== WARNING: found repos with moduledir != '${default_moduledir}':
       ${pf_alt_moduledir_repos.map |$k,$v|{ "  - ${v['name']}:\t${k}" }.join("\n")}
     END
   )}
@@ -78,7 +78,7 @@ function puppetsync::repo_targets_from_puppetfile(
       $target.set_config( ['transport'], $localhost.config.dig('transport'))
       $target.set_config(
         ['local', 'interpreters', '.rb'],
-       $localhost.config.dig('local', 'interpreters', '.rb')
+        $localhost.config.dig('local', 'interpreters', '.rb')
       )
       $target.set_config(
         ['local', 'tmpdir'], $localhost.config.dig('local', 'tmpdir')

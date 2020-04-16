@@ -12,7 +12,7 @@ function puppetsync::filter_permitted_repos(
           "== WARNING: Rejecting target '%s'  from repos because its project_type (%s) is not in the permitted project_types (%s)",
           $repo.name,
           ($repo.facts.dig('project_type').lest || {''}),
-          $permitted_project_types.join(", ")
+          $permitted_project_types.join(', ')
         )
       )
       false

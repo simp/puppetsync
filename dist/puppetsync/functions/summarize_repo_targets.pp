@@ -11,7 +11,7 @@ function puppetsync::summarize_repo_targets(
     $t_facts = $target.facts.to_yaml.regsubst('^','       ','G')
     $verbose ? {
       true    => "${t_idx}\nvars:${t_vars}\nfacts:\n${t_facts}",
-      default => "${t_idx}"
+      default => $t_idx
     }
   }.join("\n")
 

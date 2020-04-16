@@ -70,7 +70,7 @@ plan puppetsync::sync(
   # - [x] set up facts
   # --------
   # - [x] puppet apply
-  # - [ ] run transformations?
+  # - [ ] run transformations?  tasks?
   # -------
   # - [x] commit changes
   # - [x] ensure GitHub fork of upstream repo exists
@@ -107,7 +107,7 @@ plan puppetsync::sync(
       'Install RubyGems gems on localhost that are required to run tasks',
       {
         'path'          => $extra_gem_path,
-        'gems'          => ["jira-ruby:~> 2.0", "octokit:~> 4.18"],
+        'gems'          => ['jira-ruby:~> 2.0', 'octokit:~> 4.18'],
         '_catch_errors' => false,
       }
     )
@@ -144,7 +144,7 @@ plan puppetsync::sync(
     $opts
   ) |$ok_repos, $stage_name| {
     apply( $ok_repos,
-      '_description' => "Apply Puppet role '$puppet_role'",
+      '_description' => "Apply Puppet role '${puppet_role}'",
       '_noop' => false,
       _catch_errors => true,
     ){ include $puppet_role }
@@ -159,7 +159,7 @@ plan puppetsync::sync(
     $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
     $ok_repos.map |$target| {
       run_task( 'puppetsync::git_commit', $target,
-        "Commit changes with git",
+        'Commit changes with git',
         {
           'repo_path'      => $target.vars['repo_path'],
           'commit_message' => puppetsync::template_git_commit_message($target,$puppetsync_config),
@@ -210,7 +210,7 @@ plan puppetsync::sync(
           'repo_path'     => $target.vars['repo_path'],
           'remote_url'    => $target.vars['user_repo_fork']['ssh_url'],
           'remote_name'   => $target.vars['remote_name'],
-          '_catch_errors' => false,
+          '_catch_errors' => true,
         }
       )
       if !$results.ok {
@@ -225,6 +225,7 @@ plan puppetsync::sync(
       $results.first
     }
   }
+  # TODO if any repos were forked, wait 5 minutes for GitHub to catch up
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -237,12 +238,11 @@ plan puppetsync::sync(
         "cd '${target.vars['repo_path']}'; git push '${target.vars['remote_name']}' '${feature_branch}' -f",
         $target,
         "Push branch '${feature_branch}' to forked repository",
-        { '_catch_errors' => false }
+        { '_catch_errors' => true }
       )
       $results.first
     }
   }
-  # TODO if any repos were forked, wait 5 minutes for GitHub to catch up
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -259,8 +259,8 @@ plan puppetsync::sync(
           'fork_branch'      => $feature_branch,
           'commit_message'   => puppetsync::template_git_commit_message($target,$puppetsync_config),
           'github_authtoken' => $github_token.unwrap,
-          'extra_gem_path'  => $extra_gem_path,
-          '_catch_errors'    => false,
+          'extra_gem_path'   => $extra_gem_path,
+          '_catch_errors'    => true,
         }
       )
 

@@ -8,7 +8,7 @@ function puppetsync::setup_project_repos(
   $pf_repos = puppetsync::repo_targets_from_puppetfile(
     $puppetfile, 'repo_targets', $default_repo_moduledir, $exclude_repos_from_other_module_dirs
   )
-  if $pf_repos.size == 0 { fail_plan( "No repos found to sync!  Is $puppetfile set up correctly?" ) }
+  if $pf_repos.size == 0 { fail_plan( "No repos found to sync!  Is ${puppetfile} set up correctly?" ) }
 
   out::message( "== puppetfile: '${puppetfile}'\n== project_dir: '${project_dir}'" )
   warning( "\n\n==  \$puppetsync_config:\n${puppetsync_config.to_yaml.regsubst('^','    ','G')}" )
