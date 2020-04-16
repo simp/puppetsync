@@ -1,13 +1,13 @@
 # Approve multiple PRs for a puppetsync sync
 #
-# @summary Update assets across multiple git repos using Bolt tasks and Puppet
+# @summary Approve PRs for all repos in a puppetsync sync
 #
 # @example
 #
 #   1. Set environment var `GITHUB_API_TOKEN`
 #   2. Run:
 #
-#      bolt plan run puppetsync::approve fork_user=<github-user-who-submitted-prs>
+#      bolt plan run puppetsync::approve
 #
 # @param targets
 #   The parameter is required to exist, but is unused.
@@ -33,10 +33,10 @@
 #   some of the Ruby tasks.
 #   (Default: `${project_dir}/.gems`)
 #
-# @author Chris Tessmer <chris.essmer@onyxpoint.com>
+# @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
-plan puppetsync::approve(
+plan puppetsync::approve_prs(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
