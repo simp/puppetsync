@@ -48,11 +48,12 @@ back to each repo as a Pull Request from a forked repository.
 
 1. Use `bolt` to download the project's dependencies from `Puppetfile`:
 
-  ./Rakefile install
+        ./Rakefile install
 
-Or:
+   Or:
 
-  /opt/puppetlabs/bin/bolt puppetfile install
+         /opt/puppetlabs/bolt/bin/gem install --user-install -g gem.deps.rb
+         /opt/puppetlabs/bin/bolt puppetfile install
 
 2. Add `mod` entries for the repos you want to sync in `Puppetfile.repos`
 3. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
@@ -98,6 +99,11 @@ Example:
 
 ```yaml
 ---
+puppetsync:
+  puppet_role: 'role::pupmod_travis_only'
+  permitted_project_types:
+    - pupmod
+
 jira:
   parent_issue: SIMP-7035
   project: SIMP
@@ -106,7 +112,6 @@ jira:
 
   # optional subtask fields:
   subtask_story_points: 1
-  subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
   subtask_assignee: 'chris.tessmer'
 
 git:
@@ -118,11 +123,12 @@ git:
     diagnostic mode to test the project's variables against their respective
     deployment APIs (GitHub and Puppet Forge).
 
-    %JIRA_PARENT_ISSUE% #comment Update to latest pipeline in %COMPONENT%
-    %JIRA_SUBTASK% #close
+    [%JIRA_PARENT_ISSUE%] #comment Update to latest pipeline in %COMPONENT%
+    [%JIRA_SUBTASK%] #close
 
 github:
-  user: op-ct
+  pr_user: op-ct
+  approval_message: ':+1: lgtm'
 ```
 
 ## Limitations
