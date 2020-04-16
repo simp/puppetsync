@@ -16,21 +16,32 @@
 
 ## Description
 
-A [bolt][bolt] plan to sync changes across multiple repositories, with workflow
-support for Jira and PRs from forked GitHub repositories.
+**puppetsync** manages your infrastructure code like infrastructure-as-code!
 
-1. Clones repositories defined in a `Puppetfile.repos` (using `bolt puppetfile install`)
-2. Checks out a new feature branch in each repository
-3. Ensures a Jira subtask exists for each repository
-4. Updates repository files using Puppet
-5. Commits changes with a templated commit message
-6. TODO: (in progress) Ensures a forked repository exists on GitHub
-7. TODO: pushes changes up to each fork
-8. TODO: ensures a Pull Request exists back to the original repository
+It is a collection of embedded [Puppet bolt][bolt] plans to help orchestrate
+updates to a "baseline" of common assets across multiple git repositories,
+using Puppet and Bolt.
 
+The main plan (`puppetsync::sync`) executes the workflow as series of pipeline
+of stages for each repo.  It:
 
-Update files in multiple git repositories using Puppet, and submit changes
-back to each repo as a Pull Request from a forked repository.
+1. Clones `:git` repositories defined in a `Puppetfile.repos` file
+
+Then, for each repository, it will:
+
+2. Ensure a Jira subtask exists to track the change
+3. Check out a new git feature branch
+4. Apply Puppet manifests to enforce a common repository asset baseline
+5. Commit changes to git with a templated commit message
+6. Ensure the user has forked repository on GitHub
+7. Push changes up to the user's forked repository
+8. Submit a Pull Request to merge the changes back the original repository and branch
+
+If an individual repo encounters failures during a stage, it will be held back
+while the other repos proceed in their workflows.
+
+All failures are summarized after the plan finished executing.
+
 
 ## Setup
 
