@@ -1,0 +1,33 @@
+{
+  "description": "Merge a specific user's GitHub PR from _fork_repo:branch_ to _target_repo:branch_",
+  "input_method": "stdin",
+  "parameters": {
+    "target_repo": {
+      "description": "GitHub repo receiving the PR (e.g., 'simp/pupmod-simp-simplib')",
+      "type": "String[1]"
+    },
+    "target_branch": {
+      "description": "Branch in target_repo receiving the PR",
+      "type": "String[1]"
+    },
+    "fork_user": {
+      "description": "GitHub user that submitted the PR",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "fork_branch": {
+      "description": "Branch from forked_repo the provides the PR",
+      "type": "String[1]"
+    },
+    "github_authtoken": {
+      "description": "GitHub API token",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "extra_gem_path": {
+      "description": "Additional gem path to look for ruby gems (e.g., `octokit`)",
+      "type": "Optional[Stdlib::Absolutepath]"
+    }
+  },
+  "files": ["puppetsync/files/ensure_github_pr_forker.rb",  "ruby_task_helper/files/task_helper.rb" ]
+}

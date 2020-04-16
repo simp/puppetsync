@@ -109,13 +109,17 @@ class GitHubPRForker
     review
   end
 
-  # FIXME finish after approve_pr
-  def merge_pr(upstream_reponame, opts )
-    fork_branch, target_branch, commit_message =  opts[:fork_branch], opts[:target_branch], opts[:commit_message]
-    pr = existing_pr(upstream_reponame, target_branch, fork_user, fork_branch)
+  def merge_pr(pr)
     raise 'No PR exists to approve' unless pr
-require 'pry'; binding.pry
-
+    raise "PR already approved: '#{pr.html_url}'" if @client.pull_merged?( pr.base.repo.full_name, pr.number)
+    @client.merge_pull_request(
+      pr.base.repo.full_name,
+      pr.number,
+      '',
+      {
+        :merge_method => 'squash',
+      }
+    )
   end
 
 end
@@ -125,7 +129,7 @@ if __FILE__ == $0
   forker = GitHubPRForker.new( ENV['GITHUB_API_TOKEN'])
   fail( 'set ENV var UPSTREAM_REPO (ex: \'UPSTREAM_REPO=simp/pupmod-simp-at\')' ) unless ENV['UPSTREAM_REPO']
   upstream_reponame = ENV['UPSTREAM_REPO'] || 'simp/pupmod-simp-at'
-  repo_fork = forker.ensure_fork(upstream_reponame)
+  ###repo_fork = forker.ensure_fork(upstream_reponame)
 
   ### PR:
   ####opts = {
@@ -145,32 +149,32 @@ if __FILE__ == $0
   ####  )
   ####}
 
+  ###opts = {
+  ###  target_branch: 'master',
+  ###  fork_branch:   'SIMP-7035',
+  ###  commit_message: ( <<~COMMIT_MESSAGE
+  ###    (SIMP-7035) Update to new Travis CI pipeline
+
+  ###    This patch updates the Travis Pipeline to a static, standardized format
+  ###    that uses project variables for secrets. It includes an optional
+  ###    diagnostic mode to test the project\'s variables against their respective
+  ###    deployment APIs (GitHub and Puppet Forge).
+
+  ###    SIMP-7035 #comment Update to latest pipeline in pupmod-simp-at
+  ###    SIMP-7617 #close
+  ###    COMMIT_MESSAGE
+  ###  ),
+  ###  approval_message: "Update of static, non-code file approved in https://github.com/simp/pupmod-simp-aide/pull/59",
+  ###  merge_message: nil,
+  ###}
   opts = {
+    fork_user: 'op-ct',
     target_branch: 'master',
     fork_branch:   'SIMP-7035',
-    commit_message: ( <<~COMMIT_MESSAGE
-      (SIMP-7035) Update to new Travis CI pipeline
-
-      This patch updates the Travis Pipeline to a static, standardized format
-      that uses project variables for secrets. It includes an optional
-      diagnostic mode to test the project\'s variables against their respective
-      deployment APIs (GitHub and Puppet Forge).
-
-      SIMP-7035 #comment Update to latest pipeline in pupmod-simp-at
-      SIMP-7617 #close
-      COMMIT_MESSAGE
-    ),
-    approval_message: "Update of static, non-code file approved in https://github.com/simp/pupmod-simp-aide/pull/59",
-    merge_message: nil,
-  }
-  upstream_reponame = 'simp/simp-doc'
-  opts = {
-    fork_user: 'judyj',
-    target_branch: 'master',
-    fork_branch:   'RTD_update',
-    approval_message: ":+1: :ghost:",
   }
   pr = forker.existing_pr(upstream_reponame, opts[:target_branch], opts[:fork_user], opts[:fork_branch] )
-  repo_pr = forker.approve_pr(pr, opts[:approval_message] || ':+1: :ghost:')
-  ###repo_pr = forker.merge_pr(upstream_reponame, opts )
+  ###repo_pr = forker.approve_pr(pr, opts[:approval_message] || ':+1: :ghost:')
+  result = forker.merge_pr(pr)
+
+require 'pry'; binding.pry
 end
