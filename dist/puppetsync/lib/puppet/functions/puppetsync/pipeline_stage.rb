@@ -10,9 +10,10 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
 
   def pipeline_stage( targets, stage_name, opts={}, &code )
     # Skip stage
-    if opts.key?('stages') && !opts.fetch('stages',[]).include?(stage_name)
+    if opts.key?('skip_pipeline_stages') && opts.fetch('skip_pipeline_stages',[]).include?(stage_name)
       Puppet.warning("!!! skipping stage '#{stage_name}'")
-      return
+      call_function( 'out::message', "===== SKIPPING PIPELINE STAGE DUE TO CONFIGURATION: #{stage_name}" )
+      return []
     end
 
     # Only run targets that have succeeded

@@ -1,13 +1,16 @@
 # Update assets across multiple git repos using Bolt tasks and Puppet
 #
 # Supports workflow tasks, like:
-#   - Ensuring a Jira subtask exists to track each repo (requires JIRA_API_TOKEN)
+#   - Ensuring a Jira subtask exists to track each repo
+#     (requires `$JIRA_USER` and `$JIRA_API_TOKEN`)
 #   - Ensuring the user's GitHub account a has fork of each upstream repo
-#   - Submitting PRs exists repos/submitting PRs on GitHub
+#     (requires `$GITHUB_API_TOKEN`)
+#   - Pushing up changes and submitting Pull Requests back to the original GitHub repo
+#     (requires `$GITHUB_API_TOKEN`)
 #
 # Files:
-#   - `Puppetfile.repos`:           Defines repos to clone and update
-#   - `puppetsync_planconfig.yaml`: Defines settings for this update
+#   - `Puppetfile.repos`:           Defines :git repos (with :branch) to clone and update
+#   - `puppetsync_planconfig.yaml`: Defines settings for this particular update session
 #
 # @summary Update assets across multiple git repos using Bolt tasks and Puppet
 #
@@ -35,14 +38,34 @@
 #   (Default: `${project_dir}/Puppetfile.repos`)
 #
 # @param puppetsync_config_path
-#   Path to a YAML file with seetings for a specific update session
+#   Path to a YAML file with settings for a specific update session
 #   See the project README.md for an example.
 #   (Default: `${project_dir}/puppetsync_planconfig.yaml`)
+#
+# @param puppetsync_config
+#   Hash of settings for this specific update session
 #
 # @param extra_gem_path
 #   Path to a gem path with extra gems the bolt interpreter will to run
 #   some of the Ruby tasks.
 #   (Default: `${project_dir}/.gems`)
+#
+# @param jira_username
+#    Jira API username (probably an email address)
+#    (Default: Environment variable `$JIRA_USER`)
+#
+# @param jira_token
+#   Jira API token
+#    (Default: Environment variable `$JIRA_API_TOKEN`)
+#
+#   _NOTES_
+#   - You MUST generate an API token (basic auth no longer works).
+#   - To do so, you must have Jira instance access rights.
+#   - You can generate a token here: https://id.atlassian.com/manage/api-tokens
+#
+# @param github_token
+#   GitHub API token
+#    (Default: Environment variable `$GITHUB_API_TOKEN`)
 #
 # @author Chris Tessmer <chris.essmer@onyxpoint.com>
 #
@@ -58,9 +81,12 @@ plan puppetsync::sync(
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
+  Hash                 $options                = {},
 ) {
-  $repos             = puppetsync::setup_project_repos( $puppetsync_config, $project_dir, $puppetfile )
-  $opts              = {}
+  $opts = {
+    'clone_git_repos' => true,
+   } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{}} + $options
+  $repos = puppetsync::setup_project_repos( $puppetsync_config, $project_dir, $puppetfile, $opts )
   $feature_branch    = getvar('puppetsync_config.jira.parent_issue')
 
   # ----------------------------------------------------------------------------
@@ -85,7 +111,7 @@ plan puppetsync::sync(
   # -------
   # stretch goals:
   # - [x] only run on repos that match a list of accepted project_types
-  # - [ ] feature flag each step (on, off, noop?)
+  # - [x] feature flag each step (on, off, noop?)
   # - [ ] support --noop in each pipeline_stage
   # - [ ] push changes using HTTPS basic auth + GitHub token (CI friendly)
   # - [ ] move templating logic from jira task's ruby code into plan logic

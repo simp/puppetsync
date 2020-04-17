@@ -4,6 +4,26 @@ puppetsync:
   puppet_role: 'role::pupmod_travis_only'
   permitted_project_types:
     - pupmod
+  plans:
+    sync:
+      clone_git_repos: false
+      skip_pipeline_stages:
+        - install_gems
+        - checkout_git_feature_branch_in_each_repo
+        - ensure_jira_subtask
+        - apply_puppet_role
+        - git_commit_changes
+        - ensure_github_fork
+        - ensure_git_remote
+        - git_push_to_remote
+        - ensure_github_pr
+
+
+    approve_github_pr:
+      clone_git_repos: false
+    merge_github_pr:
+      clone_git_repos: false
+
 
 jira:
   parent_issue: SIMP-7035

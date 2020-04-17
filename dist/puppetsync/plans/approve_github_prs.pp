@@ -46,10 +46,19 @@ plan puppetsync::approve_github_prs(
   String[1]            $approval_message       = $puppetsync_config.dig('github','approval_message').lest || { ':+1: :ghost:' },
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
+  Hash                 $options                = {},
 ) {
-  $repos             = puppetsync::setup_project_repos( $puppetsync_config, $project_dir, $puppetfile )
-  $opts              = {}
-  $feature_branch    = getvar('puppetsync_config.jira.parent_issue')
+  $opts = {
+    'clone_git_repos' => false,
+  } + getvar('puppetsync_config.puppetsync.plans.approve_github_prs').lest || {{}} + $options
+  $repos = puppetsync::setup_project_repos(
+    $puppetsync_config,
+    $project_dir,
+    $puppetfile,
+    { 'clone_git_repos' => $opts['clone_git_repos'], }
+  )
+
+  $feature_branch = getvar('puppetsync_config.jira.parent_issue')
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------

@@ -42,10 +42,18 @@ plan puppetsync::merge_github_prs(
   String[1]            $pr_user                = $puppetsync_config.dig('github','pr_user').lest || { undef },
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
+  Hash                 $options                = {},
 ) {
-  $repos             = puppetsync::setup_project_repos( $puppetsync_config, $project_dir, $puppetfile )
-  $opts              = {}
-  $feature_branch    = getvar('puppetsync_config.jira.parent_issue')
+  $opts = {
+    'clone_git_repos' => false,
+  } + getvar('puppetsync_config.puppetsync.plans.merge_github_prs').lest || {{}} + $options
+  $repos = puppetsync::setup_project_repos(
+    $puppetsync_config,
+    $project_dir,
+    $puppetfile,
+    { 'clone_git_repos' => $opts['clone_git_repos'], }
+  )
+  $feature_branch = getvar('puppetsync_config.jira.parent_issue')
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
