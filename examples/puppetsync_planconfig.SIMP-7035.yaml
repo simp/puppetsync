@@ -1,0 +1,52 @@
+---
+
+puppetsync:
+  puppet_role: 'role::pupmod_travis_only'
+  permitted_project_types:
+    - pupmod
+  plans:
+    sync:
+      #clone_git_repos: false
+      skip_pipeline_stages:
+      #  - install_gems
+      #  - checkout_git_feature_branch_in_each_repo
+      #  - ensure_jira_subtask
+      #  - apply_puppet_role
+      #  - git_commit_changes
+      #  - ensure_github_fork
+      #  - ensure_git_remote
+      #  - git_push_to_remote
+      #  - ensure_github_pr
+
+
+    approve_github_pr:
+      clone_git_repos: false
+    merge_github_pr:
+      clone_git_repos: false
+
+
+jira:
+  parent_issue: SIMP-7035
+  project: SIMP
+  jira_site: https://simp-project.atlassian.net
+  subtask_title: 'Update .travis.yml pipeline in %COMPONENT%'
+  # optional:
+  subtask_story_points: 1
+  subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
+  subtask_assignee: 'chris.tessmer'
+
+git:
+  commit_message: |
+    (%JIRA_PARENT_ISSUE%) Update to new Travis CI pipeline
+
+    This patch updates the Travis Pipeline to a static, standardized format
+    that uses project variables for secrets. It includes an optional
+    diagnostic mode to test the project's variables against their respective
+    deployment APIs (GitHub and Puppet Forge).
+
+    [%JIRA_PARENT_ISSUE%] #comment Update to latest pipeline in %COMPONENT%
+    [%JIRA_SUBTASK%] #close
+
+github:
+  pr_user: op-ct
+  approval_message: ':+1: :ghost:'
