@@ -1,13 +1,10 @@
-#### The commented-out modules are already approved + merged for SIMP-7035:
-#### --------------------------------------------------------------------------
-###mod 'simp-acpid',
-###  :git => 'https://github.com/simp/pupmod-simp-acpid',
-###  :branch => 'master'
-###
-### mod 'simp-aide',
-###   :git => 'https://github.com/simp/pupmod-simp-aide',
-###   :branch => 'master'
-#### --------------------------------------------------------------------------
+mod 'simp-acpid',
+  :git => 'https://github.com/simp/pupmod-simp-acpid',
+  :branch => 'master'
+
+mod 'simp-aide',
+  :git => 'https://github.com/simp/pupmod-simp-aide',
+  :branch => 'master'
 
 mod 'simp-at',
   :git => 'https://github.com/simp/pupmod-simp-at',
@@ -249,10 +246,9 @@ mod 'simp-stunnel',
   :git => 'https://github.com/simp/pupmod-simp-stunnel',
   :branch => 'master'
 
-# Already approved
-###  mod 'simp-sudo',
-###    :git => 'https://github.com/simp/pupmod-simp-sudo',
-###    :branch => 'master'
+mod 'simp-sudo',
+  :git => 'https://github.com/simp/pupmod-simp-sudo',
+  :branch => 'master'
 
 mod 'simp-sudosh',
   :git => 'https://github.com/simp/pupmod-simp-sudosh',
