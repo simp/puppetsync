@@ -1,3 +1,27 @@
+# @summary Idempotently ensures that a Jira subtask exists for each repo
+#
+# Idempotently ensures that a Jira subtask exists for each repo
+#
+# @param repos
+#   The repo targets to process
+#
+# @param puppetsync_config
+#   Hash of setting for this pecific update session
+#
+# @param extra_gem_path
+#   Path to a gem path with extra gems the bolt interpreter will to run
+#   some of the Ruby tasks.
+#   (Default: `${PWD}/.gems`)
+#
+# @param jira_username
+#    Jira API username (probably an email address)
+#    (Default: Environment variable `$JIRA_USER`)
+#
+# @param jira_token
+#   Jira API token
+#   (Default: Environment variable `$JIRA_API_TOKEN`)
+#
+# @return [Array[Bolt::Result]]
 function puppetsync::ensure_jira_subtask_for_each_repo(
   TargetSpec           $repos,
   Hash                 $puppetsync_config,
