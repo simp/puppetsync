@@ -173,7 +173,9 @@ plan puppetsync::sync(
       '_description' => "Apply Puppet role '${puppet_role}'",
       '_noop' => false,
       _catch_errors => true,
-    ){ include $puppet_role }
+    ){
+      include $puppet_role
+    }
   }
 
   $repos.puppetsync::pipeline_stage(
@@ -306,5 +308,5 @@ plan puppetsync::sync(
     }
   }
 
-  puppetsync::output_pipeline_results( $repos, $project_dir)
+  puppetsync::output_pipeline_results( $repos, $project_dir, $opts)
 }

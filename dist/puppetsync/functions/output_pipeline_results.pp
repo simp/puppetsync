@@ -3,7 +3,12 @@
 function puppetsync::output_pipeline_results(
   TargetSpec $repos,
   Stdlib::Absolutepath $project_dir,
+  Hash $project_opts = {},
 ){
+  if $project_opts.dig('list_pipeline_stages') {
+    warning( 'Project is listing pipeline stages; no results to output' )
+    return( {} )
+  }
   out::message( [
     '',
     '================================================================================',

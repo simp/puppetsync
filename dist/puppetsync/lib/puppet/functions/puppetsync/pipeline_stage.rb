@@ -16,6 +16,11 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
       return []
     end
 
+    if opts && opts.key?('list_pipeline_stages') && (opts['list_pipeline_stages'] || false )
+      call_function( 'out::message', "- #{stage_name}" )
+      return []
+    end
+
     # Only run targets that have succeeded
     Puppet.warning("== Preparing stage '#{stage_name}'")
     ok_targets = targets.select{ |repo| call_function( 'puppetsync::all_stages_ok', repo ) }

@@ -12,6 +12,7 @@ function puppetsync::setup_project_repos(
     'default_repo_moduledir'               => '_repos',
     'exclude_repos_from_other_module_dirs' => true,
   } + $options
+  if $opts.dig('list_pipeline_stages') { return [] }
 
   $pf_repos = puppetsync::repo_targets_from_puppetfile(
     $puppetfile, 'repo_targets', $opts['default_repo_moduledir'], $opts['exclude_repos_from_other_module_dirs']
