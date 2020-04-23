@@ -160,7 +160,25 @@ plan puppetsync::sync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    puppetsync::ensure_jira_subtask_for_each_repo( $ok_repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path )
+    puppetsync::ensure_jira_subtask_for_each_repo(
+      $ok_repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path
+    )
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'split_gitlab_files',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task( 'puppetsync::split_gitlab_files',
+      'localhost',
+      'split .gitlab-ci.yml into a common static matrix and repo-speicifc acceptance tests',
+      {
+        'repo_paths'    =>  $ok_repos.map |$x| { $x.vars['repo_path'] },
+        '_catch_errors' => true,
+      }
+    )
   }
 
   $repos.puppetsync::pipeline_stage(
@@ -169,6 +187,7 @@ plan puppetsync::sync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
+    puppetsync::setup_repos_facts( $ok_repos )
     apply( $ok_repos,
       '_description' => "Apply Puppet role '${puppet_role}'",
       '_noop' => false,

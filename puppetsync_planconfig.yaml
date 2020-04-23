@@ -1,23 +1,24 @@
 ---
 
 puppetsync:
-  puppet_role: 'role::pupmod_travis_only'
+  puppet_role: 'role::pupmod_gitlabci_only'
   permitted_project_types:
     - pupmod
   plans:
     sync:
-      clone_git_repos: false
+      # TODO: make this `stages` that opt-in, not opt out
       skip_pipeline_stages:
-        - install_gems
-        - checkout_git_feature_branch_in_each_repo
+      #  - install_gems
+      #  - checkout_git_feature_branch_in_each_repo
+      #  - split_gitlab_files
         - ensure_jira_subtask
-        - apply_puppet_role
-        - git_commit_changes
+      # - apply_puppet_role
+      # - git_commit_changes
         - ensure_github_fork
         - ensure_git_remote
         - git_push_to_remote
         - ensure_github_pr
-
+      #clone_git_repos: false
 
     approve_github_pr:
       clone_git_repos: false
@@ -26,26 +27,25 @@ puppetsync:
 
 
 jira:
-  parent_issue: SIMP-7035
+  parent_issue: SIMP-7708
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Update .travis.yml pipeline in %COMPONENT%'
+  subtask_title: 'Fix .gitlab-ci.yml cache setting in %COMPONENT%'
   # optional:
   subtask_story_points: 1
-  subtask_description: 'Push the new (static) Travis CI pipelines to %COMPONENT%'
+  subtask_description: 'Fix .gitlab-ci.yml cache setting in %COMPONENT%'
   subtask_assignee: 'chris.tessmer'
 
 git:
+  # 0---------1---------2---------3---------4---------5---------6---------7-|
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Update to new Travis CI pipeline
+    (%JIRA_PARENT_ISSUE%) Fix Gitab CI cache setting
 
-    This patch updates the Travis Pipeline to a static, standardized format
-    that uses project variables for secrets. It includes an optional
-    diagnostic mode to test the project's variables against their respective
-    deployment APIs (GitHub and Puppet Forge).
+    This patch removes the gitlab cache `untracked: true` setting from
+    `.gitlab-ci.yml`.
 
     [%JIRA_PARENT_ISSUE%] #comment Update to latest pipeline in %COMPONENT%
-    [%JIRA_SUBTASK%] #close
+    %JIRA_SUBTASK% #close
 
 github:
   pr_user: op-ct
