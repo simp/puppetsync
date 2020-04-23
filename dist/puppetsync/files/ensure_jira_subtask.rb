@@ -60,7 +60,7 @@ class JiraHelper
         issue = @client.Issue.build data
         issue.save! data
         if subtask_opts[:subtask_assignee]
-           st_assignee = @client.User.find( subtask_opts[:subtask_assignee].sub(/@.*$/,'') ).attrs['accountId']
+           st_assignee = @client.User.myself.attrs['accountId']
            issue.save( {'fields' => {'assignee' => { 'accountId' => st_assignee }}} )
         end
       rescue JIRA::HTTPError => e
@@ -142,7 +142,7 @@ end
 
 
 if __FILE__ == $0
-  kwargs = JSON.parse(File.read('y.json'))
+  kwargs = JSON.parse(File.read('x.json'))
   api = JiraHelper.new(
     ENV['JIRA_USER'],
     ENV['JIRA_API_TOKEN'],

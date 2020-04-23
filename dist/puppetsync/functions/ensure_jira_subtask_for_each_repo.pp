@@ -31,8 +31,8 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
 ) {
   $repos.map |$target| {
     assert_type( Hash, $puppetsync_config['jira'])
-    $assignee = $puppetsync_config['jira']['subtask_assignee'].empty ? {
-      false   =>  $puppetsync_config['jira']['subtask_assignee'],
+    $set_assignee = $puppetsync_config['jira']['subtask_assignee'] ? {
+      true   =>  $puppetsync_config['jira']['subtask_assignee'],
       default => undef,
     }
     $description = $puppetsync_config['jira']['subtask_description'].empty ? {
@@ -55,7 +55,7 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
         'subtask_title'        => $puppetsync_config['jira']['subtask_title'],
         'subtask_description'  => $description,
         'subtask_story_points' => $story_points,
-        'subtask_assignee'     => $assignee,
+        'subtask_assignee'     => $set_assignee,
         'jira_site'            => $puppetsync_config['jira']['jira_site'],
         'jira_username'        => $jira_username,
         'jira_token'           => $jira_token.unwrap,

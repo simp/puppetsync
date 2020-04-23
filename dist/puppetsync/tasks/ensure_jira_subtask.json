@@ -31,8 +31,8 @@
       "type": "Optional[Integer]"
     },
     "subtask_assignee": {
-      "description": "Subtask assignee",
-      "type": "Optional[String[1]]"
+      "description": "Set subtask assignee to the Jira User",
+      "type": "Optional[Boolean]"
     },
     "jira_username": {
       "description": "Jira API username (probably an email address)",

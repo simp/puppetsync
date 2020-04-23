@@ -11,12 +11,12 @@ puppetsync:
       #  - install_gems
       #  - checkout_git_feature_branch_in_each_repo
       #  - split_gitlab_files
-        - ensure_jira_subtask
-      # - apply_puppet_role
-      # - git_commit_changes
-        - ensure_github_fork
-        - ensure_git_remote
-        - git_push_to_remote
+      #  - ensure_jira_subtask
+      #  - apply_puppet_role
+      #  - git_commit_changes
+      #  - ensure_github_fork
+      #  - ensure_git_remote
+      #  - git_push_to_remote
         - ensure_github_pr
       #clone_git_repos: false
 
@@ -34,7 +34,7 @@ jira:
   # optional:
   subtask_story_points: 1
   subtask_description: 'Fix .gitlab-ci.yml cache setting in %COMPONENT%'
-  subtask_assignee: 'chris.tessmer'
+  subtask_assignee: true
 
 git:
   # 0---------1---------2---------3---------4---------5---------6---------7-|
