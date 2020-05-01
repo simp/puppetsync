@@ -29,5 +29,5 @@
       "type": "Optional[Stdlib::Absolutepath]"
     }
   },
-  "files": ["puppetsync/files/ensure_github_pr_forker.rb",  "ruby_task_helper/files/task_helper.rb" ]
+  "files": ["puppetsync/files/github_pr_forker.rb",  "ruby_task_helper/files/task_helper.rb" ]
 }
