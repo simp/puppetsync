@@ -6,24 +6,31 @@ puppetsync:
     - pupmod
   plans:
     sync:
-      # TODO: make this `stages` that opt-in, not opt out
-      skip_pipeline_stages:
-      #  - install_gems
-      #  - checkout_git_feature_branch_in_each_repo
-      #  - split_gitlab_files
-      #  - ensure_jira_subtask
-      #  - apply_puppet_role
-      #  - git_commit_changes
-      #  - ensure_github_fork
-      #  - ensure_git_remote
-      #  - git_push_to_remote
-        - ensure_github_pr
       #clone_git_repos: false
+      stages:
+        - install_gems
+        - checkout_git_feature_branch_in_each_repo
+        - ensure_jira_subtask
+        - split_gitlab_files # <-- special for SIMP-7708
+        - apply_puppet_role
+        - git_commit_changes
+        - lint_gitlab_ci     # <-- special for SIMP-7708
+        - ensure_github_fork
+        - ensure_git_remote
+        - git_push_to_remote
+        - ensure_gitlab_remote
+        - git_push_to_gitlab
+        - ensure_github_pr
 
     approve_github_pr:
       clone_git_repos: false
+      stages:
+        - approve_github_pr_for_each_repo
+
     merge_github_pr:
       clone_git_repos: false
+      stages:
+        - merge_github_pr_for_each_repo
 
 
 jira:
