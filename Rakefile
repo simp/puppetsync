@@ -39,6 +39,17 @@ namespace :install do
   end
 end
 
+namespace :list do
+  desc "Installed gems (pass in true to list only project gems)"
+  task :gems, :project_only do |t,args|
+    args.with_defaults(:project_only => false)
+    Dir.chdir __dir__
+    cmd =%Q[GEM_HOME="#{GEM_HOME}" "#{BOLT_GEM_EXE}" list]
+    cmd ="GEM_PATH= #{cmd}" if args.project_only
+    sh cmd
+  end
+end
+
 desc 'Install prereqs'
 task :install => ['install:gems', 'install:puppetfile']
 
