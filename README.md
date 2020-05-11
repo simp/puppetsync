@@ -22,7 +22,7 @@ It is a collection of embedded [Puppet bolt][bolt] plans to help orchestrate
 updates to a "baseline" of common assets across multiple git repositories,
 using Puppet and Bolt.
 
-The main plan (`puppetsync::sync`) executes the workflow as series of pipeline
+The main plan (`puppetsync`) executes the workflow as series of pipeline
 of stages for each repo.  It:
 
 1. Clones `:git` repositories defined in a `Puppetfile.repos` file
@@ -74,12 +74,17 @@ All failures are summarized after the plan finished executing.
 
 After [setup](#setup), sync all repos by running:
 
-        /opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
+        /opt/puppetlabs/bin/bolt plan run puppetsync
 
 To see what's going on under the hood (potentially less irritating when
 `apply()` appears to hang for a long time when updating a lot of repos):
 
-        /opt/puppetlabs/bin/bolt plan run puppetsync::sync --debug
+        /opt/puppetlabs/bin/bolt plan run puppetsync --debug
+
+
+To list all pipeline stages in a plan, run:
+
+        /opt/puppetlabs/bolt/bin/bolt plan run puppetsync options='{"list_pipeline_stages": true}'
 
 ## Reference
 

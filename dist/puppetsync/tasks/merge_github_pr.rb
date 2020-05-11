@@ -12,12 +12,12 @@ require_relative '../../ruby_task_helper/files/task_helper.rb'
 
 class MyTask < TaskHelper
   def task(name: nil, **kwargs)
-    Dir["#{kwargs[:extra_gem_path]}/gems/*/lib"].each{ |path| $LOAD_PATH << path } # for octokit
+    Dir["#{kwargs[:extra_gem_path]}/gems/*/lib"].each { |path| $LOAD_PATH << path } # for octokit
 
     require_relative '../../puppetsync/files/github_pr_forker.rb'
 
-    forker = GitHubPRForker.new( kwargs[:github_authtoken] )
-    pr = forker.existing_pr(kwargs[:"target_repo"], kwargs[:target_branch], kwargs[:fork_user], kwargs[:fork_branch] )
+    forker = GitHubPRForker.new(kwargs[:github_authtoken])
+    pr = forker.existing_pr(kwargs[:target_repo], kwargs[:target_branch], kwargs[:fork_user], kwargs[:fork_branch])
 
     merge_data = forker.merge_pr(pr)
     {
@@ -34,5 +34,4 @@ class MyTask < TaskHelper
   end
 end
 
-MyTask.run if __FILE__ == $0
-
+MyTask.run if $PROGRAM_NAME == __FILE__

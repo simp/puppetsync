@@ -13,16 +13,16 @@ require_relative '../../ruby_task_helper/files/task_helper.rb'
 class MyTask < TaskHelper
   def task(name: nil, **kwargs)
     # Ensure that extra gem paths are loaded (to find octokit)
-    Dir["#{kwargs[:extra_gem_path]}/gems/*/lib"].each{ |path| $LOAD_PATH << path }
+    Dir["#{kwargs[:extra_gem_path]}/gems/*/lib"].each { |path| $LOAD_PATH << path }
     require_relative '../../puppetsync/files/github_pr_forker.rb'
-    forker = GitHubPRForker.new( kwargs[:github_authtoken] )
+    forker = GitHubPRForker.new(kwargs[:github_authtoken])
 
     opts = {
       target_branch:  kwargs[:target_branch],
       fork_branch:    kwargs[:fork_branch],
       commit_message: kwargs[:commit_message],
     }
-    repo_pr = forker.ensure_pr(kwargs[:target_repo], opts )
+    repo_pr = forker.ensure_pr(kwargs[:target_repo], opts)
     {
       pr_created:       forker.created_pr,
       pr_number:        repo_pr.number,
@@ -35,4 +35,4 @@ class MyTask < TaskHelper
   end
 end
 
-MyTask.run if __FILE__ == $0
+MyTask.run if $PROGRAM_NAME == __FILE__

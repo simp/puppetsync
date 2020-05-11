@@ -2,9 +2,9 @@
 
 require 'json'
 require 'tempfile'
+require 'English'
 
 def git_commit(repo_path, commit_message)
-
   commit_msg_file = Tempfile.new('commit_msg_file')
   begin
     commit_msg_file.write(commit_message)
@@ -12,7 +12,7 @@ def git_commit(repo_path, commit_message)
 
     Dir.chdir repo_path
     warn "NOTICE: Running 'git add  -A' in #{repo_path}"
-    pid = spawn 'git','add','-A'
+    pid = spawn 'git', 'add', '-A'
     Process.wait pid
 
     current_commit = `git log -1 --pretty=%B`.chomp
@@ -25,7 +25,7 @@ def git_commit(repo_path, commit_message)
       pid = spawn 'git', 'commit', '-F', commit_msg_file.path
       Process.wait pid
     end
-    if $?.success?
+    if $CHILD_STATUS.success?
       puts "== #{File.basename(repo_path)} : committed changes in #{repo_path}"
     end
   ensure
@@ -38,7 +38,6 @@ stdin = STDIN.read
 params = JSON.parse(stdin)
 warn stdin
 
-fail("No repo path given") unless params['repo_path']
-fail("No commit_message given") unless params['commit_message']
+raise('No repo path given') unless params['repo_path']
+raise('No commit_message given') unless params['commit_message']
 git_commit(params['repo_path'], params['commit_message'])
-

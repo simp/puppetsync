@@ -6,7 +6,7 @@ require_relative '../../ruby_task_helper/files/task_helper.rb'
 class MyTask < TaskHelper
   def task(name: nil, **kwargs)
     # Ensure that extra gem paths are loaded (to find jira-ruby)
-    Dir["#{kwargs[:extra_gem_path]}/gems/*/lib"].each{ |path| $LOAD_PATH << path }
+    Dir["#{kwargs[:extra_gem_path]}/gems/*/lib"].each { |path| $LOAD_PATH << path }
     api = JiraHelper.new(
       kwargs[:jira_username],
       kwargs[:jira_token],
@@ -17,11 +17,10 @@ class MyTask < TaskHelper
       kwargs[:project] || 'SIMP',
       kwargs[:parent_issue],
       kwargs[:component_name],
-      kwargs.select{|k,v| k.to_s =~ /^subtask_/}
+      kwargs.select { |k, _v| k.to_s =~ %r{^subtask_} },
     )
     { subtask_key: subtask_key, parent_issue: kwargs[:parent_issue] }
   end
 end
 
-
-MyTask.run if __FILE__ == $0
+MyTask.run if $PROGRAM_NAME == __FILE__

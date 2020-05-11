@@ -22,7 +22,7 @@
 #      bolt plan run puppetsync::sync
 #
 # @param targets
-#   The parameter is required to exist, but is unused.
+#   Bolt requires this parameter to exist, however: **it is unused.**
 #   All targets are generated as `transport: local` during execution
 #
 # @param puppet_role
@@ -70,7 +70,7 @@
 # @author Chris Tessmer <chris.essmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
-plan puppetsync::sync(
+plan puppetsync(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
@@ -173,7 +173,7 @@ plan puppetsync::sync(
   ) |$ok_repos, $stage_name| {
     run_task( 'puppetsync::split_gitlab_files',
       'localhost',
-      'split .gitlab-ci.yml into a common static matrix and repo-speicifc acceptance tests',
+      'split .gitlab-ci.yml into a common static matrix and repo-specific acceptance tests',
       {
         'repo_paths'    =>  $ok_repos.map |$x| { $x.vars['repo_path'] },
         '_catch_errors' => true,
@@ -187,7 +187,6 @@ plan puppetsync::sync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    puppetsync::setup_repos_facts( $ok_repos )
     apply( $ok_repos,
       '_description' => "Apply Puppet role '${puppet_role}'",
       '_noop' => false,
@@ -198,21 +197,37 @@ plan puppetsync::sync(
   }
 
   $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'lint_gitlab_ci',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task( 'puppetsync::lint_gitlab_ci',
+      'localhost',
+      "lint .gitlab-ci.yml file to make sure it hasn't become an abomination",
+      {
+        'repo_paths'    =>  $ok_repos.map |$x| { $x.vars['repo_path'] },
+        '_catch_errors' => false,
+      }
+    )
+  }
+
+  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'git_commit_changes',
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
     $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
-    $ok_repos.map |$target| {
-      run_task( 'puppetsync::git_commit', $target,
-        'Commit changes with git',
-        {
-          'repo_path'      => $target.vars['repo_path'],
-          'commit_message' => puppetsync::template_git_commit_message($target,$puppetsync_config),
-          '_catch_errors'  => true,
-        }
-      ).first
+    run_task_with(
+      'puppetsync::git_commit',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$target| {
+      {
+        'repo_path'      => $target.vars['repo_path'],
+        'commit_message' => puppetsync::template_git_commit_message($target,$puppetsync_config),
+      }
     }
   }
 
@@ -221,24 +236,25 @@ plan puppetsync::sync(
     'ensure_github_fork',
     # --------------------------------------------------------------------------
     $opts
-  ) |$ok_repos, $stage_name|
-    {
-    $repos.filter |$repo| { puppetsync::all_stages_ok($repo) }.map |$target| {
-      $results = run_task( 'puppetsync::ensure_github_fork', $target,
-        'Ensure our GitHub user has a fork of the upstream repo',
-        {
-          'github_repo'      => $target.vars['repo_url_path'],
-          'github_authtoken' => $github_token.unwrap,
-          'extra_gem_path'   => $extra_gem_path,
-          '_catch_errors'    => true,
-        }
-      )
+  ) |$ok_repos, $stage_name| {
+    $results = run_task_with(
+      'puppetsync::ensure_github_fork', $ok_repos, '_catch_errors' => true
+    ) |$target| {{
+      'extra_gem_path'   => $extra_gem_path,
+      'github_repo'      => $target.vars['repo_url_path'],
+      'github_authtoken' => $github_token.unwrap,
+    }}
+
+    $ok_repos.each |$target| {
       if $results.ok {
+        debug::break()
         $target.set_var('user_repo_fork', $results.first.value)
-        out::message( "-- GitHub user's repo fork: '${target.vars['user_repo_fork']['user_fork']}'")
+        out::message(
+          "-- GitHub user's repo fork: '${target.vars['user_repo_fork']['user_fork']}'"
+        )
       }
-      $results.first
     }
+    $results
   }
 
   $repos.puppetsync::pipeline_stage(
@@ -247,29 +263,27 @@ plan puppetsync::sync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $ok_repos.map |$target| {
-      warning( "\n------------------ user_repo_fork:\n${$target.vars['user_repo_fork'].to_yaml}" )
-      $target.set_var('remote_name', 'user_forked_repo')
+    $ok_repos.each |$target| {$target.set_var('remote_name', 'user_forked_repo')}
+    $results = run_task_with(
+      'puppetsync::ensure_git_remote', $ok_repos, '_catch_errors' => true
+    ) |$target| {
+      {
+        'repo_path'     => $target.vars['repo_path'],
+        'remote_url'    => $target.vars['user_repo_fork']['ssh_url'],
+        'remote_name'   => $target.vars['remote_name'],
+      }
+    }
 
-      $results = run_task( 'puppetsync::ensure_git_remote', $target,
-        'Ensure local git repo has a remote for the forked repository',
-        {
-          'repo_path'     => $target.vars['repo_path'],
-          'remote_url'    => $target.vars['user_repo_fork']['ssh_url'],
-          'remote_name'   => $target.vars['remote_name'],
-          '_catch_errors' => true,
-        }
-      )
-      if !$results.ok {
+    $results.each |$r| {
+      if !$r.ok {
         out::message( @("END")
-          Running puppetsync::ensure_git_remote failed on ${target.name}:
-          ${results.first.error.msg}
+          Running puppetsync::ensure_git_remote failed on ${r.target.name}:
+          ${r.error.msg}
 
-          ${results.first.error.details}
+          ${r.error.details}
           END
         )
       }
-      $results.first
     }
   }
   # TODO if any repos were forked, wait 5 minutes for GitHub to catch up
@@ -290,6 +304,54 @@ plan puppetsync::sync(
       $results.first
     }
   }
+
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'ensure_gitlab_remote',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $results = run_task_with(
+      'puppetsync::ensure_git_remote', $ok_repos, '_catch_errors' => true,
+    ) |$target| {
+      {
+        'repo_path'     => $target.vars['repo_path'],
+        'remote_url'    => $target.vars['user_repo_fork']['ssh_url'].regsubst($puppetsync_config['github']['pr_user'],'simp').regsubst('github','gitlab'),
+        'remote_name'   => 'gitlab_repo',
+      }
+    }
+
+    if !$results.ok {
+      out::message( @("END")
+        Running puppetsync::ensure_git_remote (gitlab) failed on ${target.name}:
+        ${results.first.error.msg}
+
+        ${results.first.error.details}
+        END
+      )
+    }
+    $results.first
+  }
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'git_push_to_gitlab',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $ok_repos.map |$target| {
+      $results = run_command(
+        "cd '${target.vars['repo_path']}'; git push 'gitlab_repo' '${feature_branch}' -f",
+        $target,
+        "Push branch '${feature_branch}' to gitlab repository",
+        { '_catch_errors' => true }
+      )
+      $results.first
+    }
+  }
+
+
+  # TODO if any repos were forked, wait 5 minutes for GitHub to catch up
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------

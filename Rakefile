@@ -28,7 +28,7 @@ namespace :install do
   desc "Install gems into #{__dir__}/.gems"
   task :gems do
     Dir.chdir __dir__
-    sh %Q[GEM_HOME="#{GEM_HOME}" "#{BOLT_GEM_EXE}" install -g gem.deps.rb --no-document]
+    sh %Q[GEM_HOME="#{GEM_HOME}" "#{BOLT_GEM_EXE}" install -g gem.deps.rb --no-document --no-user-install]
     sh %Q[ls -lart]
   end
 
