@@ -96,7 +96,7 @@ plan puppetsync(
   # - [x] set up facts
   # --------
   # - [x] puppet apply
-  # - [ ] run transformations?  tasks?
+  # - [x] run transformations?  tasks?
   # -------
   # - [x] commit changes
   # - [x] ensure GitHub fork of upstream repo exists
@@ -119,7 +119,7 @@ plan puppetsync(
   # - [ ] enhanced idempotency
   #   - [ ] detect closed JIRA subtask for same subtask and (by default) refuse to open a new one
   #   - [ ] detect merged PR for same feature and (by default) refuse to open a new one
-  # - [ ] validate (e.g., gitlab_ci lint, flag obvious disasters) before committing changes
+  # - [x] validate (e.g., gitlab_ci lint, flag obvious disasters) before committing changes
   # ----------------------------------------------------------------------------
 
   $repos.puppetsync::pipeline_stage(
@@ -250,7 +250,7 @@ plan puppetsync(
         debug::break()
         $repo.set_var('user_repo_fork', $results.first.value)
         out::message(
-          "-- GitHub user's repo fork: '${target.vars['user_repo_fork']['user_fork']}'"
+          "-- GitHub user's repo fork: '${repo.vars['user_repo_fork']['user_fork']}'"
         )
       }
     }
@@ -296,7 +296,7 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     $ok_repos.map |$repo| {
       $results = run_command(
-        "cd '${target.vars['repo_path']}'; git push '${target.vars['remote_name']}' '${feature_branch}' -f",
+        "cd '${repo.vars['repo_path']}'; git push '${repo.vars['remote_name']}' '${feature_branch}' -f",
         $repo,
         "Push branch '${feature_branch}' to forked repository",
         { '_catch_errors' => true }
@@ -324,7 +324,7 @@ plan puppetsync(
 
     if !$results.ok {
       out::message( @("END")
-        Running puppetsync::ensure_git_remote (gitlab) failed on ${target.name}:
+        Running puppetsync::ensure_git_remote (gitlab) failed on ${repo.name}:
         ${results.first.error.msg}
 
         ${results.first.error.details}
@@ -341,7 +341,7 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     $ok_repos.map |$repo| {
       $results = run_command(
-        "cd '${target.vars['repo_path']}'; git push 'gitlab_repo' '${feature_branch}' -f",
+        "cd '${repo.vars['repo_path']}'; git push 'gitlab_repo' '${feature_branch}' -f",
         $repo,
         "Push branch '${feature_branch}' to gitlab repository",
         { '_catch_errors' => true }
@@ -381,7 +381,7 @@ plan puppetsync(
         out::message( "-- GitHub user's PR: '${results.first.value['pr_url']}'${created_status}")
       } else {
         out::message(
-          [ "Running puppetsync::ensure_github_pr failed on ${target.name}:",
+          [ "Running puppetsync::ensure_github_pr failed on ${repo.name}:",
             $results.first.error.msg,'','', $results.first.error.details,'', ].join("\n")
         )
       }
