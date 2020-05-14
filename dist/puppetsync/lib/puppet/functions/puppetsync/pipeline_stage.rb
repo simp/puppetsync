@@ -21,9 +21,9 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
       return []
     end
 
-    # Only run targets that have succeeded
+    # Only run targets that have succeeded in all stages so far
     Puppet.warning("== Preparing stage '#{stage_name}'")
-    ok_targets = targets.select { |repo| call_function('puppetsync::all_stages_ok', repo) }
+    ok_targets = targets.select { |repo| repo.vars['puppetsync_stage_results'].all? { |k,v| v['ok']}}
 
     # Run stage block
     Puppet.warning('filtered ok stages before running')
