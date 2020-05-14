@@ -1,9 +1,18 @@
 ---
 fixtures:
   repositories:
+    stdlib:
+      repo: https://github.com/puppetlabs/puppetlabs-stdlib.git
+      tag: v6.2.0
+    ruby_task_helper:
+      repo: https://github.com/puppetlabs/puppetlabs-ruby_task_helper.git
+      tag: 0.5.1
+    format:
+      repo: https://github.com/voxpupuli/puppet-format.git
     debug:
       repo: https://github.com/nwops/puppet-debug
     repl:
       repo: https://github.com/nwops/puppet-repl-module
+
   symlinks:
     puppetsync: "#{source_dir}"

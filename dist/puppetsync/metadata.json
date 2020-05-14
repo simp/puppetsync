@@ -7,11 +7,8 @@
   "source": "https://github.com/simp/pupmod-simp-puppetsync",
   "project_page": "https://www.simp-project.com/",
   "issues_url": "https://simp-project.atlassian.net/",
-  "tags": [
-    "simp",
-    "reposync"
-  ],
   "dependencies": [
+
   ],
   "operatingsystem_support": [
     {
@@ -44,5 +41,12 @@
       "name": "puppet",
       "version_requirement": ">= 5.0.0 < 7.0.0"
     }
-  ]
+  ],
+  "tags": [
+    "simp",
+    "reposync"
+  ],
+  "pdk-version": "1.17.0",
+  "template-url": "pdk-default#1.17.0",
+  "template-ref": "tags/1.17.0-0-gd3a4319"
 }

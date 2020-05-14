@@ -29,15 +29,16 @@ function puppetsync::setup_repos_facts(
       $target.add_facts({'project_type' => 'unknown'})
     }
 
-
-    # Repo-specific sync metadata path
-    # ------------------------------------------------------------------------
-    $sync_metadata_dir = "${target.vars['repo_path']}/${repo_specific_metadata_dirname}"
-    $sync_metadata_dir_val = file::exists($sync_metadata_dir) ? {
-      true    => $sync_metadata_dir,
-      default => false,
-    }
-    $target.add_facts({'sync_metadata_dir' => $sync_metadata_dir_val})
+    ### # NOTE this may not be needed yet
+    ###
+    ### # Repo-specific sync metadata path
+    ### # ------------------------------------------------------------------------
+    ### $sync_metadata_dir = "${target.vars['repo_path']}/${repo_specific_metadata_dirname}"
+    ### $sync_metadata_dir_val = file::exists($sync_metadata_dir) ? {
+    ###   true    => $sync_metadata_dir,
+    ###   default => false,
+    ### }
+    ### $target.add_facts({'sync_metadata_dir' => $sync_metadata_dir_val})
   }
   $repos
 }

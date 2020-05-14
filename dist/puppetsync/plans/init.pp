@@ -149,7 +149,7 @@ plan puppetsync(
       'localhost',
       "Check out git branch '${feature_branch} in all repos'",
       'branch'        => $feature_branch,
-      'repo_paths'    => $repos.map |$target| { $target.vars['repo_path'] },
+      'repo_paths'    => $repos.map |$repo| { $repo.vars['repo_path'] },
       '_catch_errors' => false,
     )
   }
@@ -166,22 +166,6 @@ plan puppetsync(
   }
 
   $repos.puppetsync::pipeline_stage(
-    # ---------------------------------------------------------------------------
-    'split_gitlab_files',
-    # ---------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    run_task( 'puppetsync::split_gitlab_files',
-      'localhost',
-      'split .gitlab-ci.yml into a common static matrix and repo-specific acceptance tests',
-      {
-        'repo_paths'    =>  $ok_repos.map |$x| { $x.vars['repo_path'] },
-        '_catch_errors' => true,
-      }
-    )
-  }
-
-  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'apply_puppet_role',
     # --------------------------------------------------------------------------
@@ -193,6 +177,22 @@ plan puppetsync(
       _catch_errors => true,
     ){
       include $puppet_role
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'modernize_gitlab_files',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::modernize_gitlab_files',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      {
+        'file' => "${repo.vars['repo_path']}/.gitlab-ci.yml",
+      }
     }
   }
 
@@ -223,10 +223,10 @@ plan puppetsync(
       'puppetsync::git_commit',
       $ok_repos,
       '_catch_errors'  => true,
-    ) |$target| {
+    ) |$repo| {
       {
-        'repo_path'      => $target.vars['repo_path'],
-        'commit_message' => puppetsync::template_git_commit_message($target,$puppetsync_config),
+        'repo_path'      => $repo.vars['repo_path'],
+        'commit_message' => puppetsync::template_git_commit_message($repo,$puppetsync_config),
       }
     }
   }
@@ -239,16 +239,16 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     $results = run_task_with(
       'puppetsync::ensure_github_fork', $ok_repos, '_catch_errors' => true
-    ) |$target| {{
+    ) |$repo| {{
       'extra_gem_path'   => $extra_gem_path,
-      'github_repo'      => $target.vars['repo_url_path'],
+      'github_repo'      => $repo.vars['repo_url_path'],
       'github_authtoken' => $github_token.unwrap,
     }}
 
-    $ok_repos.each |$target| {
+    $ok_repos.each |$repo| {
       if $results.ok {
         debug::break()
-        $target.set_var('user_repo_fork', $results.first.value)
+        $repo.set_var('user_repo_fork', $results.first.value)
         out::message(
           "-- GitHub user's repo fork: '${target.vars['user_repo_fork']['user_fork']}'"
         )
@@ -263,14 +263,14 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $ok_repos.each |$target| {$target.set_var('remote_name', 'user_forked_repo')}
+    $ok_repos.each |$repo| {$repo.set_var('remote_name', 'user_forked_repo')}
     $results = run_task_with(
       'puppetsync::ensure_git_remote', $ok_repos, '_catch_errors' => true
-    ) |$target| {
+    ) |$repo| {
       {
-        'repo_path'     => $target.vars['repo_path'],
-        'remote_url'    => $target.vars['user_repo_fork']['ssh_url'],
-        'remote_name'   => $target.vars['remote_name'],
+        'repo_path'     => $repo.vars['repo_path'],
+        'remote_url'    => $repo.vars['user_repo_fork']['ssh_url'],
+        'remote_name'   => $repo.vars['remote_name'],
       }
     }
 
@@ -294,10 +294,10 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $ok_repos.map |$target| {
+    $ok_repos.map |$repo| {
       $results = run_command(
         "cd '${target.vars['repo_path']}'; git push '${target.vars['remote_name']}' '${feature_branch}' -f",
-        $target,
+        $repo,
         "Push branch '${feature_branch}' to forked repository",
         { '_catch_errors' => true }
       )
@@ -314,10 +314,10 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     $results = run_task_with(
       'puppetsync::ensure_git_remote', $ok_repos, '_catch_errors' => true,
-    ) |$target| {
+    ) |$repo| {
       {
-        'repo_path'     => $target.vars['repo_path'],
-        'remote_url'    => $target.vars['user_repo_fork']['ssh_url'].regsubst($puppetsync_config['github']['pr_user'],'simp').regsubst('github','gitlab'),
+        'repo_path'     => $repo.vars['repo_path'],
+        'remote_url'    => $repo.vars['user_repo_fork']['ssh_url'].regsubst($puppetsync_config['github']['pr_user'],'simp').regsubst('github','gitlab'),
         'remote_name'   => 'gitlab_repo',
       }
     }
@@ -339,10 +339,10 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $ok_repos.map |$target| {
+    $ok_repos.map |$repo| {
       $results = run_command(
         "cd '${target.vars['repo_path']}'; git push 'gitlab_repo' '${feature_branch}' -f",
-        $target,
+        $repo,
         "Push branch '${feature_branch}' to gitlab repository",
         { '_catch_errors' => true }
       )
@@ -359,14 +359,14 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $ok_repos.map |$target| {
-      $results = run_task( 'puppetsync::ensure_github_pr', $target,
+    $ok_repos.map |$repo| {
+      $results = run_task( 'puppetsync::ensure_github_pr', $repo,
         'Ensure there is a GitHub PR for this commit',
         {
-          'target_repo'      => $target.vars['repo_url_path'],
-          'target_branch'    => $target.vars['mod_data']['branch'],
+          'target_repo'      => $repo.vars['repo_url_path'],
+          'target_branch'    => $repo.vars['mod_data']['branch'],
           'fork_branch'      => $feature_branch,
-          'commit_message'   => puppetsync::template_git_commit_message($target,$puppetsync_config),
+          'commit_message'   => puppetsync::template_git_commit_message($repo,$puppetsync_config),
           'github_authtoken' => $github_token.unwrap,
           'extra_gem_path'   => $extra_gem_path,
           '_catch_errors'    => true,

@@ -12,4 +12,7 @@ gem 'bundler', '~> 2.0'
 gem 'pry', '~> 0.13'
 gem 'terminal-table', '~> 1.8'
 gem 'puppet-lint'
-
+gem 'yamllint'
+gem 'gitlab'
+gem 'rubocop'
+gem 'jsonlint'

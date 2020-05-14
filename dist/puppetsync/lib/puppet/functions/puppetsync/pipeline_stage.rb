@@ -39,11 +39,18 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
       call_function('puppetsync::record_stage_results', stage_name, results)
     else
       STDERR.puts '############ WARNING: results are NOT a Bolt::Result'
-      Puppet.warning "############ WARNING: results are NOT a Bolt::Result (file:#{__FILE__} stage: #{stage_name} class: #{results.class}"
-      Puppet.warning "############ WARNING: ARRAY.sze: #{results.size}"
-      Puppet.warning "############ WARNING: ARRAY.first class: #{results.first.class}"
+      Puppet.warning "############ WARNING: results are NOT a Bolt::Result (file:#{__FILE__}, stage: #{stage_name}, class: #{results.class}"
+      if results.kind_of? Array
+        Puppet.warning "############ WARNING: ARRAY.size: #{results.size}"
+        Puppet.warning "############ WARNING: ARRAY.first class: #{results.first.class}"
+      end
 
-      require 'pry'; binding.pry
+
+      begin
+        require 'pry'; binding.pry
+      rescue LoadError => e
+        puts "==============================================================", e.message
+      end
     end
     ok_targets
   end
