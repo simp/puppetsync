@@ -28,7 +28,7 @@
 # @param extra_gem_path
 #   Path to a gem path with extra gems the bolt interpreter will to run
 #   some of the Ruby tasks.
-#   (Default: `${project_dir}/.gems`)
+#   (Default: `${project_dir}/.plan.gems`)
 #
 # @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
@@ -41,7 +41,7 @@ plan puppetsync::merge_github_prs(
   Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
   String[1]            $pr_user                = $puppetsync_config.dig('github','pr_user').lest || { undef },
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
-  Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
+  Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
   Hash                 $options                = {},
 ) {
   $opts = {

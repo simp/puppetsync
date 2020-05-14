@@ -6,7 +6,7 @@
 #      -t localhost \
 #      github_repo=simp/pupmod-simp-acpid
 #      github_authtoken="$GITHUB_API_TOKEN" \
-#      extra_gem_path='/path/to/puppetsync/.gems'
+#      extra_gem_path='/path/to/puppetsync/.plan.gems'
 #
 require_relative '../../ruby_task_helper/files/task_helper.rb'
 

@@ -11,7 +11,7 @@
 # @param extra_gem_path
 #   Path to a gem path with extra gems the bolt interpreter will to run
 #   some of the Ruby tasks.
-#   (Default: `${PWD}/.gems`)
+#   (Default: `${PWD}/.plan.gems`)
 #
 # @param jira_username
 #    Jira API username (probably an email address)
@@ -27,7 +27,7 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
   Hash                 $puppetsync_config,
   String[1]            $jira_username  = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token     = Sensitive(system::env('JIRA_API_TOKEN')),
-  Stdlib::Absolutepath $extra_gem_path = "#{system::env('PWD')}/.gems"
+  Stdlib::Absolutepath $extra_gem_path = "#{system::env('PWD')}/.plan.gems"
 ) {
   $repos.map |$target| {
     assert_type( Hash, $puppetsync_config['jira'])

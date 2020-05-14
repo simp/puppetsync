@@ -48,7 +48,7 @@
 # @param extra_gem_path
 #   Path to a gem path with extra gems the bolt interpreter will to run
 #   some of the Ruby tasks.
-#   (Default: `${project_dir}/.gems`)
+#   (Default: `${project_dir}/.plan.gems`)
 #
 # @param jira_username
 #    Jira API username (probably an email address)
@@ -77,7 +77,7 @@ plan puppetsync(
   Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
   Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
   String[1]            $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role').lest || { 'role::unset' },
-  Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.gems",
+  Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
@@ -115,7 +115,7 @@ plan puppetsync(
   # - [ ] support --noop in each pipeline_stage
   # - [ ] push changes using HTTPS basic auth + GitHub token (CI friendly)
   # - [ ] move templating logic from jira task's ruby code into plan logic
-  # - [ ] spec tests
+  # - [ ] spec tests 
   # - [ ] enhanced idempotency
   #   - [ ] detect closed JIRA subtask for same subtask and (by default) refuse to open a new one
   #   - [ ] detect merged PR for same feature and (by default) refuse to open a new one
@@ -247,8 +247,8 @@ plan puppetsync(
 
     $ok_repos.each |$repo| {
       if $results.ok {
-        debug::break()
-        $repo.set_var('user_repo_fork', $results.first.value)
+        $result = $results.filter |$r| { $r.target.name == $repo.name }[0]
+        $repo.set_var('user_repo_fork', $result.value)
         out::message(
           "-- GitHub user's repo fork: '${repo.vars['user_repo_fork']['user_fork']}'"
         )
@@ -256,6 +256,7 @@ plan puppetsync(
     }
     $results
   }
+        debug::break()
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
