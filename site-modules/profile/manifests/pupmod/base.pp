@@ -6,4 +6,9 @@ class profile::pupmod::base {
   }
   $org = $facts.dig('module_metadata','forge_org')
   if $org { warn("======== Forge org: ${org}") }
+
+  file{ "${::repo_path}/.repo_metadata":
+    ensure => absent,
+    force  => true,
+  }
 }
