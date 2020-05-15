@@ -115,7 +115,7 @@ plan puppetsync(
   # - [ ] support --noop in each pipeline_stage
   # - [ ] push changes using HTTPS basic auth + GitHub token (CI friendly)
   # - [ ] move templating logic from jira task's ruby code into plan logic
-  # - [ ] spec tests 
+  # - [ ] spec tests
   # - [ ] enhanced idempotency
   #   - [ ] detect closed JIRA subtask for same subtask and (by default) refuse to open a new one
   #   - [ ] detect merged PR for same feature and (by default) refuse to open a new one
@@ -256,7 +256,6 @@ plan puppetsync(
     }
     $results
   }
-        debug::break()
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -322,17 +321,6 @@ plan puppetsync(
         'remote_name'   => 'gitlab_repo',
       }
     }
-
-    if !$results.ok {
-      out::message( @("END")
-        Running puppetsync::ensure_git_remote (gitlab) failed on ${repo.name}:
-        ${results.first.error.msg}
-
-        ${results.first.error.details}
-        END
-      )
-    }
-    $results.first
   }
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
