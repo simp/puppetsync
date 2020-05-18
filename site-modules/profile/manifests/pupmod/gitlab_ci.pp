@@ -26,7 +26,7 @@ class profile::pupmod::gitlab_ci {
   #
   # TODO simplify ithe regex after all modules are consistent with the template
   $pipeline_components = $existing_pipeline_content.split(
-     /^# (?:Repo-specific(?: pipeline)? content|Acceptance tests)\s*\n# (?:=|-){40,}\s*$/
+     /^# (?i:Repo-specific(?: pipeline)? content|Acceptance tests)\s*\n# *(?:=|-){40,}\s*$/
   )
 
   if $pipeline_components.count > 1 {
