@@ -11,17 +11,17 @@ puppetsync:
       stages:
         - install_gems
         - checkout_git_feature_branch_in_each_repo
-        # - ensure_jira_subtask
+        - ensure_jira_subtask
         - apply_puppet_role
         - modernize_gitlab_files
         - lint_gitlab_ci
-        ### - git_commit_changes
-        ### - ensure_github_fork
-        ### - ensure_git_remote
-        ### - git_push_to_remote
-        ### - ensure_gitlab_remote
-        ### - git_push_to_gitlab
-        ### - ensure_github_pr
+        - git_commit_changes
+        - ensure_github_fork
+        - ensure_git_remote
+        - git_push_to_remote
+        - ensure_gitlab_remote
+        - git_push_to_gitlab
+        - ensure_github_pr
 
     approve_github_pr:
       clone_git_repos: false
@@ -35,24 +35,26 @@ puppetsync:
 
 
 jira:
-  parent_issue: SIMP-7708
+  parent_issue: SIMP-7848
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Fix .gitlab-ci.yml cache setting in %COMPONENT%'
+  subtask_title: 'Add PE2019.8 to %COMPONENT% GL pipeline'
   # optional:
   subtask_story_points: 1
-  subtask_description: 'Fix .gitlab-ci.yml cache setting in %COMPONENT%'
+  subtask_description: 'Add PE2019.8 to %COMPONENT% GL pipeline'
   subtask_assignee: true
 
 git:
   # 0---------1---------2---------3---------4---------5---------6---------7-|
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Fix Gitab CI cache setting
+    (%JIRA_PARENT_ISSUE%) Add PE2019.8 to %COMPONENT% GL pipeline
 
-    This patch removes the gitlab cache `untracked: true` setting from
-    `.gitlab-ci.yml`.
+    This patch updates the puppet and ruby versions in the Gitlab CI
+    pipeline to reflect the latest PE LTS releases.  Most notably, it adds
+    specific tests for PE2019.8 LTS.
 
-    [%JIRA_PARENT_ISSUE%] #comment Update to latest pipeline in %COMPONENT%
+    %JIRA_PARENT_ISSUE% #comment Add PE2019.8 to GL CI in %COMPONENT%
+    SIMP-7855 #comment Update GL CI to PE2018.1.15 in %COMPONENT%
     %JIRA_SUBTASK% #close
 
 github:
