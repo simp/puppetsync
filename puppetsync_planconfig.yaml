@@ -53,9 +53,9 @@ git:
     pipeline to reflect the latest PE LTS releases.  Most notably, it adds
     specific tests for PE2019.8 LTS.
 
-    %JIRA_PARENT_ISSUE% #comment Add PE2019.8 to GL CI in %COMPONENT%
-    SIMP-7855 #comment Update GL CI to PE2018.1.15 in %COMPONENT%
     %JIRA_SUBTASK% #close
+    [%JIRA_PARENT_ISSUE%] #comment Add PE2019.8 to GL CI in %COMPONENT%
+    [SIMP-7855] #comment Update GL CI to PE2018.1.15 in %COMPONENT%
 
 github:
   pr_user: op-ct
