@@ -41,7 +41,7 @@ original_content = content.dup
 content = modernize_gitlab_ci(original_content)
 warn (content == original_content ? '  == content unchanged' : '  ++ content was changed!')
 
-File.open(file, 'w') { |f| f.puts content }
+File.open(file, 'w') { |f| f.puts content.strip }
 
 warn "\n== Running a test YAML.load_file on #{file} to validate its syntax"
 
