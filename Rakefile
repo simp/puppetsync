@@ -32,7 +32,7 @@ namespace :install do
     sh %Q[ls -lart]
   end
 
-  desc "Install modules from Puppetfile into #{__dir__}}/modules"
+  desc "Install modules from Puppetfile into #{__dir__}/modules"
   task :puppetfile do
     Dir.chdir __dir__
     sh %Q[GEM_HOME="#{GEM_HOME}" "#{BOLT_EXE}" puppetfile install]
