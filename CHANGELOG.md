@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [SIMP-7977] - 2020-07-17
+
 ### Added
 
 - `pupmod_skeleton` project type
@@ -28,5 +30,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Last version before changelog
 
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-7848...HEAD
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-7977...HEAD
 [SIMP-7848]: https://github.com/op-ct/puppetsync/releases/tag/SIMP-7848
+[SIMP-7977]: https://github.com/op-ct/puppetsync/compare/SIMP-7848...SIMP-7977
