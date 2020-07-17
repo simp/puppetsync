@@ -94,13 +94,11 @@ GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
 
 # To approve every repo in Puppetfile.repos:
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
-  GEM_HOME=.gems \
     bolt plan run puppetsync::approve_github_prs
 
 
 # To merge every repo in Puppetfile.repos:
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
-  GEM_HOME=.gems \
     bolt plan run puppetsync::merge_github_prs
 ```
 

@@ -62,6 +62,23 @@ plan puppetsync::approve_github_prs(
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
+    'install_gems',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task( 'puppetsync::install_gems',
+      'localhost',
+      'Install RubyGems gems on localhost that are required to run tasks',
+      {
+        'path'          => $extra_gem_path,
+        'gems'          => ['octokit:~> 4.18'],
+        '_catch_errors' => false,
+      }
+    )
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
     'approve_github_pr_for_each_repo',
     # ---------------------------------------------------------------------------
     $opts
