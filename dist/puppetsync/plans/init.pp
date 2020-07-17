@@ -26,12 +26,12 @@
 #   All targets are generated as `transport: local` during execution
 #
 # @param puppet_role
-#   A Puppet class to classify and apply to all repos
+#   An optional Puppet class to classify and apply to all repos.
+#   If left undefined, the Puppet classes for each target will be
+#   looked up from Hiera (using `classes`)
 #
 # @param project_dir
 #   The bolt project directory.  Defaults to `$PWD`.
-#
-#   @todo make this a function? (It's a hacky way to get the project dir)
 #
 # @param puppetfile
 #   A special Puppetfile with :git repos to clone, update, and PR
@@ -59,7 +59,7 @@
 #    (Default: Environment variable `$JIRA_API_TOKEN`)
 #
 #   _NOTES_
-#   - You MUST generate an API token (basic auth no longer works).
+#   - You MUST generate a Jira API token (basic auth no longer works).
 #   - To do so, you must have Jira instance access rights.
 #   - You can generate a token here: https://id.atlassian.com/manage/api-tokens
 #
@@ -67,7 +67,7 @@
 #   GitHub API token
 #    (Default: Environment variable `$GITHUB_API_TOKEN`)
 #
-# @author Chris Tessmer <chris.essmer@onyxpoint.com>
+# @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
 plan puppetsync(
@@ -76,7 +76,7 @@ plan puppetsync(
   Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
   Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
   Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
-  String[1]            $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role').lest || { 'role::unset' },
+  Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
@@ -172,11 +172,16 @@ plan puppetsync(
     $opts
   ) |$ok_repos, $stage_name| {
     apply( $ok_repos,
-      '_description' => "Apply Puppet role '${puppet_role}'",
+      '_description' => "Apply Puppet role",
       '_noop' => false,
       _catch_errors => true,
     ){
-      include $puppet_role
+      if $puppet_role {
+        include $puppet_role
+      } else {
+        $classes = lookup('classes', undef, undef, [])
+        $classes.include
+      }
     }
   }
 
@@ -188,11 +193,16 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     run_task_with('puppetsync::modernize_gitlab_files',
       $ok_repos,
-      '_catch_errors'  => true,
+      '_catch_errors'  => false,
     ) |$repo| {
-      {
-        'file' => "${repo.vars['repo_path']}/.gitlab-ci.yml",
+      $dir_path = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton",
+        default           => "${repo.vars['repo_path']}",
       }
+
+      Hash.new({
+        'file' => "${dir_path}/.gitlab-ci.yml",
+      })
     }
   }
 

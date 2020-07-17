@@ -1,0 +1,7 @@
+---
+classes:
+  - 'role::pupmod_skeleton'
+
+profile::pupmod::gitlab_ci::target_gitlabci_yml_path: "%{::repo_path}/skeleton/.gitlab-ci.yml"
+profile::pupmod::travis_yml::target_travis_yml_path: "%{::repo_path}/skeleton/.travis.yml"
+profile::pupmod::gemfile::gemfile_path: "%{::repo_path}/skeleton/Gemfile"

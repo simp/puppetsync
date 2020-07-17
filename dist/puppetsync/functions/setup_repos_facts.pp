@@ -23,6 +23,13 @@ function puppetsync::setup_repos_facts(
       $target.add_facts( {'project_attributes' => ($target.facts['project_attributes'] << 'pupmod')} )
     }
 
+    $skeleton_metadata_json = "${target.vars['repo_path']}/skeleton/metadata.json.erb"
+    if ($target.facts['project_type'].empty and file::exists($skeleton_metadata_json)){
+      warning( "Repo is a Puppet module Skeleton (detected ${skeleton_metadata_json})" )
+      unless $target.facts.dig('project_type'){ $target.add_facts({'project_type' => 'pupmod_skeleton'} ) }
+      $target.add_facts( {'project_attributes' => ($target.facts['project_attributes'] << 'pupmod_skeleton')} )
+    }
+
     # ------------------------------------------------------------------------
     if $target.facts['project_type'].empty {
       warning( "WARNING: ${target.name} project_type remains 'unknown'" )

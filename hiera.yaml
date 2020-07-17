@@ -8,6 +8,7 @@ hierarchy:
     - "repos/%{facts.module_metadata.name}.yaml"
     - "module_names/%{facts.module_metadata.name}.yaml"
     - "forge_orgs/%{facts.module_metadata.forge_org}.yaml"
+    - "project_types/%{facts.project_type}.yaml"
     - "common.yaml"
 
 defaults:

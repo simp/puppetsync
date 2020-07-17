@@ -35,7 +35,9 @@
 #   Anything below those lines will be saved, and added to Puppet-managed
 #   template.
 #
-class profile::pupmod::gitlab_ci {
+class profile::pupmod::gitlab_ci(
+  Stdlib::Absolutepath $target_gitlabci_yml_path = "${::repo_path}/.gitlab-ci.yml",
+){
 
   # NOTE: as noted above, the default value first attempts to read in the
   # target's existing `.gitlab-ci.yml`.  This allows us to persist
@@ -50,7 +52,7 @@ class profile::pupmod::gitlab_ci {
   # The `file()` function only attempts to read content from the second
   # (default) file if the target's `gitlab-ci.yaml` file doesn't exist.
   $existing_pipeline_content = file(
-    "${::repo_path}/.gitlab-ci.yml",
+    $target_gitlabci_yml_path,
     "${module_name}/pupmod/_gitlab-ci.blank_repo_section.yml"
   )
 
@@ -61,7 +63,7 @@ class profile::pupmod::gitlab_ci {
   #
   # TODO simplify the regex after all modules are consistent with the template
   $pipeline_components = $existing_pipeline_content.split(
-     /^# (?i:Repo-specific(?: pipeline)? content|Acceptance tests)\s*\n# *(?:=|-){40,}\s*$/
+    /^# (?i:Repo-specific(?: pipeline)? content|Acceptance tests)\s*\n# *(?:=|-){40,}\s*$/
   )
   if $pipeline_components.count > 1 {
     $repo_specific_content = $pipeline_components[1,-1].join("\n")
@@ -69,7 +71,7 @@ class profile::pupmod::gitlab_ci {
     $repo_specific_content = file("${module_name}/pupmod/_gitlab-ci.blank_repo_section.yml")
   }
 
-  file{ "${::repo_path}/.gitlab-ci.yml":
+  file{ $target_gitlabci_yml_path:
     content => epp(
       "${module_name}/pupmod/_gitlab-ci.yml.epp", {
         'repo_specific_content' => $repo_specific_content,
