@@ -1,10 +1,9 @@
 ---
 
 puppetsync:
-  #puppet_role: 'role::pupmod'
   permitted_project_types:
-    - pupmod_skeleton
     - pupmod
+    - pupmod_skeleton
   plans:
     sync:
       #clone_git_repos: false
@@ -15,14 +14,13 @@ puppetsync:
         - apply_puppet_role
         - modernize_gitlab_files
         - lint_gitlab_ci
-        - git_commit_changes
-        - ensure_github_fork
-        - ensure_git_remote
-        - git_push_to_remote
+          #- git_commit_changes
+          #- ensure_github_fork
+          #- ensure_git_remote
+          #- git_push_to_remote
           #- ensure_gitlab_remote
           #- git_push_to_gitlab
           #- ensure_github_pr
-
 
     approve_github_pr:
       clone_git_repos: false
@@ -34,25 +32,49 @@ puppetsync:
       stages:
         - merge_github_pr_for_each_repo
 
-
 jira:
-  parent_issue: SIMP-7977
+  parent_issue: SIMP-7974
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Update standardized assets in %COMPONENT%'
+  subtask_title: 'Add new GLCI pipeline features to %COMPONENT%'
   # optional:
-  # subtask_story_points: 1
-  subtask_description: 'Update the %COMPONENT% repo to use the latest standardized assets'
+  subtask_story_points: 3
+  subtask_description: 'Add new GLCI pipeline features to %COMPONENT%'
   subtask_assignee: true
 
 git:
   # 0---------1---------2---------3---------4---------5---------6---------7-|
   # (SIMP-XXXX) 123456789
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Update standardized assets
+    (%JIRA_PARENT_ISSUE) Add new GLCI pipeline features
+
+    The patch adds enhanced features to SIMP Puppet modules' standardized
+    GitLab CI pipeline:
+
+    * spec and acceptance tests _only_ run when relevant files have changed
+    * The CI variable `SIMP_FULL_MATRIX` is replaced by `SIMP_MATRIX_LEVEL`
+    * spec and acceptance tests run at or above their `SIMP_MATRIX_LEVEL`
+    * Jobs and the pipeline default to `SIMP_MATRIX_LEVEL` 1
+    * The pipeline's `SIMP_MATRIX_LEVEL` can be changed via CI variable
+      (via triggers, group/project settings, etc)
+    * In the pipeline-triggering commit message, adding a line that starts
+      with `CI: MATRIX LEVEL 0` or `CI: SKIP MATRIX` will suppress all steps
+      with `SIMP_MATRIX_LEVEL` 1-3
+
+    There is an important caveat: because of the way GitLab CI pipelines
+    determine `changes`, a file that hasn't changed between `--amend` +
+    force-pushed updates _will not trigger the matrix again_.  This affects
+    scheduled and triggered pipelines.
+
+    * To solve this scenario, setting the CI variable `SIMP_FORCE_MATRIX =
+      yes` in a scheduled pipeline or pipeline trigger will ensure that all
+      jobs at the current `SIMP_MATRIX_LEVEL` are run, regardless of what
+      has changed (or not).
 
     %JIRA_SUBTASK% #close
-    [%JIRA_PARENT_ISSUE%] #comment Update %COMPONENT%
+    [%JIRA_PARENT_ISSUE%] #comment Add file-match CI runs to %COMPONENT%
+    [SIMP-7975] #comment Add `SIMP_MATRIX_LEVEL` checks to %COMPONENT%
+
 
 github:
   pr_user: op-ct
