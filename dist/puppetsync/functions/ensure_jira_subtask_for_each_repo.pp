@@ -35,6 +35,7 @@ function puppetsync::ensure_jira_subtask_for_each_repo(
       true   =>  $puppetsync_config['jira']['subtask_assignee'],
       default => undef,
     }
+    # TODO: This doesn't work and isn't important to fix: always set to undef?
     $description = $puppetsync_config['jira']['subtask_description'].empty ? {
       false   =>  $puppetsync_config['jira']['subtask_description'],
       default => undef,
