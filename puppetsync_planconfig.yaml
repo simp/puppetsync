@@ -73,7 +73,7 @@ git:
       jobs at the current `SIMP_MATRIX_LEVEL` are run, regardless of what
       has changed (or not).
 
-    CI: MATRIX LEVEL 0
+    CI: SKIP_MATRIX
     %JIRA_SUBTASK% #close
     [%JIRA_PARENT_ISSUE%] #comment Add file-match CI runs to %COMPONENT%
     [SIMP-7975] #comment Add `SIMP_MATRIX_LEVEL` checks to %COMPONENT%
