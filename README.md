@@ -7,6 +7,9 @@
   * [Requirements](#requirements)
   * [Getting started](#getting-started)
   * [Quickstart](#quickstart)
+    * [Sync + PR changes across all repos](#sync--pr-changes-across-all-repos)
+    * [Approve PRs for every repo in Puppetfile.repos](#approve-prs-for-every-repo-in-puppetfilerepos)
+    * [Merge PR every repo in Puppetfile.repos](#merge-pr-every-repo-in-puppetfilerepos)
 * [Usage](#usage)
   * [Syncing repos](#syncing-repos)
 * [Reference](#reference)
@@ -41,22 +44,23 @@ infrastructure-as-code!
 ### Requirements
 
 * [Puppet Bolt 2.x][bolt]
-  * puppetsync should ron OS-packaged `bolt` executable, not a binstub from the
-    RubyGem.
-* Runtime dependencies
+  * **Note:** Run puppetsync using the OS-packaged `bolt` executable (not a
+    binstub from the RubyGem).
+* Runtime dependencies (installed by `./Rakefile install`)
   * Puppet modules (defined in bolt project's `Puppetfile`):
-    * [puppetlabs-stdlib](https://github.com/puppetlabs/puppetlabs-stdlib.git)
-    * [puppetlabs/ruby_task_helper](https://github.com/puppetlabs/puppetlabs-ruby_task_helper.git)
   * Ruby Gems (defined in `gem.deps.rb`): octokit, jira-ruby, etc
-* API authentication tokens for Jira and GitHub
-  * Some specific [environment variables](#environment-variables) are required for JIRA
-    and GitHub API authentication, and to help bolt tasks find the Ruby Gems
+* API authentication tokens for Jira and GitHub (set in [env
+  variables](#environment-variables))
+  * Some specific [environment variables](#environment-variables) are required
+    for JIRA and GitHub API authentication, and to help bolt tasks find the
+    Ruby Gems
 * The `git` command must be available
   * SSH + ssh-agent must be set up to push changes
 
 ### Getting started
 
-1. Use `bolt` to download the project's dependencies from `Puppetfile` and `gems.deps.rb`:
+1. Use `bolt` to download the project's dependencies from `Puppetfile` and
+   `gems.deps.rb`:
 
          /opt/puppetlabs/bolt/bin/gem install --user-install -g gem.deps.rb
          /opt/puppetlabs/bin/bolt puppetfile install
@@ -66,21 +70,26 @@ infrastructure-as-code!
         ./Rakefile install
 
 2. Add `mod` entries for the repos you want to sync in `Puppetfile.repos`
-3. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml) file to your workflow
-4. Set [environment variables](#environment-variables) for JIRA and GitHub API authentication
+3. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
+   file to your workflow
+4. Set [environment variables](#environment-variables) for JIRA and GitHub API
+   authentication
 5. Run the plan you want
 
 ### Quickstart
 
-From the top level of this repository:
+Before running any commands, from the top level of this repository:
 
 ```sh
 # Setting up dependencies
 command -v rvm && rvm use system    # make sure you're using the packaged `bolt`
 ./Rakefile install                  # Install Puppet module and Ruby Gem deps
 bolt plan show --filter puppetsync  # Validate bolt is working
+```
 
-# Running puppetsync plans
+#### Sync + PR changes across all repos
+
+```sh
 # (PROTIP: don't actually expose API tokens when running commands)
 
 # To sync everything in Puppetfile.repos:
@@ -89,13 +98,24 @@ GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
   JIRA_USER=$JIRA_USER \
   JIRA_API_TOKEN=$JIRA_API_TOKEN \
     bolt plan run puppetsync
+```
 
-# To approve every repo in Puppetfile.repos:
+#### Approve PRs for every repo in Puppetfile.repos
+
+This will idempotently approve every open PR from user `github.pr_user` on
+branch `jira.parent_issue` for each repo in `Puppetfile.repos`:
+
+```sh
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
     bolt plan run puppetsync::approve_github_prs
+```
 
+#### Merge PR every repo in Puppetfile.repos
 
-# To merge every repo in Puppetfile.repos:
+This will idempotently merge every approved PR from user `github.pr_user` on
+branch `jira.parent_issue` for each repo in `Puppetfile.repos`:
+
+```sh
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
     bolt plan run puppetsync::merge_github_prs
 ```
