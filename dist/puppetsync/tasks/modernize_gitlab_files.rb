@@ -11,14 +11,14 @@ def modernize_gitlab_ci(content)
   content.gsub!(%r{only_with_SIMP_FULL_MATRIX}, 'with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3')
 
   # Idempotently copy new jobs for the new PE2019.8 LTS (from the old LTS)
-  if content.scan( /^(pup6\.16\.10(?!-unit|-lint)[-a-z0-9]*):\s*$/m ).empty?
+  if content.scan( /^(pup6\.16\.0(?!-unit|-lint)[-a-z0-9]*):\s*$/m ).empty?
     # Regex test at https://rubular.com/r/fuMdr0HDU1cqLd
     old_lts_jobs = content.scan( /^(pup5\.5\.17(?!-unit|-lint)[-a-z0-9]*:.*?(?=\Z|^#|^pup))/m ).flatten
     new_lts_jobs = old_lts_jobs.map{|x| x.gsub('pup_5_5_17','pup_6_16_0').gsub('pup5.5.17','pup6.16.0') }
     new_content = "#{content}\n#{new_lts_jobs.join}"
     return new_content unless new_lts_jobs.empty?
-    content
   end
+  content
 end
 
 # ARGF hack to allow use run the task directly as a ruby script while testing

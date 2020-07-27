@@ -14,22 +14,24 @@ puppetsync:
         - apply_puppet_role
         - modernize_gitlab_files
         - lint_gitlab_ci
-          #- git_commit_changes
-          #- ensure_github_fork
-          #- ensure_git_remote
-          #- git_push_to_remote
-          #- ensure_gitlab_remote
-          #- git_push_to_gitlab
-          #- ensure_github_pr
-
+        - git_commit_changes
+        - ensure_github_fork
+        - ensure_git_remote
+        - git_push_to_remote
+        - ensure_gitlab_remote
+        - git_push_to_gitlab
+        - ensure_github_pr
+#
     approve_github_pr:
       clone_git_repos: false
       stages:
+        - install_gems
         - approve_github_pr_for_each_repo
 
     merge_github_pr:
       clone_git_repos: false
       stages:
+        - install_gems
         - merge_github_pr_for_each_repo
 
 jira:
@@ -38,15 +40,15 @@ jira:
   jira_site: https://simp-project.atlassian.net
   subtask_title: 'Add new GLCI pipeline features to %COMPONENT%'
   # optional:
-  subtask_story_points: 3
+  subtask_story_points: 1
   subtask_description: 'Add new GLCI pipeline features to %COMPONENT%'
   subtask_assignee: true
 
 git:
   # 0---------1---------2---------3---------4---------5---------6---------7-|
-  # (SIMP-XXXX) 123456789
+  # (SIMP-XXXX) 12345678
   commit_message: |
-    (%JIRA_PARENT_ISSUE) Add new GLCI pipeline features
+    (%JIRA_PARENT_ISSUE%) Add new GLCI pipeline features
 
     The patch adds enhanced features to SIMP Puppet modules' standardized
     GitLab CI pipeline:
@@ -71,10 +73,13 @@ git:
       jobs at the current `SIMP_MATRIX_LEVEL` are run, regardless of what
       has changed (or not).
 
+    CI: MATRIX LEVEL 0
     %JIRA_SUBTASK% #close
     [%JIRA_PARENT_ISSUE%] #comment Add file-match CI runs to %COMPONENT%
     [SIMP-7975] #comment Add `SIMP_MATRIX_LEVEL` checks to %COMPONENT%
 
+    [SIMP-7974]: https://simp-project.atlassian.net/browse/SIMP-7974
+    [SIMP-7975]: https://simp-project.atlassian.net/browse/SIMP-7975
 
 github:
   pr_user: op-ct

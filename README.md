@@ -88,8 +88,6 @@ mkdir -p tmp
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
   JIRA_USER=$JIRA_USER \
   JIRA_API_TOKEN=$JIRA_API_TOKEN \
-  GEM_HOME=.gems \
-  TMPDIR=$PWD/tmp \
     bolt plan run puppetsync
 
 # To approve every repo in Puppetfile.repos:

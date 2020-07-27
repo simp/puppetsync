@@ -174,6 +174,6 @@ if $PROGRAM_NAME == __FILE__
   pr = forker.existing_pr(upstream_reponame, opts[:target_branch], opts[:fork_user], opts[:fork_branch])
   # ##repo_pr = forker.approve_pr(pr, opts[:approval_message] || ':+1: :ghost:')
   result = forker.merge_pr(pr)
-
+  puts result
   require 'pry'; binding.pry
 end
