@@ -12,6 +12,7 @@
     * [Merge PR every repo in Puppetfile.repos](#merge-pr-every-repo-in-puppetfilerepos)
 * [Usage](#usage)
   * [Syncing repos](#syncing-repos)
+  * [Inspecting pipeline stages](#inspecting-pipeline-stages)
 * [Reference](#reference)
   * [Environment variables](#environment-variables)
   * [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
@@ -35,6 +36,8 @@ infrastructure-as-code!
 * Ensures there a Jira subtask documents the updates for each repo
 * Approves all GitHub PRs for a specific puppetsync session
 * Merges all GitHub PRs for a specific puppetsync session
+* Only requires OS-packaged [Puppet bolt][bolt] 2.15+ and internet access to
+  get started.
 
 ![Puppetsync Plans Overview](assets/puppetsync_plans_overview.png)
 
@@ -131,12 +134,69 @@ After [setup](#setup), sync all repos by running:
 To see what's going on under the hood (potentially less irritating when
 `apply()` appears to hang for a long time when updating a lot of repos):
 
-        /opt/puppetlabs/bin/bolt plan run puppetsync --debug
+        /opt/puppetlabs/bin/bolt plan run puppetsync --log-level info
+
+        # Alternatively (warning: LOTS of info):
+        /opt/puppetlabs/bin/bolt plan run puppetsync --log-level debug
 
 
-To list all pipeline stages in a plan, run:
+### Inspecting pipeline stages
 
-        /opt/puppetlabs/bolt/bin/bolt plan run puppetsync options='{"list_pipeline_stages": true}'
+To list all pipeline stages in a plan (and inspect which stages will be
+skipped), run:
+
+        bolt plan run puppetsync options='{"list_pipeline_stages": true}'
+
+These steps can be specified/commented out in `puppetsync_planconfig.yaml` under the corresponding plan.
+
+**Example:**
+
+```sh
+bolt plan run puppetsync \
+  options='{"list_pipeline_stages": true}' \
+  github_token=x jira_username=x  jira_token=x
+
+#   Starting: plan puppetsync
+#   ===== SKIPPING PIPELINE STAGE DUE TO CONFIGURATION: install_gems
+#   - checkout_git_feature_branch_in_each_repo
+#   - ensure_jira_subtask
+#   - apply_puppet_role
+#   - modernize_gitlab_files
+#   - lint_gitlab_ci
+#   - git_commit_changes
+#   - ensure_github_fork
+#   - ensure_git_remote
+#   - git_push_to_remote
+#   - ensure_gitlab_remote
+#   - git_push_to_gitlab
+#   - ensure_github_pr
+#   Finished: plan puppetsync in 0.04 sec
+#   Plan completed successfully with no result
+```
+
+At the time the command above was run, the corresponding
+`puppetsync_planconfig.yaml` contained the following
+`puppetsync.plans.sync.stages`:
+
+```yaml
+puppetsync:
+  plans:
+    sync:
+      stages:
+        # - install_gems
+        - checkout_git_feature_branch_in_each_repo
+        - ensure_jira_subtask
+        - apply_puppet_role
+        - modernize_gitlab_files
+        - lint_gitlab_ci
+        - git_commit_changes
+        - ensure_github_fork
+        - ensure_git_remote
+        - git_push_to_remote
+        - ensure_gitlab_remote
+        - git_push_to_gitlab
+        - ensure_github_pr
+```
 
 
 ## Reference
@@ -172,6 +232,35 @@ puppetsync:
   puppet_role: 'role::pupmod_travis_only'
   permitted_project_types:
     - pupmod
+    - pupmod_skeleton
+  plans:
+    sync:
+      stages:
+        - install_gems
+        - checkout_git_feature_branch_in_each_repo
+        - ensure_jira_subtask
+        - apply_puppet_role
+        - modernize_gitlab_files
+        - lint_gitlab_ci
+        - git_commit_changes
+        - ensure_github_fork
+        - ensure_git_remote
+        - git_push_to_remote
+        - ensure_gitlab_remote
+        - git_push_to_gitlab
+        - ensure_github_pr
+#
+    approve_github_pr:
+      clone_git_repos: false
+      stages:
+        - install_gems
+        - approve_github_pr_for_each_repo
+
+    merge_github_pr:
+      clone_git_repos: false
+      stages:
+        - install_gems
+        - merge_github_pr_for_each_repo
 
 jira:
   parent_issue: SIMP-7035
