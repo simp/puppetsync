@@ -340,7 +340,7 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     $ok_repos.map |$repo| {
       $results = run_command(
-        "cd '${repo.vars['repo_path']}'; git push 'gitlab_repo' '${feature_branch}' -f",
+        "cd '${repo.vars['repo_path']}'; git push 'gitlab_repo' '${feature_branch}:${feature_branch}' -f",
         $repo,
         "Push branch '${feature_branch}' to gitlab repository",
         { '_catch_errors' => true }

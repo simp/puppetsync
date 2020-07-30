@@ -34,6 +34,10 @@ mod 'simp-cron',
  :git => 'https://github.com/simp/pupmod-simp-cron',
  :branch => 'master'
 
+###mod 'simp-crypto_policy',
+### :git => 'https://github.com/simp/pupmod-simp-crypto_policy',
+### :branch => 'master'
+
 mod 'simp-dconf',
  :git => 'https://github.com/simp/pupmod-simp-dconf',
  :branch => 'master'
@@ -49,6 +53,10 @@ mod 'simp-dhcp',
 mod 'simp-fips',
  :git => 'https://github.com/simp/pupmod-simp-fips',
  :branch => 'master'
+
+##mod 'simp-firefox',
+## :git => 'https://github.com/simp/pupmod-simp-firefox',
+## :branch => 'master'
 
 mod 'simp-freeradius',
  :git => 'https://github.com/simp/pupmod-simp-freeradius',
@@ -201,6 +209,10 @@ mod 'simp-simp_banners',
 mod 'simp-simp_bolt',
   :git => 'https://github.com/simp/pupmod-simp-simp_bolt',
   :branch => 'master'
+
+###mod 'simp-simp_firewalld',
+###  :git => 'https://github.com/simp/pupmod-simp-simp_firewalld',
+###  :branch => 'master'
 
 mod 'simp-simp_gitlab',
   :git => 'https://github.com/simp/pupmod-simp-simp_gitlab',

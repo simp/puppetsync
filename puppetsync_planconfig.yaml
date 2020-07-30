@@ -21,7 +21,7 @@ puppetsync:
         - ensure_gitlab_remote
         - git_push_to_gitlab
         - ensure_github_pr
-#
+
     approve_github_pr:
       clone_git_repos: false
       stages:
@@ -45,38 +45,29 @@ jira:
   subtask_assignee: true
 
 git:
-  # 0---------1---------2---------3---------4---------5---------6---------7-|
+  # 0---------1---------2---------3---------4---------5---------6---------7|
   # (SIMP-XXXX) 12345678
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Add new GLCI pipeline features
+    (%JIRA_PARENT_ISSUE%) Fix `when: never` rule regex
 
-    The patch adds enhanced features to SIMP Puppet modules' standardized
-    GitLab CI pipeline:
+    The patch corrects the regex operator in the `.gitlab-ci.yml` YAML
+    anchor `&skip_job_when_commit_message_says_to`.  The previous pipeline
+    had a bug which _always_ skipped spec and acceptance tests (added at the
+    last minute when it was rearranged into semantic anchors, ironically to
+    support `when: never`)
 
-    * spec and acceptance tests _only_ run when relevant files have changed
-    * The CI variable `SIMP_FULL_MATRIX` is replaced by `SIMP_MATRIX_LEVEL`
-    * spec and acceptance tests run at or above their `SIMP_MATRIX_LEVEL`
-    * Jobs and the pipeline default to `SIMP_MATRIX_LEVEL` 1
-    * The pipeline's `SIMP_MATRIX_LEVEL` can be changed via CI variable
-      (via triggers, group/project settings, etc)
-    * In the pipeline-triggering commit message, adding a line that starts
-      with `CI: MATRIX LEVEL 0` or `CI: SKIP MATRIX` will suppress all steps
-      with `SIMP_MATRIX_LEVEL` 1-3
+    During testing of this patch, the regex matching for
+    `$CI_COMMIT_MESSAGE` inside `rules:if` blocks stopped working (no idea,
+    there are some re parsing quirks in .gitlab-ci.yaml, like
+    https://gitlab.com/gitlab-org/gitlab/-/issues/17680#note_214973340).
+    The regexes have been updated with a workaround and tested for all
+    documented use cases.
 
-    There is an important caveat: because of the way GitLab CI pipelines
-    determine `changes`, a file that hasn't changed between `--amend` +
-    force-pushed updates _will not trigger the matrix again_.  This affects
-    scheduled and triggered pipelines.
 
-    * To solve this scenario, setting the CI variable `SIMP_FORCE_MATRIX =
-      yes` in a scheduled pipeline or pipeline trigger will ensure that all
-      jobs at the current `SIMP_MATRIX_LEVEL` are run, regardless of what
-      has changed (or not).
-
-    CI: SKIP_MATRIX
+    CI: SKIP MATRIX
     %JIRA_SUBTASK% #close
-    [%JIRA_PARENT_ISSUE%] #comment Add file-match CI runs to %COMPONENT%
-    [SIMP-7975] #comment Add `SIMP_MATRIX_LEVEL` checks to %COMPONENT%
+    %JIRA_PARENT_ISSUE% #comment Fix when: never regex in .gitlab-ci.yml
+    SIMP-7975 #comment Fix when: never regex in .gitlab-ci.yml
 
     [SIMP-7974]: https://simp-project.atlassian.net/browse/SIMP-7974
     [SIMP-7975]: https://simp-project.atlassian.net/browse/SIMP-7975

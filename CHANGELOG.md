@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [SIMP-7974] - 2020-07-29
+
+### Added
+
+- `change: rules` to `.gitlab-ci.yaml`
+- CI variable matrix levels to `.gitlab-ci.yaml`
+- Commit message directives to `.gitlab-ci.yaml`
+
+### Fixed
+
+- `puppetsync::modernize_gitlab_files` idempotency
+
+
 ## [SIMP-7977] - 2020-07-17
 
 ### Added
@@ -33,3 +46,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 [Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-7977...HEAD
 [SIMP-7848]: https://github.com/op-ct/puppetsync/releases/tag/SIMP-7848
 [SIMP-7977]: https://github.com/op-ct/puppetsync/compare/SIMP-7848...SIMP-7977
+[SIMP-7974]: https://github.com/op-ct/puppetsync/compare/SIMP-7977...SIMP-7974
