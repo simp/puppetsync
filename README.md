@@ -5,11 +5,12 @@
 * [Description](#description)
 * [Setup](#setup)
   * [Requirements](#requirements)
-  * [Getting started](#getting-started)
   * [Quickstart](#quickstart)
-    * [Sync + PR changes across all repos](#sync--pr-changes-across-all-repos)
-    * [Approve PRs for every repo in Puppetfile.repos](#approve-prs-for-every-repo-in-puppetfilerepos)
-    * [Merge PR every repo in Puppetfile.repos](#merge-pr-every-repo-in-puppetfilerepos)
+    * [Initial setup](#initial-setup)
+    * [Preparing to run `puppetsync`](#preparing-to-run-puppetsync)
+    * [Running `puppetsync`](#running-puppetsync)
+    * [Running `puppetsync::approve_github_prs`](#running-puppetsyncapprove_github_prs)
+    * [Running `puppetsync::merge_github_prs`](#running-puppetsyncmerge_github_prs)
 * [Usage](#usage)
   * [Syncing repos](#syncing-repos)
   * [Inspecting pipeline stages](#inspecting-pipeline-stages)
@@ -20,24 +21,19 @@
     * [`puppetsync`](#puppetsync)
     * [`puppetsync::approve_github_prs`](#puppetsyncapprove_github_prs)
     * [`puppetsync::merge_github_prs`](#puppetsyncmerge_github_prs)
+  * [Manually install dependencies](#manually-install-dependencies)
 * [Limitations](#limitations)
 
 <!-- vim-markdown-toc -->
 
 ## Description
 
-**puppetsync** uses [Puppet Bolt][bolt] Plans to manage your code like
-infrastructure-as-code!
+Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastructure-as-code!
 
-* Applies Puppet manifests to enforce a common "baseline" across a large
-  collection of GitHub repos
-* Submits a GitHub PR to each upstream repo from a forked repo (creating the
-  fork, if needed)
-* Ensures there a Jira subtask documents the updates for each repo
-* Approves all GitHub PRs for a specific puppetsync session
-* Merges all GitHub PRs for a specific puppetsync session
-* Only requires OS-packaged [Puppet bolt][bolt] 2.15+ and internet access to
-  get started.
+  * Enforce a "baseline" across multiple GitHub repos, using [Puppet][puppet] and [Bolt][bolt] tasks
+  * Automate the CM/workflow for each change: Jira, git commit messages, GitHub forks & PRs
+  * Separate plans to submit, approve, and merge GitHub PRs, so different roles can run them (if required by CM policy)
+
 
 ![Puppetsync Plans Overview](assets/puppetsync_plans_overview.png)
 
@@ -46,82 +42,87 @@ infrastructure-as-code!
 
 ### Requirements
 
-* [Puppet Bolt 2.x][bolt]
-  * **Note:** Run puppetsync using the OS-packaged `bolt` executable (not a
-    binstub from the RubyGem).
+* [Puppet Bolt 2.15+][bolt], installed from an [OS package][bolt-install] (don't use the RubyGem)
+* The `git` command must be available
+  * SSH + ssh-agent must be set up to push changes
+* Some specific [environment variables](#environment-variables) are required
+  to handle API authentication (e.g., GitHub)
 * Runtime dependencies (installed by `./Rakefile install`)
   * Puppet modules (defined in bolt project's `Puppetfile`):
   * Ruby Gems (defined in `gem.deps.rb`): octokit, jira-ruby, etc
-* API authentication tokens for Jira and GitHub (set in [env
-  variables](#environment-variables))
-  * Some specific [environment variables](#environment-variables) are required
-    for JIRA and GitHub API authentication, and to help bolt tasks find the
-    Ruby Gems
-* The `git` command must be available
-  * SSH + ssh-agent must be set up to push changes
 
-### Getting started
-
-1. Use `bolt` to download the project's dependencies from `Puppetfile` and
-   `gems.deps.rb`:
-
-         /opt/puppetlabs/bolt/bin/gem install --user-install -g gem.deps.rb
-         /opt/puppetlabs/bin/bolt puppetfile install
-
-   The Rakefile can be used as a shortcut:
-
-        ./Rakefile install
-
-2. Add `mod` entries for the repos you want to sync in `Puppetfile.repos`
-3. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
-   file to your workflow
-4. Set [environment variables](#environment-variables) for JIRA and GitHub API
-   authentication
-5. Run the plan you want
 
 ### Quickstart
 
-Before running any commands, from the top level of this repository:
+#### Initial setup
 
-```sh
-# Setting up dependencies
-command -v rvm && rvm use system    # make sure you're using the packaged `bolt`
-./Rakefile install                  # Install Puppet module and Ruby Gem deps
-bolt plan show --filter puppetsync  # Validate bolt is working
-```
+1. Before running any plans, from the top level of this repository:
 
-#### Sync + PR changes across all repos
+   ```sh
+   command -v rvm && rvm use system    # make sure you're using the packaged `bolt`
+   ./Rakefile install                  # Install Puppet module and Ruby Gem deps
+   bolt plan show --filter puppetsync  # Validate bolt is working
+   ```
+
+2. Set the [environment variable](#environment-variables) `GITHUB_API_TOKEN`.
+
+3. At this point, you are ready to run a plan.  The plan to run will depend on your role:
+
+   | Plan | Role | Purpose |
+   | --- | --- | --- |
+   | **`puppetsync`** | Maintainer | Applies baseline to each repo, submits changes as PRs |
+   | **`puppetsync::approve_github_prs`** | Approver | Approves all PRs from a specific `puppetsync` session |
+   | **`puppetsync::merge_github_prs`** | Maintainer | Merges all approved PRs from a specific `puppetsync` |
+
+
+#### Preparing to run `puppetsync`
+
+:warning: You only need to change these files when preparing a new
+`puppetsync`!
+
+1. Add `mod` entries for the repos you want to affect in `Puppetfile.repos`
+2. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
+   file to your workflow
+3. Set [environment variables](#environment-variables) for JIRA API
+   authentication
+4. (Optional) Develop Puppet code/Hiera data/Tasks to provide new features
+
+Note: If you are just approving or merging PRs, you will reuse the
+files from the puppetsync run that submitted them.
+
+#### Running `puppetsync`
+
 
 ```sh
 # (PROTIP: don't actually expose API tokens when running commands)
 
-# To sync everything in Puppetfile.repos:
-mkdir -p tmp
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
   JIRA_USER=$JIRA_USER \
   JIRA_API_TOKEN=$JIRA_API_TOKEN \
     bolt plan run puppetsync
 ```
 
-#### Approve PRs for every repo in Puppetfile.repos
+See the [`puppetsync`](#puppetsync) reference for details.
 
-This will idempotently approve every open PR from user `github.pr_user` on
-branch `jira.parent_issue` for each repo in `Puppetfile.repos`:
+#### Running `puppetsync::approve_github_prs`
+
 
 ```sh
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
     bolt plan run puppetsync::approve_github_prs
 ```
 
-#### Merge PR every repo in Puppetfile.repos
+See the [`puppetsync::approve_github_prs`](#puppetsyncapprove_github_prs) reference for details.
 
-This will idempotently merge every approved PR from user `github.pr_user` on
-branch `jira.parent_issue` for each repo in `Puppetfile.repos`:
+#### Running `puppetsync::merge_github_prs`
 
 ```sh
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
     bolt plan run puppetsync::merge_github_prs
 ```
+
+See the [`puppetsync::merge_github_prs`](#puppetsyncmerge_github_prs) reference for details.
+
 
 ## Usage
 
@@ -291,19 +292,30 @@ github:
 
 ### Plans
 
+Each plan:
+
+* Reads its config from [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
+* Has its own specific configuration (`plans.sync`, `plans.approve_github_pr`,
+  `plans.merge_github_pr`)
+* Executes its workflow as a series of pipeline stages for each repo in `Puppetfile.repos`
+
 #### `puppetsync`
 
-The main plan (`puppetsync`) executes the workflow as series of pipeline
-of stages for each repo. It will:
+The main plan (`puppetsync`) clones updates each repo in
+`Puppetfile.repos`.  It (idempotently) ensures a Jira subtask and GitHub PR
+exists for each change.
+
+Workflow:
 
 1. Clone `:git` repositories defined in a `Puppetfile.repos` file
+   * (disable with `clone_git_repos: false`)
 
-Then―for each repository (in parallel)―it will:
+It will then execute the following pipeline stages for each repo (in parallel):
 
 2. Ensure a Jira subtask exists to track the change
 3. Check out a new git feature branch
 4. Apply Puppet manifests to enforce a common repository asset baseline
-5. Commit changes to git with a templated commit message
+5. Commit changes to git with a templated commit message (`git.commit_message`)
 6. Ensure the user has forked repository on GitHub
 7. Push changes up to the user's forked repository
 8. Submit a Pull Request to merge the changes back the original repository and branch
@@ -315,7 +327,25 @@ All failures are summarized after the full plan finishes executing.
 
 #### `puppetsync::approve_github_prs`
 
+Idempotently approves every open PR from user `github.pr_user` on
+branch `jira.parent_issue` for each repo in `Puppetfile.repos`.
+
 #### `puppetsync::merge_github_prs`
+
+Idempotently merges every approved PR from user `github.pr_user` on
+branch `jira.parent_issue` for each repo in `Puppetfile.repos`.
+
+### Manually install dependencies
+
+Use `bolt` to download the project's dependencies from `Puppetfile` and
+`gems.deps.rb`:
+
+       /opt/puppetlabs/bolt/bin/gem install --user-install -g gem.deps.rb
+       /opt/puppetlabs/bin/bolt puppetfile install
+
+ The Rakefile can be used as a shortcut:
+
+      ./Rakefile install
 
 ## Limitations
 
@@ -323,3 +353,5 @@ All failures are summarized after the full plan finishes executing.
 * Probably only works from an \*nix host
 
 [bolt]: https://puppet.com/docs/bolt/latest/bolt.html
+[puppet]: https://puppet.com/docs/puppet/latest/
+[bolt-install]: https://puppet.com/docs/bolt/latest/bolt_installing.html
