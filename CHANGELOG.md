@@ -3,20 +3,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
 
-## [SIMP-7974] - 2020-07-29
+## [SIMP-7974] - 2020-07-30
 
 ### Added
 
-- `change: rules` to `.gitlab-ci.yaml`
-- CI variable matrix levels to `.gitlab-ci.yaml`
-- Commit message directives to `.gitlab-ci.yaml`
+- Features for `.gitlab-ci.yaml`:
+  - spec and acceptance tests only run if relevant files have changed
+  - CI variables `SIMP_MATRIX_LEVEL` and `SIMP_FORCE_MATRIX`
+  - CI commit message directives `CI: SKIP MATRIX`, `CI MATRIX LEVEL [0123]`
 
 ### Fixed
 
-- `puppetsync::modernize_gitlab_files` idempotency
+- `puppetsync::modernize_gitlab_files` is now idempotent
 
+### Removed
+
+- `.gitlab-ci.yaml` CI variable `SIMP_FULL_MATRIX` (existing instances
+  converted to run jobs when `SIMP_MATRIX_LEVEL` == 3
 
 ## [SIMP-7977] - 2020-07-17
 
