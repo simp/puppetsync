@@ -1,5 +1,4 @@
 ---
-
 puppetsync:
   permitted_project_types:
     - pupmod
@@ -35,43 +34,24 @@ puppetsync:
         - merge_github_pr_for_each_repo
 
 jira:
-  parent_issue: SIMP-7974
+  parent_issue: SIMP-8139
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Add new GLCI pipeline features to %COMPONENT%'
+  subtask_title: 'Update %COMPONENT% to latest common module assets'
   # optional:
-  subtask_story_points: 1
-  subtask_description: 'Add new GLCI pipeline features to %COMPONENT%'
+  subtask_story_points: 0
+  subtask_description: 'Ensure latest common module assets in %COMPONENT%'
   subtask_assignee: true
 
 git:
   # 0---------1---------2---------3---------4---------5---------6---------7|
-  # (SIMP-XXXX) 12345678
+  # (SIMP-XXXX) 12345678                                     |
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Fix `when: never` rule regex
+    (%JIRA_PARENT_ISSUE%) Update to latest common assets
 
-    The patch corrects the regex operator in the `.gitlab-ci.yml` YAML
-    anchor `&skip_job_when_commit_message_says_to`.  The previous pipeline
-    had a bug which _always_ skipped spec and acceptance tests (added at the
-    last minute when it was rearranged into semantic anchors, ironically to
-    support `when: never`)
-
-    During testing of this patch, the regex matching for
-    `$CI_COMMIT_MESSAGE` inside `rules:if` blocks stopped working (no idea,
-    there are some re parsing quirks in .gitlab-ci.yaml, like
-    https://gitlab.com/gitlab-org/gitlab/-/issues/17680#note_214973340).
-    The regexes have been updated with a workaround and tested for all
-    documented use cases.
-
-
-    CI: SKIP MATRIX
     %JIRA_SUBTASK% #close
-    %JIRA_PARENT_ISSUE% #comment Fix when: never regex in .gitlab-ci.yml
-    SIMP-7975 #comment Fix when: never regex in .gitlab-ci.yml
-
-    [SIMP-7974]: https://simp-project.atlassian.net/browse/SIMP-7974
-    [SIMP-7975]: https://simp-project.atlassian.net/browse/SIMP-7975
 
 github:
-  pr_user: op-ct
+  pr_user: op-ct  # This should be the account that *submits* the PRs (Used as
+                  #  part of the idempotency checks when approving/merging PRs)
   approval_message: ':+1: :ghost:'

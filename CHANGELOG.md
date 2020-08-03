@@ -3,7 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-<!-- ## [Unreleased] -->
+## [Unreleased] (SIMP-8139)
+
+### Added
+
+- `role::pupmod` now manages common files: `.gitignore`,
+  `.gitattributes`, `.puppet-lint.rc`, `.ruby-version`, `.pmtignore`
+- `role::pupmod` now removes obsolete files: `spec/manifests/site.pp`,
+  `spec/fixtures/manifests/site.pp`
+- README now has a Troubleshooting section
+
 
 ## [SIMP-7974] - 2020-07-30
 
@@ -48,7 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Last version before changelog
 
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-7977...HEAD
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-7974...HEAD
 [SIMP-7848]: https://github.com/op-ct/puppetsync/releases/tag/SIMP-7848
 [SIMP-7977]: https://github.com/op-ct/puppetsync/compare/SIMP-7848...SIMP-7977
 [SIMP-7974]: https://github.com/op-ct/puppetsync/compare/SIMP-7977...SIMP-7974

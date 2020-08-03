@@ -1,3 +1,7 @@
 ---
 classes:
   - 'role::pupmod'
+
+profile::pupmod::obsoletes::files:
+  - 'spec/fixtures/site.pp'           # Several modules had this incorrect path
+  - 'spec/fixtures/manifests/site.pp' # not required since Puppet 3.x

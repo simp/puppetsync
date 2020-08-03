@@ -22,6 +22,9 @@
     * [`puppetsync::approve_github_prs`](#puppetsyncapprove_github_prs)
     * [`puppetsync::merge_github_prs`](#puppetsyncmerge_github_prs)
   * [Manually install dependencies](#manually-install-dependencies)
+* [Troubleshooting](#troubleshooting)
+  * [Error: `Ignoring <x> because its extensions are not built.`](#error-ignoring-x-because-its-extensions-are-not-built)
+  * [Error: `puppetsync: parameter 'puppetfile' expects a Stdlib::Absolutepath`](#error-puppetsync-parameter-puppetfile-expects-a-stdlibabsolutepath)
 * [Limitations](#limitations)
 
 <!-- vim-markdown-toc -->
@@ -346,6 +349,63 @@ Use `bolt` to download the project's dependencies from `Puppetfile` and
  The Rakefile can be used as a shortcut:
 
       ./Rakefile install
+
+
+## Troubleshooting
+
+### Error: `Ignoring <x> because its extensions are not built.`
+
+**Cause:** Running `bolt plan run puppetsync` from a Ruby interpreter other
+than the bolt package.
+
+**Fix:** Make sure you're not using RVM.  If necessary, invoke the packaged
+bolt executable directly:
+
+```sh
+command -v rvm && rvm use system    # make sure you're using the packaged `bolt`
+./Rakefile install                  # Install Puppet module and Ruby Gem deps
+bolt plan show --filter puppetsync  # Validate bolt is working
+
+## ^^^ If that still didn't work:
+# /opt/puppetlabs/bolt/bin/bolt show --filter puppetsync
+```
+
+**Characteristic error messages:**
+
+```
+Ignoring bcrypt_pbkdf-1.0.1 because its extensions are not built. Try: gem pristine bcrypt_pbkdf --version 1.0.1
+Ignoring byebug-11.1.3 because its extensions are not built. Try: gem pristine byebug --version 11.1.3
+Ignoring byebug-11.1.1 because its extensions are not built. Try: gem pristine byebug --version 11.1.1
+Ignoring byebug-11.0.1 because its extensions are not built. Try: gem pristine byebug --version 11.0.1
+Ignoring ed25519-1.2.4 because its extensions are not built. Try: gem pristine ed25519 --version 1.2.4
+Ignoring executable-hooks-1.6.0 because its extensions are not built. Try: gem pristine executable-hooks --version 1.6.0
+Ignoring ffi-1.12.2 because its extensions are not built. Try: gem pristine ffi --version 1.12.2
+...
+```
+
+### Error: `puppetsync: parameter 'puppetfile' expects a Stdlib::Absolutepath`
+
+**Cause:** Running `bolt plan run puppetsync puppetfile=` with relative path to the
+desired Puppetfile.
+
+**Fix:** Use an absolute path to reference the Puppetfile you want:
+
+```sh
+bolt plan run puppetsync puppetfile="$PWD/Puppetfile.skeleton"
+```
+
+**Characteristic error message:**
+
+```
+{
+  "kind": "bolt/pal-error",
+  "msg": "puppetsync: parameter 'puppetfile' expects a Stdlib::Absolutepath = Variant[Stdlib::Windowspath = Pattern[/^(([a-zA-Z]:
+[\\\\\\/])|([\\\\\\/][\\\\\\/][^\\\\\\/]+[\\\\\\/][^\\\\\\/]+)|([\\\\\\/][\\\\\\/]\\?[\\\\\\/][^\\\\\\/]+))/], Stdlib::Unixpath =
+ Pattern[/^\\/([^\\/\\0]+\\/*)*$/]] value, got String",
+  "details": {
+  }
+```
+
 
 ## Limitations
 

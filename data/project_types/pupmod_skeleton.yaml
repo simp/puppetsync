@@ -5,3 +5,6 @@ classes:
 profile::pupmod::gitlab_ci::target_gitlabci_yml_path: "%{::repo_path}/skeleton/.gitlab-ci.yml"
 profile::pupmod::travis_yml::target_travis_yml_path: "%{::repo_path}/skeleton/.travis.yml"
 profile::pupmod::gemfile::gemfile_path: "%{::repo_path}/skeleton/Gemfile"
+profile::pupmod::rspec::rspec_path: "%{::repo_path}/skeleton/.rspec"
+profile::pupmod::ruby_version::ruby_version_path: "%{::repo_path}/skeleton/.ruby-version"
+profile::pupmod::obsoletes::repo_path: "%{::repo_path}/skeleton"
