@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 <!-- ## [Unreleased] -->
 
+## [SIMP-7855]
+
+### Changed
+
+- In `.gitlab-ci.yaml`:
+  - Updated `.gitlab-ci.yml` to Puppet 5.5.20 to match PE 2018.1 LTS
+  - Moved pup5/pup6 (latest) unit tests to `with_SIMP_SPEC_MATRIX_LEVEL_2`
+
+### Fixed
+
+- Reintroduced missing `--no-parameter_order-check` to `.puppet-lint.rc`
+
+
 ## [SIMP-8139]
 
 ### Added
@@ -59,8 +72,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Last version before changelog
 
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-7974...HEAD
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-8139...HEAD
 [SIMP-7848]: https://github.com/op-ct/puppetsync/releases/tag/SIMP-7848
 [SIMP-7977]: https://github.com/op-ct/puppetsync/compare/SIMP-7848...SIMP-7977
 [SIMP-7974]: https://github.com/op-ct/puppetsync/compare/SIMP-7977...SIMP-7974
 [SIMP-8139]: https://github.com/op-ct/puppetsync/compare/SIMP-7974...SIMP-8139
+[SIMP-7855]: https://github.com/op-ct/puppetsync/compare/SIMP-7974...SIMP-7855
+

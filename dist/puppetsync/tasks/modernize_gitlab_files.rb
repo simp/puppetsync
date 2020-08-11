@@ -3,8 +3,8 @@
 require 'fileutils'
 
 def modernize_gitlab_ci(content)
-  content.gsub!(%r{pup_5_5_16|pup_5_5_10}, 'pup_5_5_17')
-  content.gsub!(%r{pup5\.5\.16|pup5\.5\.10}, 'pup5.5.17')
+  content.gsub!(%r{pup_5_5_(?:10|16|17)}, 'pup_5_5_20')
+  content.gsub!(%r{pup5\.5\.(?:10|16|17)}, 'pup5.5.20')
   content.gsub!(%r{pup_6_latest}, 'pup_6')
   content.gsub!(%r{pup_5_latest}, 'pup_5')
 

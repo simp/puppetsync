@@ -34,22 +34,24 @@ puppetsync:
         - merge_github_pr_for_each_repo
 
 jira:
-  parent_issue: SIMP-8139
+  parent_issue: SIMP-7855
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Update %COMPONENT% to latest common module assets'
+  subtask_title: 'Update %COMPONENT% `.gitlab-ci.yml` to puppet 5.5.20'
   # optional:
   subtask_story_points: 0
-  subtask_description: 'Ensure latest common module assets in %COMPONENT%'
+  subtask_description: 'Update`.gitlab-ci.yml` in  %COMPONENT% `.gitlab-ci.yml` to puppet 5.5.20'
   subtask_assignee: true
 
 git:
   # 0---------1---------2---------3---------4---------5---------6---------7|
   # (SIMP-XXXX) 12345678                                     |
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Update to latest common assets
+    (%JIRA_PARENT_ISSUE%) Update GLCI to test puppet 5.5.20
 
     %JIRA_SUBTASK% #close
+    [%JIRA_PARENT_ISSUE%] #comment Updated %COMPONENT%
+    SIMP-8237 #comment Added `--no-parameter_order_check` to %COMPONENT%
 
 github:
   pr_user: op-ct  # This should be the account that *submits* the PRs (Used as
