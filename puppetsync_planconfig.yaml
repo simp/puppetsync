@@ -13,13 +13,13 @@ puppetsync:
         - apply_puppet_role
         - modernize_gitlab_files
         - lint_gitlab_ci
-        - git_commit_changes
-        - ensure_github_fork
-        - ensure_git_remote
-        - git_push_to_remote
-        - ensure_gitlab_remote
-        - git_push_to_gitlab
-        - ensure_github_pr
+###        - git_commit_changes
+###        - ensure_github_fork
+###        - ensure_git_remote
+###        - git_push_to_remote
+###        - ensure_gitlab_remote
+###        - git_push_to_gitlab
+###        - ensure_github_pr
 
     approve_github_pr:
       clone_git_repos: false
@@ -34,13 +34,13 @@ puppetsync:
         - merge_github_pr_for_each_repo
 
 jira:
-  parent_issue: SIMP-7855
+  parent_issue: SIMP-8489
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Update %COMPONENT% `.gitlab-ci.yml` to puppet 5.5.20'
+  subtask_title: 'Update %COMPONENT% CI pipelines to test Puppet 6.18.0'
   # optional:
   subtask_story_points: 0
-  subtask_description: 'Update`.gitlab-ci.yml` in  %COMPONENT% `.gitlab-ci.yml` to puppet 5.5.20'
+  subtask_description: 'Update CI piplines in %COMPONENT% to test Puppet 6.18.0'
   subtask_assignee: true
 
 git:
@@ -53,6 +53,6 @@ git:
     [%JIRA_PARENT_ISSUE%] #comment Updated %COMPONENT%
 
 github:
-  pr_user: op-ct  # This should be the account that *submits* the PRs (Used as
-                  #  part of the idempotency checks when approving/merging PRs)
+  pr_user: op-ct  # This should be the account that *submitted* the PRs (Used
+                  # by the idempotency checks when approving/merging PRs)
   approval_message: ':+1: :ghost:'
