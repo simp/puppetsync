@@ -15,6 +15,7 @@ def modernize_gitlab_ci(content)
     # Regex test at https://rubular.com/r/fuMdr0HDU1cqLd
     old_lts_jobs = content.scan( /^(pup5\.5\.17(?!-unit|-lint)[-a-z0-9]*:.*?(?=\Z|^#|^pup))/m ).flatten
     new_lts_jobs = old_lts_jobs.map{|x| x.gsub('pup_5_5_17','pup_6_16_0').gsub('pup5.5.17','pup6.16.0') }
+    new_lts_jobs = old_lts_jobs.map{|x| x.gsub('pup_6_16_0','pup_6_18_0').gsub('pup6.16.0','pup6.18.0') }
     new_content = "#{content}\n#{new_lts_jobs.join}"
     return new_content unless new_lts_jobs.empty?
   end

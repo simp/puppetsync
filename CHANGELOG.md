@@ -3,7 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-<!-- ## [Unreleased] -->
+## [Unreleased]
+
+### Changed
+
+- Updated `.gitlab-ci.yml` from Puppet 6.16.0 to 6.18.0
+- Updated `.travis.yml` from Puppet 6.10 to 6.18
+- Updated PE LTS EOL versions in `.gitlab-ci.yml` and `.travis.yml`
+- Added puppetsync management notice to static files
 
 ## [SIMP-7855]
 
@@ -72,10 +79,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Last version before changelog
 
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-8139...HEAD
 [SIMP-7848]: https://github.com/op-ct/puppetsync/releases/tag/SIMP-7848
 [SIMP-7977]: https://github.com/op-ct/puppetsync/compare/SIMP-7848...SIMP-7977
 [SIMP-7974]: https://github.com/op-ct/puppetsync/compare/SIMP-7977...SIMP-7974
 [SIMP-8139]: https://github.com/op-ct/puppetsync/compare/SIMP-7974...SIMP-8139
-[SIMP-7855]: https://github.com/op-ct/puppetsync/compare/SIMP-7974...SIMP-7855
-
+[SIMP-7855]: https://github.com/op-ct/puppetsync/compare/SIMP-8139...SIMP-7855
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-7855...HEAD
