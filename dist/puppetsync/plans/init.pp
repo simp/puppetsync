@@ -172,13 +172,14 @@ plan puppetsync(
     $opts
   ) |$ok_repos, $stage_name| {
     apply( $ok_repos,
-      '_description' => "Apply Puppet role",
+      '_description' => "Apply Puppet role ${puppet_role}",
       '_noop' => false,
       _catch_errors => true,
     ){
       if $puppet_role {
         include $puppet_role
       } else {
+        debug::break()
         $classes = lookup('classes', undef, undef, [])
         $classes.include
       }
