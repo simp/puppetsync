@@ -5,13 +5,15 @@ require 'fileutils'
 def modernize_gitlab_ci(content)
   content.gsub!(%r{pup_5_5_(?:10|16|17)}, 'pup_5_5_20')
   content.gsub!(%r{pup5\.5\.(?:10|16|17)}, 'pup5.5.20')
+  content.gsub!(%r{pup6\.(?:16|17)\.0}, 'pup6.18.0')
+  content.gsub!(%r{pup6_(?:16|17)_0}, 'pup6_18_0')
   content.gsub!(%r{pup_6_latest}, 'pup_6')
   content.gsub!(%r{pup_5_latest}, 'pup_5')
 
   content.gsub!(%r{only_with_SIMP_FULL_MATRIX}, 'with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3')
 
   # Idempotently copy new jobs for the new PE2019.8 LTS (from the old LTS)
-  if content.scan( /^(pup6\.16\.0(?!-unit|-lint)[-a-z0-9]*):\s*$/m ).empty?
+  if content.scan( /^(pup6\.18\.0(?!-unit|-lint)[-a-z0-9]*):\s*$/m ).empty?
     # Regex test at https://rubular.com/r/fuMdr0HDU1cqLd
     old_lts_jobs = content.scan( /^(pup5\.5\.17(?!-unit|-lint)[-a-z0-9]*:.*?(?=\Z|^#|^pup))/m ).flatten
     new_lts_jobs = old_lts_jobs.map{|x| x.gsub('pup_5_5_17','pup_6_16_0').gsub('pup5.5.17','pup6.16.0') }

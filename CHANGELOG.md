@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- [SIMP-8703] Disabled all testing in modules' Travis CI pipelines
 - Updated `.gitlab-ci.yml` from Puppet 6.16.0 to 6.18.0
 - Updated `.travis.yml` from Puppet 6.10 to 6.18
 - Updated PE LTS EOL versions in `.gitlab-ci.yml` and `.travis.yml`

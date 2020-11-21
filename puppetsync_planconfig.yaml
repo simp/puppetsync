@@ -7,7 +7,7 @@ puppetsync:
     sync:
       #clone_git_repos: false
       stages:
-        # - install_gems
+        - install_gems
         - checkout_git_feature_branch_in_each_repo
         - ensure_jira_subtask
         - apply_puppet_role
@@ -34,20 +34,24 @@ puppetsync:
         - merge_github_pr_for_each_repo
 
 jira:
-  parent_issue: SIMP-8489
+  parent_issue: SIMP-8703
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Update %COMPONENT% CI pipelines to test Puppet 6.18.0'
+  subtask_title: 'Disable all tests in Travis CI pipeline for %COMPONENT%'
   # optional:
   subtask_story_points: 0
-  subtask_description: 'Update CI piplines in %COMPONENT% to test Puppet 6.18.0'
+  subtask_description: 'Disable all tests in Travis CI pipeline for %COMPONENT%'
   subtask_assignee: true
 
 git:
   # 0---------1---------2---------3---------4---------5---------6---------7|
   # (SIMP-XXXX) 12345678                                     |
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Update GLCI Puppet from 6.16.0 to 6.18.0
+    (%JIRA_PARENT_ISSUE%) Disable Travis CI tests
+
+    This patch disables ALL TESTS in modules' Travis CI pipelines.
+    Deployment and diagnostic stages have been left to support near-term
+    releases, however we will shortly migrate them elsewhere as well.
 
     %JIRA_SUBTASK% #close
     [%JIRA_PARENT_ISSUE%] #comment Updated %COMPONENT%
