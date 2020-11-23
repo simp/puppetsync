@@ -1,323 +1,48 @@
-mod 'simp-acpid',
-  :git => 'https://github.com/simp/pupmod-simp-acpid',
-  :branch => 'master'
-
-mod 'simp-aide',
-  :git => 'https://github.com/simp/pupmod-simp-aide',
-  :branch => 'master'
-
-mod 'simp-at',
-  :git => 'https://github.com/simp/pupmod-simp-at',
-  :branch => 'master'
-
-mod 'simp-auditd',
-  :git => 'https://github.com/simp/pupmod-simp-auditd',
-  :branch => 'master'
-
-mod 'simp-autofs',
-  :git => 'https://github.com/simp/pupmod-simp-autofs',
-  :branch => 'master'
-
-mod 'simp-chkrootkit',
-  :git => 'https://github.com/simp/pupmod-simp-chkrootkit',
-  :branch => 'master'
-
-mod 'simp-clamav',
-  :git => 'https://github.com/simp/pupmod-simp-clamav',
-  :branch => 'master'
-
-mod 'simp-compliance_markup',
-  :git => 'https://github.com/simp/pupmod-simp-compliance_markup',
-  :branch => 'master'
-
-mod 'simp-cron',
-  :git => 'https://github.com/simp/pupmod-simp-cron',
-  :branch => 'master'
-
-mod 'simp-crypto_policy',
-  :git => 'https://github.com/simp/pupmod-simp-crypto_policy',
-  :branch => 'master'
-
-mod 'simp-dconf',
-  :git => 'https://github.com/simp/pupmod-simp-dconf',
-  :branch => 'master'
-
-mod 'simp-deferred_resources',
-  :git => 'https://github.com/simp/pupmod-simp-deferred_resources',
-  :branch => 'master'
-
-mod 'simp-dhcp',
-  :git => 'https://github.com/simp/pupmod-simp-dhcp',
-  :branch => 'master'
-
-mod 'simp-fips',
-  :git => 'https://github.com/simp/pupmod-simp-fips',
-  :branch => 'master'
-
-mod 'simp-freeradius',
-  :git => 'https://github.com/simp/pupmod-simp-freeradius',
-  :branch => 'master'
-
-mod 'simp-gdm',
-  :git => 'https://github.com/simp/pupmod-simp-gdm',
-  :branch => 'master'
-
-mod 'simp-gnome',
-  :git => 'https://github.com/simp/pupmod-simp-gnome',
-  :branch => 'master'
-
-mod 'simp-haveged',
-  :git => 'https://github.com/simp/pupmod-simp-haveged',
-  :branch => 'master'
-
-mod 'simp-hirs_provisioner',
-  :git => 'https://github.com/simp/pupmod-simp-hirs_provisioner',
-  :branch => 'master'
-
-mod 'simp-ima',
-  :git => 'https://github.com/simp/pupmod-simp-ima',
-  :branch => 'master'
-
-mod 'simp-incron',
-  :git => 'https://github.com/simp/pupmod-simp-incron',
-  :branch => 'master'
-
-mod 'simp-iptables',
-  :git => 'https://github.com/simp/pupmod-simp-iptables',
-  :branch => 'master'
-
-mod 'simp-issue',
-  :git => 'https://github.com/simp/pupmod-simp-issue',
-  :branch => 'master'
-
-mod 'simp-krb5',
-  :git => 'https://github.com/simp/pupmod-simp-krb5',
-  :branch => 'master'
-
-mod 'simp-libreswan',
-  :git => 'https://github.com/simp/pupmod-simp-libreswan',
-  :branch => 'master'
-
-mod 'simp-libvirt',
-  :git => 'https://github.com/simp/pupmod-simp-libvirt',
-  :branch => 'master'
-
-mod 'simp-logrotate',
-  :git => 'https://github.com/simp/pupmod-simp-logrotate',
-  :branch => 'master'
-
-mod 'simp-mate',
-  :git => 'https://github.com/simp/pupmod-simp-mate',
-  :branch => 'master'
-
-mod 'simp-mozilla',
-  :git => 'https://github.com/simp/pupmod-simp-mozilla',
-  :branch => 'master'
-
-mod 'simp-named',
-  :git => 'https://github.com/simp/pupmod-simp-named',
-  :branch => 'master'
-
-mod 'simp-network',
-  :git => 'https://github.com/simp/pupmod-simp-network',
-  :branch => 'master'
-
-mod 'simp-nfs',
-  :git => 'https://github.com/simp/pupmod-simp-nfs',
-  :branch => 'master'
-
-mod 'simp-ntpd',
-  :git => 'https://github.com/simp/pupmod-simp-ntpd',
-  :branch => 'master'
-
-mod 'simp-oath',
-  :git => 'https://github.com/simp/pupmod-simp-oath',
-  :branch => 'master'
-
-mod 'simp-oddjob',
-  :git => 'https://github.com/simp/pupmod-simp-oddjob',
-  :branch => 'master'
-
-mod 'simp-openscap',
-  :git => 'https://github.com/simp/pupmod-simp-openscap',
-  :branch => 'master'
-
-mod 'simp-pam',
-  :git => 'https://github.com/simp/pupmod-simp-pam',
-  :branch => 'master'
-
-mod 'simp-pki',
-  :git => 'https://github.com/simp/pupmod-simp-pki',
-  :branch => 'master'
-
-mod 'simp-polkit',
-  :git => 'https://github.com/simp/pupmod-simp-polkit',
-  :branch => 'master'
-
-mod 'simp-postfix',
-  :git => 'https://github.com/simp/pupmod-simp-postfix',
-  :branch => 'master'
-
-mod 'simp-pupmod',
-  :git => 'https://github.com/simp/pupmod-simp-pupmod',
-  :branch => 'master'
-
-mod 'simp-resolv',
-  :git => 'https://github.com/simp/pupmod-simp-resolv',
-  :branch => 'master'
-
-mod 'simp-rkhunter',
-  :git => 'https://github.com/simp/pupmod-simp-rkhunter',
-  :branch => 'master'
-
-mod 'simp-rsync',
-  :git => 'https://github.com/simp/pupmod-simp-rsync',
-  :branch => 'master'
-
-mod 'simp-rsyslog',
-  :git => 'https://github.com/simp/pupmod-simp-rsyslog',
-  :branch => 'master'
-
-mod 'simp-selinux',
-  :git => 'https://github.com/simp/pupmod-simp-selinux',
-  :branch => 'master'
-
-mod 'simp-simp',
-  :git => 'https://github.com/simp/pupmod-simp-simp',
-  :branch => 'master'
-
-mod 'simp-simpkv',
-  :git => 'https://github.com/simp/pupmod-simp-simpkv',
-  :branch => 'master'
-
-mod 'simp-simplib',
-  :git => 'https://github.com/simp/pupmod-simp-simplib',
-  :branch => 'master'
-
-mod 'simp-simp_apache',
-  :git => 'https://github.com/simp/pupmod-simp-simp_apache',
-  :branch => 'master'
-
-mod 'simp-simp_banners',
-  :git => 'https://github.com/simp/pupmod-simp-simp_banners',
-  :branch => 'master'
-
-mod 'simp-simp_bolt',
-  :git => 'https://github.com/simp/pupmod-simp-simp_bolt',
-  :branch => 'master'
-
-mod 'simp-simp_firewalld',
-  :git => 'https://github.com/simp/pupmod-simp-simp_firewalld',
-  :branch => 'master'
-
-mod 'simp-simp_gitlab',
-  :git => 'https://github.com/simp/pupmod-simp-simp_gitlab',
-  :branch => 'master'
-
-mod 'simp-simp_grub',
-  :git => 'https://github.com/simp/pupmod-simp-simp_grub',
-  :branch => 'master'
-
-mod 'simp-simp_ipa',
-  :git => 'https://github.com/simp/pupmod-simp-simp_ipa',
-  :branch => 'master'
-
-mod 'simp-simp_nfs',
-  :git => 'https://github.com/simp/pupmod-simp-simp_nfs',
-  :branch => 'master'
-
-mod 'simp-simp_openldap',
-  :git => 'https://github.com/simp/pupmod-simp-simp_openldap',
-  :branch => 'master'
-
-mod 'simp-simp_options',
-  :git => 'https://github.com/simp/pupmod-simp-simp_options',
-  :branch => 'master'
-
-mod 'simp-simp_pki_service',
-  :git => 'https://github.com/simp/pupmod-simp-simp_pki_service',
-  :branch => 'master'
-
-mod 'simp-simp_rsyslog',
-  :git => 'https://github.com/simp/pupmod-simp-simp_rsyslog',
-  :branch => 'master'
-
-mod 'simp-simp_snmpd',
-  :git => 'https://github.com/simp/pupmod-simp-simp_snmpd',
-  :branch => 'master'
-
-mod 'simp-ssh',
-  :git => 'https://github.com/simp/pupmod-simp-ssh',
-  :branch => 'master'
-
-mod 'simp-sssd',
-  :git => 'https://github.com/simp/pupmod-simp-sssd',
-  :branch => 'master'
-
-mod 'simp-stunnel',
-  :git => 'https://github.com/simp/pupmod-simp-stunnel',
-  :branch => 'master'
-
-mod 'simp-sudo',
-  :git => 'https://github.com/simp/pupmod-simp-sudo',
-  :branch => 'master'
-
-mod 'simp-sudosh',
-  :git => 'https://github.com/simp/pupmod-simp-sudosh',
-  :branch => 'master'
-
-mod 'simp-svckill',
-  :git => 'https://github.com/simp/pupmod-simp-svckill',
-  :branch => 'master'
-
-mod 'simp-swap',
-  :git => 'https://github.com/simp/pupmod-simp-swap',
-  :branch => 'master'
-
-mod 'simp-tcpwrappers',
-  :git => 'https://github.com/simp/pupmod-simp-tcpwrappers',
-  :branch => 'master'
-
-mod 'simp-tftpboot',
-  :git => 'https://github.com/simp/pupmod-simp-tftpboot',
-  :branch => 'master'
-
-mod 'simp-tlog',
-  :git => 'https://github.com/simp/pupmod-simp-tlog',
-  :branch => 'master'
-
-mod 'simp-tpm',
-  :git => 'https://github.com/simp/pupmod-simp-tpm',
-  :branch => 'master'
-
-mod 'simp-tpm2',
-  :git => 'https://github.com/simp/pupmod-simp-tpm2',
-  :branch => 'master'
-
-mod 'simp-tuned',
-  :git => 'https://github.com/simp/pupmod-simp-tuned',
-  :branch => 'master'
-
-mod 'simp-upstart',
-  :git => 'https://github.com/simp/pupmod-simp-upstart',
-  :branch => 'master'
-
-mod 'simp-useradd',
-  :git => 'https://github.com/simp/pupmod-simp-useradd',
-  :branch => 'master'
-
-mod 'simp-vnc',
-  :git => 'https://github.com/simp/pupmod-simp-vnc',
-  :branch => 'master'
-
-mod 'simp-vsftpd',
-  :git => 'https://github.com/simp/pupmod-simp-vsftpd',
-  :branch => 'master'
-
-mod 'simp-x2go',
-  :git => 'https://github.com/simp/pupmod-simp-x2go',
-  :branch => 'master'
-
-mod 'simp-xinetd',
-  :git => 'https://github.com/simp/pupmod-simp-xinetd',
-  :branch => 'master'
+mod 'cisco_ios', git: 'https://github.com/puppetlabs/cisco_ios', branch: 'main'
+mod 'device_manager', git: 'https://github.com/puppetlabs/device_manager', branch: 'main'
+mod 'provision', git: 'https://github.com/puppetlabs/provision', branch: 'main'
+mod 'puppetlabs-accounts', git: 'https://github.com/puppetlabs/puppetlabs-accounts', branch: 'main'
+mod 'puppetlabs-acl', git: 'https://github.com/puppetlabs/puppetlabs-acl', branch: 'main'
+mod 'puppetlabs-apache', git: 'https://github.com/puppetlabs/puppetlabs-apache', branch: 'main'
+mod 'puppetlabs-apt', git: 'https://github.com/puppetlabs/puppetlabs-apt', branch: 'main'
+mod 'puppetlabs-chocolatey', git: 'https://github.com/puppetlabs/puppetlabs-chocolatey', branch: 'main'
+mod 'puppetlabs-concat', git: 'https://github.com/puppetlabs/puppetlabs-concat', branch: 'main'
+mod 'puppetlabs-docker', git: 'https://github.com/puppetlabs/puppetlabs-docker', branch: 'main'
+mod 'puppetlabs-dsc', git: 'https://github.com/puppetlabs/puppetlabs-dsc', branch: 'main'
+mod 'puppetlabs-dsc_lite', git: 'https://github.com/puppetlabs/puppetlabs-dsc_lite', branch: 'main'
+mod 'puppetlabs-exec', git: 'https://github.com/puppetlabs/puppetlabs-exec', branch: 'main'
+mod 'puppetlabs-facter_task', git: 'https://github.com/puppetlabs/puppetlabs-facter_task', branch: 'main'
+mod 'puppetlabs-firewall', git: 'https://github.com/puppetlabs/puppetlabs-firewall', branch: 'main'
+mod 'puppetlabs-haproxy', git: 'https://github.com/puppetlabs/puppetlabs-haproxy', branch: 'main'
+mod 'puppetlabs-helm', git: 'https://github.com/puppetlabs/puppetlabs-helm', branch: 'main'
+mod 'puppetlabs-ibm_installation_manager', git: 'https://github.com/puppetlabs/puppetlabs-ibm_installation_manager', branch: 'main'
+mod 'puppetlabs-iis', git: 'https://github.com/puppetlabs/puppetlabs-iis', branch: 'main'
+mod 'puppetlabs-inifile', git: 'https://github.com/puppetlabs/puppetlabs-inifile', branch: 'main'
+mod 'puppetlabs-java', git: 'https://github.com/puppetlabs/puppetlabs-java', branch: 'main'
+mod 'puppetlabs-java_ks', git: 'https://github.com/puppetlabs/puppetlabs-java_ks', branch: 'main'
+mod 'puppetlabs-kubernetes', git: 'https://github.com/puppetlabs/puppetlabs-kubernetes', branch: 'main'
+mod 'puppetlabs-motd', git: 'https://github.com/puppetlabs/puppetlabs-motd', branch: 'main'
+mod 'puppetlabs-mysql', git: 'https://github.com/puppetlabs/puppetlabs-mysql', branch: 'main'
+mod 'puppetlabs-ntp', git: 'https://github.com/puppetlabs/puppetlabs-ntp', branch: 'main'
+mod 'puppetlabs-package', git: 'https://github.com/puppetlabs/puppetlabs-package', branch: 'main'
+mod 'puppetlabs-panos', git: 'https://github.com/puppetlabs/puppetlabs-panos', branch: 'main'
+mod 'puppetlabs-postgresql', git: 'https://github.com/puppetlabs/puppetlabs-postgresql', branch: 'main'
+mod 'puppetlabs-powershell', git: 'https://github.com/puppetlabs/puppetlabs-powershell', branch: 'main'
+mod 'puppetlabs-puppet_conf', git: 'https://github.com/puppetlabs/puppetlabs-puppet_conf', branch: 'main'
+mod 'puppetlabs-reboot', git: 'https://github.com/puppetlabs/puppetlabs-reboot', branch: 'main'
+mod 'puppetlabs-registry', git: 'https://github.com/puppetlabs/puppetlabs-registry', branch: 'main'
+mod 'puppetlabs-resource_api', git: 'https://github.com/puppetlabs/puppetlabs-resource_api', branch: 'main'
+mod 'puppetlabs-rook', git: 'https://github.com/puppetlabs/puppetlabs-rook', branch: 'main'
+mod 'puppetlabs-satellite_pe_tools', git: 'https://github.com/puppetlabs/puppetlabs-satellite_pe_tools', branch: 'main'
+mod 'puppetlabs-scheduled_task', git: 'https://github.com/puppetlabs/puppetlabs-scheduled_task', branch: 'main'
+mod 'puppetlabs-service', git: 'https://github.com/puppetlabs/puppetlabs-service', branch: 'main'
+mod 'puppetlabs-sqlserver', git: 'https://github.com/puppetlabs/puppetlabs-sqlserver', branch: 'main'
+mod 'puppetlabs-stdlib', git: 'https://github.com/puppetlabs/puppetlabs-stdlib', branch: 'main'
+mod 'puppetlabs-tagmail', git: 'https://github.com/puppetlabs/puppetlabs-tagmail', branch: 'main'
+mod 'puppetlabs-testing', git: 'https://github.com/puppetlabs/puppetlabs-testing', branch: 'main'
+mod 'puppetlabs-tomcat', git: 'https://github.com/puppetlabs/puppetlabs-tomcat', branch: 'main'
+mod 'puppetlabs-translate', git: 'https://github.com/puppetlabs/puppetlabs-translate', branch: 'main'
+mod 'puppetlabs-vcsrepo', git: 'https://github.com/puppetlabs/puppetlabs-vcsrepo', branch: 'main'
+mod 'puppetlabs-vsphere', git: 'https://github.com/puppetlabs/puppetlabs-vsphere', branch: 'main'
+mod 'puppetlabs-websphere_application_server', git: 'https://github.com/puppetlabs/puppetlabs-websphere_application_server', branch: 'main'
+mod 'puppetlabs-wsus_client', git: 'https://github.com/puppetlabs/puppetlabs-wsus_client', branch: 'main'

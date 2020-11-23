@@ -9,17 +9,14 @@ puppetsync:
       stages:
         - install_gems
         - checkout_git_feature_branch_in_each_repo
-        - ensure_jira_subtask
-        - apply_puppet_role
-        - modernize_gitlab_files
-        - lint_gitlab_ci
-###        - git_commit_changes
-###        - ensure_github_fork
-###        - ensure_git_remote
-###        - git_push_to_remote
-###        - ensure_gitlab_remote
-###        - git_push_to_gitlab
-###        - ensure_github_pr
+        - pdk_update
+        # - git_commit_changes
+        # - ensure_github_fork
+        # - ensure_git_remote
+        # - git_push_to_remote
+        # - ensure_gitlab_remote
+        # - git_push_to_gitlab
+        # - ensure_github_pr
 
     approve_github_pr:
       clone_git_repos: false
@@ -34,7 +31,7 @@ puppetsync:
         - merge_github_pr_for_each_repo
 
 jira:
-  parent_issue: SIMP-8703
+  parent_issue: pdk-update
   project: SIMP
   jira_site: https://simp-project.atlassian.net
   subtask_title: 'Disable all tests in Travis CI pipeline for %COMPONENT%'
@@ -57,6 +54,6 @@ git:
     [%JIRA_PARENT_ISSUE%] #comment Updated %COMPONENT%
 
 github:
-  pr_user: op-ct  # This should be the account that *submitted* the PRs (Used
-                  # by the idempotency checks when approving/merging PRs)
+  pr_user: DavidS  # This should be the account that *submitted* the PRs (Used
+                   # by the idempotency checks when approving/merging PRs)
   approval_message: ':+1: :ghost:'

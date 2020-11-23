@@ -78,8 +78,8 @@ plan puppetsync(
   Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
   Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
-  String[1]            $jira_username          = system::env('JIRA_USER'),
-  Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
+  Optional[String[1]]            $jira_username          = system::env('JIRA_USER'),
+  Optional[Sensitive[String[1]]] $jira_token             = system::env('JIRA_API_TOKEN') ? { undef => undef, default => Sensitive(system::env('JIRA_API_TOKEN'))},
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Hash                 $options                = {},
 ) {
@@ -172,7 +172,7 @@ plan puppetsync(
     $opts
   ) |$ok_repos, $stage_name| {
     apply( $ok_repos,
-      '_description' => "Apply Puppet role",
+      '_description' => 'Apply Puppet role',
       '_noop' => false,
       _catch_errors => true,
     ){
@@ -182,6 +182,24 @@ plan puppetsync(
         $classes = lookup('classes', undef, undef, [])
         $classes.include
       }
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'pdk_update',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::pdk_update',
+      $ok_repos,
+      '_catch_errors'  => false,
+    ) |$repo| {
+      Hash.new({
+        'repo_path'    => $repo.vars['repo_path'],
+        'template_url' => 'https://github.com/puppetlabs/pdk-templates.git',
+        'template_ref' => 'main',
+      })
     }
   }
 

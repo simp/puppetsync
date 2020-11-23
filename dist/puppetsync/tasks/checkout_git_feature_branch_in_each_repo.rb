@@ -8,8 +8,8 @@ def checkout_modules_to_branch(branch, repo_paths)
     status = 'created'
     Dir.chdir dir
     warn "== #{dir}"
-    `git branch --contains #{branch} &> /dev/null`
-    if $CHILD_STATUS.success?
+    rev = `git name-rev #{branch} &> /dev/null`
+    if !rev.empty?
       status = 'checked_out'
       warn "NOTICE: branch '#{branch}' already exists; checking it out"
       pid = spawn 'git', 'checkout', branch, '-q'
