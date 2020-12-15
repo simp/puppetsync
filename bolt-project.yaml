@@ -2,6 +2,7 @@
 modulepath: modules:site-modules:site:dist:custom
 save-rerun: false
 transport: local
+concurrency: 10
 log:
   console:
     level: error
