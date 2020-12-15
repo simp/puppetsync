@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [SIMP-8703]
 
 ### Changed
 
@@ -85,4 +85,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-7974]: https://github.com/op-ct/puppetsync/compare/SIMP-7977...SIMP-7974
 [SIMP-8139]: https://github.com/op-ct/puppetsync/compare/SIMP-7974...SIMP-8139
 [SIMP-7855]: https://github.com/op-ct/puppetsync/compare/SIMP-8139...SIMP-7855
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-7855...HEAD
+[SIMP-8703]: https://github.com/op-ct/puppetsync/compare/SIMP-7855...SIMP-8703
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-8703...HEAD
