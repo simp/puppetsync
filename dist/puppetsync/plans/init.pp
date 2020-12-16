@@ -188,6 +188,27 @@ plan puppetsync(
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
+    'remove_el6',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::remove_el6',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      $file_path = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/metadata.json.erb",
+        default           => "${repo.vars['repo_path']}/metadata.json",
+      }
+
+      Hash.new({
+        'file' => $file_path,
+      })
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
     'modernize_gitlab_files',
     # ---------------------------------------------------------------------------
     $opts
