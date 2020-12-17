@@ -1,52 +1,3 @@
-###mod 'simp-acpid',
-###  :git => 'https://github.com/simp/pupmod-simp-acpid',
-###  :branch => 'master'
-###
-###mod 'simp-aide',
-###  :git => 'https://github.com/simp/pupmod-simp-aide',
-###  :branch => 'master'
-###
-###mod 'simp-at',
-###  :git => 'https://github.com/simp/pupmod-simp-at',
-###  :branch => 'master'
-###
-#mod 'simp-auditd',
-#  :git => 'https://github.com/simp/pupmod-simp-auditd',
-#  :branch => 'master'
-
-#mod 'simp-autofs',
-#  :git => 'https://github.com/simp/pupmod-simp-autofs',
-#  :branch => 'master'
-#
-#mod 'simp-chkrootkit',
-#  :git => 'https://github.com/simp/pupmod-simp-chkrootkit',
-#  :branch => 'master'
-#
-#mod 'simp-clamav',
-#  :git => 'https://github.com/simp/pupmod-simp-clamav',
-#  :branch => 'master'
-#
-##mod 'simp-compliance_markup',
-##  :git => 'https://github.com/simp/pupmod-simp-compliance_markup',
-##  :branch => 'master'
-##
-##mod 'simp-cron',
-##  :git => 'https://github.com/simp/pupmod-simp-cron',
-##  :branch => 'master'
-#
-#mod 'simp-crypto_policy',
-#  :git => 'https://github.com/simp/pupmod-simp-crypto_policy',
-#  :branch => 'master'
-#
-#mod 'simp-dconf',
-#  :git => 'https://github.com/simp/pupmod-simp-dconf',
-#  :branch => 'master'
-#
-#mod 'simp-deferred_resources',
-#  :git => 'https://github.com/simp/pupmod-simp-deferred_resources',
-#  :branch => 'master'
-
-# ------------------------------------
 mod 'simp-dhcp',
   :git => 'https://github.com/simp/pupmod-simp-dhcp',
   :branch => 'master'
@@ -63,10 +14,10 @@ mod 'simp-gdm',
   :git => 'https://github.com/simp/pupmod-simp-gdm',
   :branch => 'master'
 
-#mod 'simp-gnome',
-#  :git => 'https://github.com/simp/pupmod-simp-gnome',
-#  :branch => 'master'
-#
+#####mod 'simp-gnome',
+#####  :git => 'https://github.com/simp/pupmod-simp-gnome',
+#####  :branch => 'master'
+#####
 mod 'simp-haveged',
   :git => 'https://github.com/simp/pupmod-simp-haveged',
   :branch => 'master'
@@ -79,10 +30,10 @@ mod 'simp-ima',
   :git => 'https://github.com/simp/pupmod-simp-ima',
   :branch => 'master'
 
-mod 'simp-incron',
-  :git => 'https://github.com/simp/pupmod-simp-incron',
-  :branch => 'master'
-
+# mod 'simp-incron',
+#   :git => 'https://github.com/simp/pupmod-simp-incron',
+#   :branch => 'master'
+#
 ####mod 'simp-iptables',
 ####  :git => 'https://github.com/simp/pupmod-simp-iptables',
 ####  :branch => 'master'

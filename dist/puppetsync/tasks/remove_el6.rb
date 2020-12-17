@@ -18,17 +18,38 @@ end
 # Read content from metadata.json file
 warn "file: '#{file}'"
 raise('No metadata.json path given') unless file
+dir = File.dirname(file)
 content = File.read(file)
 data = JSON.parse(content)
 el_oses = ['CentOS', 'RedHat', 'OracleLinux', 'Amazon', 'Scientific']
 oses = data['operatingsystem_support'].select{ |os| el_oses.include?(os['operatingsystem']) }
-oses.each{|os| os['operatingsystemrelease'].delete('6') }
+changes=[]
+oses.each{|os| changes << os['operatingsystemrelease'].delete('6') }
+
+new_version = nil
+# bump Z version if changed
+unless changes.empty?
+  parts = data['version'].split(/[\.-]/)
+  parts[2] = (parts[2].to_i + 1).to_s
+  new_version = parts.join('.')
+  data['version'] = new_version
+end
+
 File.open(file,'w'){|f| f.puts(JSON.pretty_generate(data)) }
 warn "\n\n++ processed '#{file}'"
 
+if new_version
+  changelog_file = File.join(dir,'CHANGELOG')
+  changelog = File.read(changelog_file)
+  require 'date'
+  new_lines = []
+  new_lines << DateTime.now.strftime("* %a %b %d %Y Chris Tessmer <chris.tessmer@onyxpoint.com> - #{new_version}")
+  new_lines << '- Removed EL6 support'
+  changelog = new_lines.join("\n") + "\n\n" + changelog
+  File.open(changelog_file,'w'){|f| f.puts changelog }
+end
 
 
-dir = File.dirname(file)
 
 # Remove el6 nodesets
 warn( %x[find $(find #{dir}/spec/acceptance -name nodesets -type d) -name centos-6.yml -print -exec rm -f {} \\; &> /dev/null] )
@@ -65,9 +86,25 @@ nodeset_files.each do |nodeset_file|
     end
   end
 
+
   lines = d.lines
   ranges_to_delete.reverse.each { |r| lines.slice!(r) }
-  File.open(nodeset_file,'w'){|f| f.puts lines.join}
+  lines_str = lines.join
+
+  # HACK: Migrate any now-missing roles from deleted nodes to the first node with roles
+  roles_regex = /^ *(?<host>[a-z0-9_-]+):\n  *roles:(?<roles>(?:\n *- [a-z0-9-]+)*)/
+  orig_roles = d.scan(roles_regex).map{|x| [x[0],x[1].split(/\n *- /).reject{|y| y.empty?}] }.to_h
+  new_roles = lines_str.scan(roles_regex).map{|x| [x[0],x[1].split(/\n *- /).reject{|y| y.empty?}] }.to_h
+  deleted_nodes = (orig_roles.keys - new_roles.keys)
+  deleted_node_roles = deleted_nodes.map{|x| orig_roles[x] }.flatten.uniq
+  new_node_roles = new_roles.map{|k,x| x }.flatten.uniq
+  missing_roles = deleted_node_roles - new_node_roles
+  lines_str.sub!(/^ *roles:\n(?<space> *- )(?<role>[a-z0-9-]+)/) do |s|
+    space = s.match(/^ *roles:\n(?<space> *- )(?<role>[a-z0-9-]+)/)[:space]
+    s + "\n" + space.sub('-','# roles migrated from now-removed el6 node(s):') +  missing_roles.map{|x| "\n#{space}#{x}" }.join
+  end
+
+  File.open(nodeset_file,'w'){|f| f.puts lines_str }
 end
 
 warn %Q@grep -i -r -e "\\['6', \\?'7'\\|facts\\(\\['os'\\]\\['release'\\]\\['major'\\]\\|\\[:operatingsystemmajrelease\\]\\|\\[:os\\]\\[:release\\]\\[:major\\]\\)\\(\\.to_\\(i\\|\\s\\)\\)\\? \\(\\(<=\\|==\\) '\\?6'\\?\\|< '\\?7'\\?\\)\\|\\['\\?6'\\?, ?'\\?7'\\?\\]\\|\\(oel\\|rhel\\|centos\\|el\\).6\\|versioncmp($facts\\['os'\\]\\['release'\\]\\['major'\\], '6')" '#{dir}' --exclude-dir=.{plan.gems,gems,git} --exclude=\\* --include=\\*.{rb,pp}@

@@ -1,0 +1,52 @@
+# EL6 removed with SIMP-8823 / PR #46
+###mod 'simp-acpid',
+###  :git => 'https://github.com/simp/pupmod-simp-acpid',
+###  :branch => 'master'
+###
+mod 'simp-aide',
+  :git => 'https://github.com/simp/pupmod-simp-aide',
+  :branch => 'master'
+
+mod 'simp-at',
+  :git => 'https://github.com/simp/pupmod-simp-at',
+  :branch => 'master'
+
+#### EL6 Removed in SIMP-7585
+####mod 'simp-auditd',
+####  :git => 'https://github.com/simp/pupmod-simp-auditd',
+####  :branch => 'master'
+
+#mod 'simp-autofs',
+#  :git => 'https://github.com/simp/pupmod-simp-autofs',
+#  :branch => 'master'
+#
+mod 'simp-chkrootkit',
+  :git => 'https://github.com/simp/pupmod-simp-chkrootkit',
+  :branch => 'master'
+
+mod 'simp-clamav',
+  :git => 'https://github.com/simp/pupmod-simp-clamav',
+  :branch => 'master'
+
+####mod 'simp-compliance_markup',
+####  :git => 'https://github.com/simp/pupmod-simp-compliance_markup',
+####  :branch => 'master'
+
+####mod 'simp-cron',
+####  :git => 'https://github.com/simp/pupmod-simp-cron',
+####  :branch => 'master'
+
+####### Never had EL6 support
+####mod 'simp-crypto_policy',
+####  :git => 'https://github.com/simp/pupmod-simp-crypto_policy',
+####  :branch => 'master'
+
+#### EL6 support removed in SIMP-7287
+####mod 'simp-dconf',
+####  :git => 'https://github.com/simp/pupmod-simp-dconf',
+####  :branch => 'master'
+mod 'simp-deferred_resources',
+  :git => 'https://github.com/simp/pupmod-simp-deferred_resources',
+  :branch => 'master'
+
+# ------------------------------------

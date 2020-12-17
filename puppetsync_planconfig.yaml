@@ -10,9 +10,9 @@ puppetsync:
         #        - install_gems
         - checkout_git_feature_branch_in_each_repo
         - ensure_jira_subtask
-#        - apply_puppet_role
+        - apply_puppet_role
         - remove_el6
-#        - modernize_gitlab_files
+        - modernize_gitlab_files
         - lint_gitlab_ci
         - git_commit_changes
         - ensure_github_fork
@@ -41,20 +41,21 @@ jira:
   subtask_title: 'Remove EL6 from %COMPONENT%'
   # optional:
   subtask_story_points: 0
-  subtask_description: ''
   subtask_assignee: true
 
 git:
   # 0---------1---------2---------3---------4---------5---------6---------7|
   # (SIMP-XXXX) 12345678                                     |
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Remove EL6 from %COMPONENT%'
+    (%JIRA_PARENT_ISSUE%) Remove EL6 from %COMPONENT%
 
     This patch removes EL6 as a supported OS in `metadata.json`, Hiera YAML
     files and from the beaker acceptance tests and nodesets.
 
     %JIRA_SUBTASK% #close
-    [%JIRA_PARENT_ISSUE%] #comment Updated %COMPONENT%
+    [%JIRA_PARENT_ISSUE%] #comment Removed EL6 from %COMPONENT%
+    [SIMP-8489] #comment Updated %COMPONENT% GLCI pipeline to Puppet 6.18
+    [SIMP-8923] #comment Renamed 'sanity' to 'releng' in %COMPONENT%
 
 github:
   pr_user: op-ct  # This should be the account that *submitted* the PRs (Used

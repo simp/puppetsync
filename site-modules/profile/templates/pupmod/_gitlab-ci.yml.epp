@@ -22,7 +22,6 @@
 ---
 
 stages:
-  - 'sanity'
   - 'validation'
   - 'acceptance'
   - 'compliance'
@@ -262,14 +261,13 @@ variables:
 # Pipeline / testing matrix
 #=======================================================================
 
-sanity_checks:
+releng_checks:
   <<: *pup_5
   <<: *setup_bundler_env
-  stage: 'sanity'
+  stage: 'validation'
   tags: ['docker']
   script:
-    - 'if `hash apt-get`; then apt-get update; fi'
-    - 'if `hash apt-get`; then apt-get install -y rpm; fi'
+    - 'command -v rpm || if command -v apt-get; then apt-get update; apt-get install -y rpm; fi ||:'
     - 'bundle exec rake check:dot_underscore'
     - 'bundle exec rake check:test_file'
     - 'bundle exec rake pkg:check_version'
