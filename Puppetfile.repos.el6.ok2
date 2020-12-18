@@ -1,0 +1,88 @@
+mod 'simp-simp_pki_service',
+  :git => 'https://github.com/simp/pupmod-simp-simp_pki_service',
+  :branch => 'master'
+
+mod 'simp-simp_rsyslog',
+  :git => 'https://github.com/simp/pupmod-simp-simp_rsyslog',
+  :branch => 'master'
+
+mod 'simp-simp_snmpd',
+  :git => 'https://github.com/simp/pupmod-simp-simp_snmpd',
+  :branch => 'master'
+
+#mod 'simp-ssh',
+#  :git => 'https://github.com/simp/pupmod-simp-ssh',
+#  :branch => 'master'
+#
+#mod 'simp-sssd',
+#  :git => 'https://github.com/simp/pupmod-simp-sssd',
+#  :branch => 'master'
+#
+#mod 'simp-stunnel',
+#  :git => 'https://github.com/simp/pupmod-simp-stunnel',
+#  :branch => 'master'
+#
+mod 'simp-sudo',
+  :git => 'https://github.com/simp/pupmod-simp-sudo',
+  :branch => 'master'
+
+mod 'simp-sudosh',
+  :git => 'https://github.com/simp/pupmod-simp-sudosh',
+  :branch => 'master'
+
+mod 'simp-svckill',
+  :git => 'https://github.com/simp/pupmod-simp-svckill',
+  :branch => 'master'
+
+mod 'simp-swap',
+  :git => 'https://github.com/simp/pupmod-simp-swap',
+  :branch => 'master'
+
+mod 'simp-tcpwrappers',
+  :git => 'https://github.com/simp/pupmod-simp-tcpwrappers',
+  :branch => 'master'
+
+#mod 'simp-tftpboot',
+#  :git => 'https://github.com/simp/pupmod-simp-tftpboot',
+#  :branch => 'master'
+
+mod 'simp-tlog',
+  :git => 'https://github.com/simp/pupmod-simp-tlog',
+  :branch => 'master'
+
+mod 'simp-tpm',
+  :git => 'https://github.com/simp/pupmod-simp-tpm',
+  :branch => 'master'
+
+#mod 'simp-tpm2',
+#  :git => 'https://github.com/simp/pupmod-simp-tpm2',
+#  :branch => 'master'
+
+mod 'simp-tuned',
+  :git => 'https://github.com/simp/pupmod-simp-tuned',
+  :branch => 'master'
+
+mod 'simp-upstart',
+  :git => 'https://github.com/simp/pupmod-simp-upstart',
+  :branch => 'master'
+
+mod 'simp-useradd',
+  :git => 'https://github.com/simp/pupmod-simp-useradd',
+  :branch => 'master'
+
+mod 'simp-vnc',
+  :git => 'https://github.com/simp/pupmod-simp-vnc',
+  :branch => 'master'
+
+mod 'simp-vsftpd',
+  :git => 'https://github.com/simp/pupmod-simp-vsftpd',
+  :branch => 'master'
+
+mod 'simp-x2go',
+  :git => 'https://github.com/simp/pupmod-simp-x2go',
+  :branch => 'master'
+
+mod 'simp-xinetd',
+  :git => 'https://github.com/simp/pupmod-simp-xinetd',
+  :branch => 'master'
+

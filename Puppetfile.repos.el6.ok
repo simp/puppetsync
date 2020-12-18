@@ -1,160 +1,87 @@
-
-mod 'simp-incron',
-  :git => 'https://github.com/simp/pupmod-simp-incron',
+mod 'simp-polkit',
+  :git => 'https://github.com/simp/pupmod-simp-polkit',
   :branch => 'master'
 
-#mod 'simp-iptables',
-#  :git => 'https://github.com/simp/pupmod-simp-iptables',
-#  :branch => 'master'
-
-mod 'simp-issue',
-  :git => 'https://github.com/simp/pupmod-simp-issue',
+mod 'simp-postfix',
+  :git => 'https://github.com/simp/pupmod-simp-postfix',
   :branch => 'master'
 
-#mod 'simp-krb5',
-#  :git => 'https://github.com/simp/pupmod-simp-krb5',
+#mod 'simp-pupmod',
+#  :git => 'https://github.com/simp/pupmod-simp-pupmod',
 #  :branch => 'master'
 #
-#mod 'simp-libreswan',
-#  :git => 'https://github.com/simp/pupmod-simp-libreswan',
+#mod 'simp-resolv',
+#  :git => 'https://github.com/simp/pupmod-simp-resolv',
 #  :branch => 'master'
 
-mod 'simp-libvirt',
-  :git => 'https://github.com/simp/pupmod-simp-libvirt',
+mod 'simp-rkhunter',
+  :git => 'https://github.com/simp/pupmod-simp-rkhunter',
   :branch => 'master'
 
-#mod 'simp-logrotate',
-#  :git => 'https://github.com/simp/pupmod-simp-logrotate',
+#mod 'simp-rsync',
+#  :git => 'https://github.com/simp/pupmod-simp-rsync',
+#  :branch => 'master'
+#
+#mod 'simp-rsyslog',
+#  :git => 'https://github.com/simp/pupmod-simp-rsyslog',
 #  :branch => 'master'
 
-mod 'simp-mate',
-  :git => 'https://github.com/simp/pupmod-simp-mate',
+mod 'simp-selinux',
+  :git => 'https://github.com/simp/pupmod-simp-selinux',
   :branch => 'master'
 
-mod 'simp-mozilla',
-  :git => 'https://github.com/simp/pupmod-simp-mozilla',
+#mod 'simp-simp',
+#  :git => 'https://github.com/simp/pupmod-simp-simp',
+#  :branch => 'master'
+#
+mod 'simp-simpkv',
+  :git => 'https://github.com/simp/pupmod-simp-simpkv',
+  :branch => 'master'
+#
+#mod 'simp-simplib',
+#  :git => 'https://github.com/simp/pupmod-simp-simplib',
+#  :branch => 'master'
+#
+#mod 'simp-simp_apache',
+#  :git => 'https://github.com/simp/pupmod-simp-simp_apache',
+#  :branch => 'master'
+#
+#mod 'simp-simp_banners',
+#  :git => 'https://github.com/simp/pupmod-simp-simp_banners',
+#  :branch => 'master'
+#
+#mod 'simp-simp_bolt',
+#  :git => 'https://github.com/simp/pupmod-simp-simp_bolt',
+#  :branch => 'master'
+
+mod 'simp-simp_firewalld',
+  :git => 'https://github.com/simp/pupmod-simp-simp_firewalld',
   :branch => 'master'
 
-###mod 'simp-named',
-###  :git => 'https://github.com/simp/pupmod-simp-named',
-###  :branch => 'master'
-###
-###mod 'simp-network',
-###  :git => 'https://github.com/simp/pupmod-simp-network',
-###  :branch => 'master'
-###
-####mod 'simp-nfs',
-####  :git => 'https://github.com/simp/pupmod-simp-nfs',
-####  :branch => 'master'
-####
-####mod 'simp-ntpd',
-####  :git => 'https://github.com/simp/pupmod-simp-ntpd',
-####  :branch => 'master'
-####
-####mod 'simp-oath',
-####  :git => 'https://github.com/simp/pupmod-simp-oath',
-####  :branch => 'master'
-###
-###mod 'simp-oddjob',
-###  :git => 'https://github.com/simp/pupmod-simp-oddjob',
-###  :branch => 'master'
-###
-###mod 'simp-openscap',
-###  :git => 'https://github.com/simp/pupmod-simp-openscap',
-###  :branch => 'master'
-###
-####mod 'simp-pam',
-####  :git => 'https://github.com/simp/pupmod-simp-pam',
-####  :branch => 'master'
-###
-###mod 'simp-pki',
-###  :git => 'https://github.com/simp/pupmod-simp-pki',
-###  :branch => 'master'
-###
-###mod 'simp-polkit',
-###  :git => 'https://github.com/simp/pupmod-simp-polkit',
-###  :branch => 'master'
-###
-###mod 'simp-postfix',
-###  :git => 'https://github.com/simp/pupmod-simp-postfix',
-###  :branch => 'master'
-###
-####mod 'simp-pupmod',
-####  :git => 'https://github.com/simp/pupmod-simp-pupmod',
-####  :branch => 'master'
-####
-####mod 'simp-resolv',
-####  :git => 'https://github.com/simp/pupmod-simp-resolv',
-####  :branch => 'master'
-###
-###mod 'simp-rkhunter',
-###  :git => 'https://github.com/simp/pupmod-simp-rkhunter',
-###  :branch => 'master'
-###
-####mod 'simp-rsync',
-####  :git => 'https://github.com/simp/pupmod-simp-rsync',
-####  :branch => 'master'
-####
-####mod 'simp-rsyslog',
-####  :git => 'https://github.com/simp/pupmod-simp-rsyslog',
-####  :branch => 'master'
-###
-###mod 'simp-selinux',
-###  :git => 'https://github.com/simp/pupmod-simp-selinux',
-###  :branch => 'master'
-###
-####mod 'simp-simp',
-####  :git => 'https://github.com/simp/pupmod-simp-simp',
-####  :branch => 'master'
-####
-###mod 'simp-simpkv',
-###  :git => 'https://github.com/simp/pupmod-simp-simpkv',
-###  :branch => 'master'
-####
-####mod 'simp-simplib',
-####  :git => 'https://github.com/simp/pupmod-simp-simplib',
-####  :branch => 'master'
-####
-####mod 'simp-simp_apache',
-####  :git => 'https://github.com/simp/pupmod-simp-simp_apache',
-####  :branch => 'master'
-####
-####mod 'simp-simp_banners',
-####  :git => 'https://github.com/simp/pupmod-simp-simp_banners',
-####  :branch => 'master'
-####
-####mod 'simp-simp_bolt',
-####  :git => 'https://github.com/simp/pupmod-simp-simp_bolt',
-####  :branch => 'master'
-###
-###mod 'simp-simp_firewalld',
-###  :git => 'https://github.com/simp/pupmod-simp-simp_firewalld',
-###  :branch => 'master'
-###
-###mod 'simp-simp_gitlab',
-###  :git => 'https://github.com/simp/pupmod-simp-simp_gitlab',
-###  :branch => 'master'
-###
-###mod 'simp-simp_grub',
-###  :git => 'https://github.com/simp/pupmod-simp-simp_grub',
-###  :branch => 'master'
-###
-####mod 'simp-simp_ipa',
-####  :git => 'https://github.com/simp/pupmod-simp-simp_ipa',
-####  :branch => 'master'
-####
-####mod 'simp-simp_nfs',
-####  :git => 'https://github.com/simp/pupmod-simp-simp_nfs',
-####  :branch => 'master'
-####
-####mod 'simp-simp_openldap',
-####  :git => 'https://github.com/simp/pupmod-simp-simp_openldap',
-####  :branch => 'master'
-###
-###mod 'simp-simp_options',
-###  :git => 'https://github.com/simp/pupmod-simp-simp_options',
-###  :branch => 'master'
-###
+mod 'simp-simp_gitlab',
+  :git => 'https://github.com/simp/pupmod-simp-simp_gitlab',
+  :branch => 'master'
+
+mod 'simp-simp_grub',
+  :git => 'https://github.com/simp/pupmod-simp-simp_grub',
+  :branch => 'master'
+
+#mod 'simp-simp_ipa',
+#  :git => 'https://github.com/simp/pupmod-simp-simp_ipa',
+#  :branch => 'master'
+#
+#mod 'simp-simp_nfs',
+#  :git => 'https://github.com/simp/pupmod-simp-simp_nfs',
+#  :branch => 'master'
+#
+#mod 'simp-simp_openldap',
+#  :git => 'https://github.com/simp/pupmod-simp-simp_openldap',
+#  :branch => 'master'
+
+mod 'simp-simp_options',
+  :git => 'https://github.com/simp/pupmod-simp-simp_options',
+  :branch => 'master'
+
 ###mod 'simp-simp_pki_service',
 ###  :git => 'https://github.com/simp/pupmod-simp-simp_pki_service',
 ###  :branch => 'master'

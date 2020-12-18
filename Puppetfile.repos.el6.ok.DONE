@@ -81,3 +81,76 @@ mod 'simp-hirs_provisioner',
 mod 'simp-ima',
   :git => 'https://github.com/simp/pupmod-simp-ima',
   :branch => 'master'
+
+mod 'simp-incron',
+  :git => 'https://github.com/simp/pupmod-simp-incron',
+  :branch => 'master'
+
+#mod 'simp-iptables',
+#  :git => 'https://github.com/simp/pupmod-simp-iptables',
+#  :branch => 'master'
+
+mod 'simp-issue',
+  :git => 'https://github.com/simp/pupmod-simp-issue',
+  :branch => 'master'
+
+#mod 'simp-krb5',
+#  :git => 'https://github.com/simp/pupmod-simp-krb5',
+#  :branch => 'master'
+#
+#mod 'simp-libreswan',
+#  :git => 'https://github.com/simp/pupmod-simp-libreswan',
+#  :branch => 'master'
+
+mod 'simp-libvirt',
+  :git => 'https://github.com/simp/pupmod-simp-libvirt',
+  :branch => 'master'
+
+#mod 'simp-logrotate',
+#  :git => 'https://github.com/simp/pupmod-simp-logrotate',
+#  :branch => 'master'
+
+mod 'simp-mate',
+  :git => 'https://github.com/simp/pupmod-simp-mate',
+  :branch => 'master'
+
+mod 'simp-mozilla',
+  :git => 'https://github.com/simp/pupmod-simp-mozilla',
+  :branch => 'master'
+
+mod 'simp-named',
+  :git => 'https://github.com/simp/pupmod-simp-named',
+  :branch => 'master'
+
+mod 'simp-network',
+  :git => 'https://github.com/simp/pupmod-simp-network',
+  :branch => 'master'
+
+#mod 'simp-nfs',
+#  :git => 'https://github.com/simp/pupmod-simp-nfs',
+#  :branch => 'master'
+#
+#mod 'simp-ntpd',
+#  :git => 'https://github.com/simp/pupmod-simp-ntpd',
+#  :branch => 'master'
+#
+#mod 'simp-oath',
+#  :git => 'https://github.com/simp/pupmod-simp-oath',
+#  :branch => 'master'
+
+mod 'simp-oddjob',
+  :git => 'https://github.com/simp/pupmod-simp-oddjob',
+  :branch => 'master'
+
+mod 'simp-openscap',
+  :git => 'https://github.com/simp/pupmod-simp-openscap',
+  :branch => 'master'
+
+#mod 'simp-pam',
+#  :git => 'https://github.com/simp/pupmod-simp-pam',
+#  :branch => 'master'
+
+mod 'simp-pki',
+  :git => 'https://github.com/simp/pupmod-simp-pki',
+  :branch => 'master'
+
