@@ -99,16 +99,19 @@ nodeset_files.each do |nodeset_file|
   deleted_node_roles = deleted_nodes.map{|x| orig_roles[x] }.flatten.uniq
   new_node_roles = new_roles.map{|k,x| x }.flatten.uniq
   missing_roles = deleted_node_roles - new_node_roles
-  role_subs = 0
-  lines_str.sub!(/^ *roles:\n(?<space> *- )(?<role>[a-z0-9-]+)/) do |s|
-    role_subs += 1
-    space = s.match(/^ *roles:\n(?<space> *- )(?<role>[a-z0-9-]+)/)[:space]
-    s + "\n" + space.sub('-','# roles migrated from now-removed el6 node(s):') +  missing_roles.map{|x| "\n#{space}#{x}" }.join
-  end
-  if role_subs == 0 # if no other nodeset contained roles
-    space = lines_str.sub!(/^(?<space> *)platform:.*$/) do |s|
-      space = s.match(/^(?<space> *)platform:/)[:space]
-        "#{space}roles: # migrated from now-removed el6 node(s)" + missing_roles.map{|x| "\n#{space}- #{x}" }.join + "\n#{s}"
+  missing_roles.reject!{|x| x.match(/[-_]?(el|rhel|oel|centos)[-_]?6$/) }
+  unless missing_roles.empty?
+    role_subs = 0
+    lines_str.sub!(/^ *roles:\n(?<space> *- )(?<role>[a-z0-9-]+)/) do |s|
+      role_subs += 1
+      space = s.match(/^ *roles:\n(?<space> *- )(?<role>[a-z0-9-]+)/)[:space]
+      s + "\n" + space.sub('- ','# roles migrated from now-removed el6 node(s):') +  missing_roles.map{|x| "\n#{space}#{x}" }.join
+    end
+    if role_subs == 0 # if no other nodeset contained roles
+      space = lines_str.sub!(/^(?<space> *)platform:.*$/) do |s|
+        space = s.match(/^(?<space> *)platform:/)[:space]
+          "#{space}roles: # migrated from now-removed el6 node(s)" + missing_roles.map{|x| "\n#{space}- #{x}" }.join + "\n#{s}"
+      end
     end
   end
 
