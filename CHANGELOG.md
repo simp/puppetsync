@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `.gitignore` ignores local tmp droppings (thanks, @DavidS!)
 - `bolt-project.yaml` defaults to `concurrency: 10` (thanks, @DavidS!)
 
+### Removed
+
+- `.ruby-version` is now removed from Puppet modules
+
 ## [SIMP-8703]
 
 ### Changed
