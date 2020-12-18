@@ -1,71 +1,40 @@
-mod 'simp-dhcp',
-  :git => 'https://github.com/simp/pupmod-simp-dhcp',
+
+mod 'simp-incron',
+  :git => 'https://github.com/simp/pupmod-simp-incron',
   :branch => 'master'
 
-mod 'simp-fips',
-  :git => 'https://github.com/simp/pupmod-simp-fips',
+#mod 'simp-iptables',
+#  :git => 'https://github.com/simp/pupmod-simp-iptables',
+#  :branch => 'master'
+
+mod 'simp-issue',
+  :git => 'https://github.com/simp/pupmod-simp-issue',
   :branch => 'master'
 
-mod 'simp-freeradius',
-  :git => 'https://github.com/simp/pupmod-simp-freeradius',
-  :branch => 'master'
-
-mod 'simp-gdm',
-  :git => 'https://github.com/simp/pupmod-simp-gdm',
-  :branch => 'master'
-
-#####mod 'simp-gnome',
-#####  :git => 'https://github.com/simp/pupmod-simp-gnome',
-#####  :branch => 'master'
-#####
-mod 'simp-haveged',
-  :git => 'https://github.com/simp/pupmod-simp-haveged',
-  :branch => 'master'
-
-mod 'simp-hirs_provisioner',
-  :git => 'https://github.com/simp/pupmod-simp-hirs_provisioner',
-  :branch => 'master'
-
-mod 'simp-ima',
-  :git => 'https://github.com/simp/pupmod-simp-ima',
-  :branch => 'master'
-
-# mod 'simp-incron',
-#   :git => 'https://github.com/simp/pupmod-simp-incron',
-#   :branch => 'master'
+#mod 'simp-krb5',
+#  :git => 'https://github.com/simp/pupmod-simp-krb5',
+#  :branch => 'master'
 #
-####mod 'simp-iptables',
-####  :git => 'https://github.com/simp/pupmod-simp-iptables',
-####  :branch => 'master'
-###
-###mod 'simp-issue',
-###  :git => 'https://github.com/simp/pupmod-simp-issue',
-###  :branch => 'master'
-###
-####mod 'simp-krb5',
-####  :git => 'https://github.com/simp/pupmod-simp-krb5',
-####  :branch => 'master'
-####
-####mod 'simp-libreswan',
-####  :git => 'https://github.com/simp/pupmod-simp-libreswan',
-####  :branch => 'master'
-###
-###mod 'simp-libvirt',
-###  :git => 'https://github.com/simp/pupmod-simp-libvirt',
-###  :branch => 'master'
-###
-####mod 'simp-logrotate',
-####  :git => 'https://github.com/simp/pupmod-simp-logrotate',
-####  :branch => 'master'
-###
-###mod 'simp-mate',
-###  :git => 'https://github.com/simp/pupmod-simp-mate',
-###  :branch => 'master'
-###
-###mod 'simp-mozilla',
-###  :git => 'https://github.com/simp/pupmod-simp-mozilla',
-###  :branch => 'master'
-###
+#mod 'simp-libreswan',
+#  :git => 'https://github.com/simp/pupmod-simp-libreswan',
+#  :branch => 'master'
+
+mod 'simp-libvirt',
+  :git => 'https://github.com/simp/pupmod-simp-libvirt',
+  :branch => 'master'
+
+#mod 'simp-logrotate',
+#  :git => 'https://github.com/simp/pupmod-simp-logrotate',
+#  :branch => 'master'
+
+mod 'simp-mate',
+  :git => 'https://github.com/simp/pupmod-simp-mate',
+  :branch => 'master'
+
+mod 'simp-mozilla',
+  :git => 'https://github.com/simp/pupmod-simp-mozilla',
+  :branch => 'master'
+
 ###mod 'simp-named',
 ###  :git => 'https://github.com/simp/pupmod-simp-named',
 ###  :branch => 'master'
