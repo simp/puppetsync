@@ -179,6 +179,7 @@ plan puppetsync(
       if $puppet_role {
         include $puppet_role
       } else {
+        warning('$puppet_role is empty!')
         debug::break()
         $classes = lookup('classes', undef, undef, [])
         $classes.include
@@ -243,6 +244,9 @@ plan puppetsync(
       }
     )
   }
+
+  # To inspect Puppet catalog resource events:
+  #   $repos[0].vars["puppetsync_stage_results"]["apply_puppet_role"]['data']['value']['report']["resource_statuses"]["File[/var/simpdev/ctessmer/src/puppetsync/_repos/acpid/.gitlab-ci.yml]"]["events"]
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------

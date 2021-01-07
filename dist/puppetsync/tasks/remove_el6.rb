@@ -25,6 +25,7 @@ el_oses = ['CentOS', 'RedHat', 'OracleLinux', 'Amazon', 'Scientific']
 oses = data['operatingsystem_support'].select{ |os| el_oses.include?(os['operatingsystem']) }
 changes=[]
 oses.each{|os| changes << os['operatingsystemrelease'].delete('6') }
+changes.compact!
 
 new_version = nil
 # bump Z version if changed

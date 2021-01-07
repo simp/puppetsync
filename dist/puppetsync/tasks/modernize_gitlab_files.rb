@@ -16,11 +16,22 @@ def modernize_gitlab_ci(content)
   if content.scan( /^(pup6\.18\.0(?!-unit|-lint)[-a-z0-9]*):\s*$/m ).empty?
     # Regex test at https://rubular.com/r/fuMdr0HDU1cqLd
     old_lts_jobs = content.scan( /^(pup5\.5\.17(?!-unit|-lint)[-a-z0-9]*:.*?(?=\Z|^#|^pup))/m ).flatten
-    new_lts_jobs = old_lts_jobs.map{|x| x.gsub('pup_5_5_17','pup_6_16_0').gsub('pup5.5.17','pup6.16.0') }
+    new_lts_jobs = old_lts_jobs.map{|x| x.gsub('pup_5_5_17','pup_5_5.20').gsub('pup5.5.17','pup5.5.20') }
     new_lts_jobs = old_lts_jobs.map{|x| x.gsub('pup_6_16_0','pup_6_18_0').gsub('pup6.16.0','pup6.18.0') }
     new_content = "#{content}\n#{new_lts_jobs.join}"
     return new_content unless new_lts_jobs.empty?
   end
+
+  # convert latest pup anchors to format 'pup_<maj>_x'
+  content.gsub!(%r{\bpup_([567])\b}, 'pup_\\1_x')
+  content.gsub!(%r{\bpup([567])(-|:)}, 'pup\\1.x\\2')
+
+  # convert pinned pup anchors to format 'pup_<maj>'
+  # (...which used to be the format for latest)
+  content.gsub!(%r{\bpup6\.18\.0}, 'pup6.pe')
+  content.gsub!(%r{\bpup5\.5\.20}, 'pup5.pe')
+  content.gsub!(%r{\bpup_6_18_0\b}, 'pup_6_pe')
+  content.gsub!(%r{\bpup_5_5_20\b}, 'pup_5_pe')
   content
 end
 

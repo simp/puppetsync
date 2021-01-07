@@ -7,12 +7,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- GLCI: (SIMP-8958) `rvm use` sets ruby version when RVM is present
+- GLCI: (SIMP-8984) Changed latest pup anchor to `pup_<maj>x`
+- GLCI: (SIMP-8984) Changed pinned pup anchor to `pup_<maj>_pe`
 - `.gitignore` ignores local tmp droppings (thanks, @DavidS!)
 - `bolt-project.yaml` defaults to `concurrency: 10` (thanks, @DavidS!)
+- GLCI: New `pup_7` anchor,in `gitlab-ci.yml`, introduces Puppet 7 support
+
+### Changed
+
+- GLCI: (SIMP-8994) More files trigger spec and acceptance tests
 
 ### Removed
 
-- `.ruby-version` is now removed from Puppet modules
+- (SIMP-8839) EL6 is removed from Puppet modules' metadata, hiera, and nodesets
+- (SIMP-8931) The `.ruby-version` file is removed from Puppet modules
 
 ## [SIMP-8703]
 

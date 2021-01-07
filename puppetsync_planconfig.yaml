@@ -35,10 +35,10 @@ puppetsync:
         - merge_github_pr_for_each_repo
 
 jira:
-  parent_issue: SIMP-8839
+  parent_issue: SIMP-8958
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Remove EL6 from %COMPONENT%'
+  subtask_title: 'Standardize assets in %COMPONENT%'
   # optional:
   subtask_story_points: 0
   subtask_assignee: true
@@ -47,15 +47,16 @@ git:
   # 0---------1---------2---------3---------4---------5---------6---------7|
   # (SIMP-XXXX) 12345678                                     |
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Remove EL6 from %COMPONENT%
+    (%JIRA_PARENT_ISSUE%) Standardize assets in %COMPONENT%
 
-    This patch removes EL6 as a supported OS in `metadata.json`, Hiera YAML
-    files and from the beaker acceptance tests and nodesets.
+    This patch baselines the latest standardized assets for Puppet modules.
 
     %JIRA_SUBTASK% #close
-    [%JIRA_PARENT_ISSUE%] #comment Removed EL6 from %COMPONENT%
+    [%JIRA_PARENT_ISSUE%] #comment Standardized assets in %COMPONENT%
+    [SIMP-8839] #comment Removed EL6 from %COMPONENT%
     [SIMP-8489] #comment Updated %COMPONENT% GLCI pipeline to Puppet 6.18
     [SIMP-8923] #comment Renamed 'sanity' to 'releng' in %COMPONENT%
+    [SIMP-8984] #comment Updated %COMPONENT% to new GLCI conventions
 
 github:
   pr_user: op-ct  # This should be the account that *submitted* the PRs (Used

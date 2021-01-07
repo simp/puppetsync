@@ -6,18 +6,18 @@ function puppetsync::template_git_commit_message(
   Target $repo,
   Hash   $puppetsync_config,
 ){
-  $subtask_key       = $repo.vars.dig('jira_subtask_key').lest || {
+  $subtask_key = $repo.vars.dig('jira_subtask_key').lest || {
     warning("WARNING: ${repo.name} missing expected var ['jira_subtask_key'] (using '')")
     ''
   }
-  $parent_issue      = $puppetsync_config.dig('jira','parent_issue').lest || {
+  $parent_issue = $puppetsync_config.dig('jira','parent_issue').lest || {
     warning("WARNING: ${repo.name} missing expected var ['jira']['parent_issue'] (using '')")
     ''
   }
-  $commmit_template  = $puppetsync_config.dig('git','commit_message').lest || {
+  $commmit_template = $puppetsync_config.dig('git','commit_message').lest || {
     fail("ERROR: ${repo.name} missing required var ['git']['commit_message']")
   }
-  $component_name    = $repo.vars['mod_data']['repo_name'].lest || {
+  $component_name = $repo.vars['mod_data']['repo_name'].lest || {
     fail("ERROR: ${repo.name} missing required var ['mod_data']['repo_name']")
   }
 
