@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [SIMP-8958]
 
 ### Added
 
@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- GLCI: (SIMP-8994) More files trigger spec and acceptance testsd
+- GLCI: (SIMP-8994) More files trigger spec and acceptance tests
 - Bumped Pupmod Gemfiles' minimum 'simp-beaker-helpers' version to 1.21.4
 - Bumped `pup_5_pe` PUPPET_VERSION to 5.5.22
 
@@ -108,4 +108,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-8139]: https://github.com/op-ct/puppetsync/compare/SIMP-7974...SIMP-8139
 [SIMP-7855]: https://github.com/op-ct/puppetsync/compare/SIMP-8139...SIMP-7855
 [SIMP-8703]: https://github.com/op-ct/puppetsync/compare/SIMP-7855...SIMP-8703
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-8703...HEAD
+[SIMP-8958]: https://github.com/op-ct/puppetsync/compare/SIMP-8703...SIMP-8958
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-8958...HEAD
