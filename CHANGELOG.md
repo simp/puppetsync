@@ -16,7 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- GLCI: (SIMP-8994) More files trigger spec and acceptance tests
+- GLCI: (SIMP-8994) More files trigger spec and acceptance testsd
+- Bumped Pupmod Gemfiles' minimum 'simp-beaker-helpers' version to 1.21.4
 
 ### Removed
 
