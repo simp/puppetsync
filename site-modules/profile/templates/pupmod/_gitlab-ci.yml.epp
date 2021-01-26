@@ -106,8 +106,6 @@ variables:
     - "{SIMP,data,manifests,files,types,lib,functions}/**/*"
     - "templates/**/*.{erb,epp}"
     - "Gemfile"
-    - "SIMP/**/*"
-    - "data/**/*"
   exists:
     - "spec/{classes,unit,defines,type_aliases,types,hosts}/**/*_spec.rb"
 
@@ -120,8 +118,6 @@ variables:
     - "{SIMP,data,manifests,files,types,lib,functions}/**/*"
     - "templates/**/*.{erb,epp}"
     - "Gemfile"
-    - "SIMP/**/*"
-    - "data/**/*"
   exists:
     - "spec/acceptance/**/*_spec.rb"
 
@@ -232,7 +228,7 @@ variables:
 .pup_5_pe: &pup_5_pe
   image: 'ruby:2.4'
   variables:
-    PUPPET_VERSION: '5.5.20'
+    PUPPET_VERSION: '5.5.22'
     BEAKER_PUPPET_COLLECTION: 'puppet5'
     MATRIX_RUBY_VERSION: '2.4'
 
