@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+
+- GHA: (SIMP-9126) Add GitHub actions workflows to `role:pupmod`
+
 ## [SIMP-8958]
 
 ### Added
@@ -22,8 +28,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-- (SIMP-8839) EL6 is removed from Puppet modules' metadata, hiera, and nodesets
-- (SIMP-8931) The `.ruby-version` file is removed from Puppet modules
+- (SIMP-8839) Removed EL6 from Puppet modules' metadata, hiera, and nodesets
+- (SIMP-8931) No more `.ruby-version` file in Puppet modules
 
 ## [SIMP-8703]
 

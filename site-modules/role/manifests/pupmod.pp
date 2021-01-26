@@ -2,6 +2,7 @@
 class role::pupmod {
   include 'profile::pupmod::base'
   include 'profile::pupmod::travis_yml'
+  include 'profile::pupmod::github_actions'
   include 'profile::pupmod::gitlab_ci'
   include 'profile::pupmod::gemfile'
   include 'profile::pupmod::git_files'
