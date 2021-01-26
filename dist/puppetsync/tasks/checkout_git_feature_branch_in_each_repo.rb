@@ -36,6 +36,7 @@ warn stdin
 
 raise('No branch given') unless params['branch']
 raise('No repo paths given') unless params['repo_paths']
+raise('No repo paths given (empty array)') if params['repo_paths'].empty?
 
 results = checkout_modules_to_branch(params['branch'], params['repo_paths'])
 raise('All git feature branch checkouts failed') unless results.any? { |_k, v| v }

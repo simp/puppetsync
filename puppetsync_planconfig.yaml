@@ -5,13 +5,13 @@ puppetsync:
     - pupmod_skeleton
   plans:
     sync:
-      #clone_git_repos: false
+      # clone_git_repos: false
       stages:
         #        - install_gems
         - checkout_git_feature_branch_in_each_repo
         - ensure_jira_subtask
-        - apply_puppet_role
-        - remove_el6
+          ###        - apply_puppet_role
+          ###        - remove_el6
         - modernize_gitlab_files
         - lint_gitlab_ci
         - git_commit_changes
@@ -53,7 +53,7 @@ git:
 
     %JIRA_SUBTASK% #close
     [%JIRA_PARENT_ISSUE%] #comment Standardized assets in %COMPONENT%
-    [SIMP-8839] #comment Removed EL6 from %COMPONENT%
+    [SIMP-8839] #comment Removed EL6 from supported OSes in %COMPONENT%
     [SIMP-8489] #comment Updated %COMPONENT% GLCI pipeline to Puppet 6.18
     [SIMP-8923] #comment Renamed 'sanity' to 'releng' in %COMPONENT%
     [SIMP-8984] #comment Updated %COMPONENT% to new GLCI conventions

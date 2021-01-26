@@ -22,7 +22,7 @@ dir = File.dirname(file)
 content = File.read(file)
 data = JSON.parse(content)
 el_oses = ['CentOS', 'RedHat', 'OracleLinux', 'Amazon', 'Scientific']
-oses = data['operatingsystem_support'].select{ |os| el_oses.include?(os['operatingsystem']) }
+oses = (data['operatingsystem_support'] || [] ).select{ |os| el_oses.include?(os['operatingsystem']) }
 changes=[]
 oses.each{|os| changes << os['operatingsystemrelease'].delete('6') }
 changes.compact!
@@ -45,7 +45,7 @@ if new_version
   require 'date'
   new_lines = []
   new_lines << DateTime.now.strftime("* %a %b %d %Y Chris Tessmer <chris.tessmer@onyxpoint.com> - #{new_version}")
-  new_lines << '- Removed EL6 support'
+  new_lines << '- Removed EL6 from supported OSes'
   changelog = new_lines.join("\n") + "\n\n" + changelog
   File.open(changelog_file,'w'){|f| f.puts changelog }
 end
@@ -59,7 +59,7 @@ warn( %x[find $(find #{dir}/spec/acceptance -name nodesets -type d) -name centos
 warn( %x[find #{dir}/data/os -name \*6.yaml -print -exec rm -f {} \\; &>/dev/null] )
 
 # Remove el6 hosts from Beaker nodesets
-nodeset_files = %x[find $(find #{dir}/spec/acceptance -name nodesets -type d) -name \*.yml].split("\n")
+nodeset_files = %x[find $(find #{dir}/spec/acceptance -name nodesets -type d) -name \\*.yml].split("\n")
 warn %x[grep -E 'el.?6' #{nodeset_files.join(" ")}]
 nodeset_files.each do |nodeset_file|
   next if %x[grep -c  '^ *platform: *el-6-x86_64' #{nodeset_file}].strip == '0'
@@ -119,8 +119,8 @@ nodeset_files.each do |nodeset_file|
   File.open(nodeset_file,'w'){|f| f.puts lines_str }
 end
 
-warn %Q@grep -i -r -e "\\['6', \\?'7'\\|facts\\(\\['os'\\]\\['release'\\]\\['major'\\]\\|\\[:operatingsystemmajrelease\\]\\|\\[:os\\]\\[:release\\]\\[:major\\]\\)\\(\\.to_\\(i\\|\\s\\)\\)\\? \\(\\(<=\\|==\\) '\\?6'\\?\\|< '\\?7'\\?\\)\\|\\['\\?6'\\?, ?'\\?7'\\?\\]\\|\\(oel\\|rhel\\|centos\\|el\\).6\\|versioncmp($facts\\['os'\\]\\['release'\\]\\['major'\\], '6')" '#{dir}' --exclude-dir=.{plan.gems,gems,git} --exclude=\\* --include=\\*.{rb,pp}@
-grep_results = %x@grep -i -r -e "\\['6', \\?'7'\\|facts\\(\\['os'\\]\\['release'\\]\\['major'\\]\\|\\[:operatingsystemmajrelease\\]\\|\\[:os\\]\\[:release\\]\\[:major\\]\\)\\(\\.to_\\(i\\|\\s\\)\\)\\? \\(\\(<=\\|==\\) '\\?6'\\?\\|< '\\?7'\\?\\)\\|\\['\\?6'\\?, ?'\\?7'\\?\\]\\|\\(oel\\|rhel\\|centos\\|el\\).6\\|versioncmp($facts\\['os'\\]\\['release'\\]\\['major'\\], '6')" '#{dir}' --exclude-dir=.{plan.gems,gems,git} --exclude=\\* --include=\\*.{rb,pp}@
+warn %Q@grep -i -r -e "\\['6', \\?'7'\\|facts\\(\\['os'\\]\\['release'\\]\\['major'\\]\\|\\[:operatingsystemmajrelease\\]\\|\\[:os\\]\\[:release\\]\\[:major\\]\\)\\(\\.to_\\(i\\|\\s\\)\\)\\? \\(\\(<=\\|==\\) '\\?6'\\?\\|< '\\?7'\\?\\)\\|\\['\\?6'\\?, ?'\\?7'\\?\\]\\|\\(oel\\|rhel\\|centos\\|el\\).6\\|versioncmp($facts\\['os'\\]\\['release'\\]\\['major'\\], '6')" --exclude-dir=.{plan.gems,gems,git} --exclude=\\* --include=\\*.{rb,pp,erb,epp} '#{dir}'@
+grep_results = %x@grep -i -r -e "\\['6', \\?'7'\\|facts\\(\\['os'\\]\\['release'\\]\\['major'\\]\\|\\[:operatingsystemmajrelease\\]\\|\\[:os\\]\\[:release\\]\\[:major\\]\\)\\(\\.to_\\(i\\|\\s\\)\\)\\? \\(\\(<=\\|==\\) '\\?6'\\?\\|< '\\?7'\\?\\)\\|\\['\\?6'\\?, ?'\\?7'\\?\\]\\|\\(oel\\|rhel\\|centos\\|el\\).6\\|versioncmp($facts\\['os'\\]\\['release'\\]\\['major'\\], '6')" --exclude-dir=.{plan.gems,gems,git} --exclude=\\* --include=\\*.{rb,pp,erb,epp} '#{dir}'@
 
 unless grep_results.empty?
   fail "ERROR: EL6 detritus detected under #{dir}:\n\n #{grep_results}\n\n"
@@ -128,5 +128,3 @@ end
 
 
 warn "\n\nFINIS: #{__FILE__}"
-
-

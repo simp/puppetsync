@@ -29,9 +29,12 @@ def modernize_gitlab_ci(content)
   # convert pinned pup anchors to format 'pup_<maj>'
   # (...which used to be the format for latest)
   content.gsub!(%r{\bpup6\.18\.0}, 'pup6.pe')
-  content.gsub!(%r{\bpup5\.5\.20}, 'pup5.pe')
+  content.gsub!(%r{\bpup5\.5\.\d+}, 'pup5.pe')
   content.gsub!(%r{\bpup_6_18_0\b}, 'pup_6_pe')
-  content.gsub!(%r{\bpup_5_5_20\b}, 'pup_5_pe')
+  content.gsub!(%r{\bpup_5_5_\d+\b}, 'pup_5_pe')
+  content.gsub!(%r{\bpup_5_5_\d+\b}, 'pup_5_pe')
+
+  content.gsub!(%r{bundle exec rake beaker:suites'},"bundle exec rake beaker:suites[default,default]'")
   content
 end
 
