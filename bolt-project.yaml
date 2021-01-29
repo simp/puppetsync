@@ -6,5 +6,3 @@ concurrency: 10
 log:
   console:
     level: error
-  ~/.puppetlabs/bolt/debug.log:
-    level: debug
