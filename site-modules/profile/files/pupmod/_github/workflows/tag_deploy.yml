@@ -1,4 +1,12 @@
 # Build & Deploy Puppet module & GitHub release when a SemVer tag is pushed
+# ------------------------------------------------------------------------------
+#
+#             NOTICE: **This file is maintained with puppetsync**
+#
+# This file is updated automatically as part of a puppet module baseline.
+#
+# The next baseline sync will overwrite any local changes to this file!
+#
 # ==============================================================================
 #
 # This pipeline uses the following GitHub Action Secrets:

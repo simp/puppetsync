@@ -1,3 +1,13 @@
+# Run puppet checks and test matrix for a PR
+# ------------------------------------------------------------------------------
+#             NOTICE: **This file is maintained with puppetsync**
+#
+# This file is updated automatically as part of a puppet module baseline.
+#
+# The next baseline sync will overwrite any local changes to this file!
+#
+# ==============================================================================
+#
 # The testing matrix considers ruby/puppet versions supported by SIMP and PE:
 # ------------------------------------------------------------------------------
 # Release       Puppet   Ruby    EOL
@@ -124,12 +134,12 @@ jobs:
       - run: 'command -v rpm || if command -v apt-get; then apt-get update; apt-get install -y rpm; fi ||:'
       - run: 'bundle exec rake spec'
 
-  dump_contexts:
-    name: 'Examine Context contents'
-    runs-on: ubuntu-16.04
-    steps:
-      - name: Dump contexts
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-
+#  dump_contexts:
+#    name: 'Examine Context contents'
+#    runs-on: ubuntu-16.04
+#    steps:
+#      - name: Dump contexts
+#        env:
+#          GITHUB_CONTEXT: ${{ toJson(github) }}
+#        run: echo "$GITHUB_CONTEXT"
+#

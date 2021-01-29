@@ -14,13 +14,13 @@ puppetsync:
           #        - remove_el6
         - modernize_gitlab_files
         - lint_gitlab_ci
-###        - git_commit_changes
-###        - ensure_github_fork
-###        - ensure_git_remote
-###        - git_push_to_remote
-###        - ensure_gitlab_remote
-###        - git_push_to_gitlab
-###        - ensure_github_pr
+        - git_commit_changes
+        - ensure_github_fork
+        - ensure_git_remote
+        - git_push_to_remote
+        - ensure_gitlab_remote
+        - git_push_to_gitlab
+        - ensure_github_pr
 
     approve_github_pr:
       clone_git_repos: false
