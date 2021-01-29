@@ -180,8 +180,8 @@ plan puppetsync(
         include $puppet_role
       } else {
         warning('$puppet_role is empty!')
-        debug::break()
         $classes = lookup('classes', undef, undef, [])
+        warning("Hiera classes: [${classes.join(',')}]")
         $classes.include
       }
     }

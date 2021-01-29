@@ -1,15 +1,13 @@
 # Manage Puppet module skeleton
+#
+# pupmod_skeleton is always identical to pupmod, but in Hiera it prefixes all
+# the file paths to `skeleton/` and overrides the paths to local
+# templates/files.
+#
+# The Hiera file where this happens is:
+#   `data/project_types/pupmod_skeleton.yaml`
+#
 class role::pupmod_skeleton {
-  # paths to /skeleton are handled in Hiera
-  include 'profile::pupmod::gitlab_ci'
-  include 'profile::pupmod::gemfile'
-  include 'profile::pupmod::travis_yml'
-  include 'profile::pupmod::gemfile'
-  include 'profile::pupmod::git_files'
-  include 'profile::pupmod::puppet_lint'
-  include 'profile::pupmod::rspec'
-  include 'profile::pupmod::ruby_version'
-  include 'profile::pupmod::pmtignore'
-  include 'profile::pupmod::obsoletes'
+  include 'role::pupmod'
 }
 

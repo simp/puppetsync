@@ -1,7 +1,12 @@
 ---
 classes:
-  - 'role::pupmod'
+  - 'role::base'
 
-profile::pupmod::obsoletes::files:
-  - 'spec/fixtures/site.pp'           # Several modules had this incorrect path
-  - 'spec/fixtures/manifests/site.pp' # not required since Puppet 3.x
+profile::obsoletes::files:
+  - '.ruby-version'                   # Borks RUBY_MATRIX (SIMP-8931, SIMP-8958)
+  - '.travis.yml'                     # Travis is dead to us (SIMP-9150)
+
+
+lookup_options:
+  profile::obsoletes::files:
+    merge: unique

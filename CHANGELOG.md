@@ -8,15 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- GHA: (SIMP-9126) Add GitHub actions workflows to `role:pupmod`
+- GHA: (SIMP-9126) Add GitHub actions workflows to `role::pupmod`
+- New project_types:
+  - `rubygem`
+  - `unknown_simp` (unidentified repos that start with `simp-`)
+- New roles:
+  - `role::rubygem`
+  - `role::unknown_with_ci`
 
 ### Changed
 
 - `.gitlab-ci.yml`: Collapse GLCI logspam during `&setup_bundler_env`
+- All project_types use `profile::obsoletes`,
 
 ### Fixed
 
 - (SIMP-9149) `Gemfile` pins pathspec to `~> 0.2` when Ruby < 2.6
+- `hiera.yaml` uses the correct repo name with `repos/*.yaml`
 
 ### Removed
 
