@@ -84,7 +84,8 @@ plan puppetsync(
   Hash                 $options                = {},
 ) {
   $opts = {
-    'clone_git_repos' => true,
+    'clone_git_repos'          => true,
+    'github_api_delay_seconds' => 1,
    } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{}} + $options
   $repos = puppetsync::setup_project_repos( $puppetsync_config, $project_dir, $puppetfile, $opts )
   $feature_branch    = getvar('puppetsync_config.jira.parent_issue')
@@ -410,6 +411,7 @@ plan puppetsync(
             $results.first.error.msg,'','', $results.first.error.details,'', ].join("\n")
         )
       }
+      $ctrl::sleep($opts['github_api_delay_seconds'])
       $results.first
     }
   }
