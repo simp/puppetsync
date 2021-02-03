@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+
+- GHA: GLCI trigger workflows now use
+  [`github-action-gitlab-ci-pipeline-trigger@v1`](https://github.com/simp/github-action-gitlab-ci-pipeline-trigger)
+- New option key, `github_api_delay_seconds`
+
+### Changed
+
+- `.gitlab-ci.yml`: Collapse GLCI logspam during `&setup_bundler_env`
+- `.gitlab-ci.yml`: (SIMP-9279) `.fixtures.yml` changes trigger acceptance
+  tests
+
+### Fixed
+
+- GHA: (SIMP-9226) GLCI trigger now smart enough to NOT cancel + restart
+  existing pipelines for identical hashrefs
+- 'bolt-project.yaml` no longer tries to write to logs under
+  `~/.puppetlabs/bolt/`, because it causes errors for users who don't have that
+  directory.
+
+### Removed
+
+
 ## [SIMP-9126]
 
 ### Added
