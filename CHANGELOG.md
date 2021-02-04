@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - GHA: GLCI trigger workflows now use
   [`github-action-gitlab-ci-pipeline-trigger@v1`](https://github.com/simp/github-action-gitlab-ci-pipeline-trigger)
+- GHA: GLCI trigger workflows now use
+  [`github-action-gitlab-ci-syntax-check@v1`](https://github.com/simp/github-action-gitlab-ci-syntax-check)
 - New option key, `github_api_delay_seconds`
 
 ### Changed
