@@ -16,20 +16,22 @@ class profile::github_actions(
   ],
   Array[String] $absent_action_files = [],
 ){
-  file{ [$target_github_actions_dir, dirname($target_github_actions_dir)]:
-    ensure => directory,
-  }
+  $project_type = $facts.dig('project_type').lest || {'unknown'}
+
+  file{ [$target_github_actions_dir, dirname($target_github_actions_dir)]: ensure => directory }
 
   $absent_action_files.each |$action_file| {
-    file{ "${target_github_actions_dir}/$action_file": ensure => absent }
+    file{ "${target_github_actions_dir}/${action_file}": ensure => absent }
   }
 
   $present_action_files.each |$action_file| {
-    $action_base = basename( $action_file, '.yml' )
+    $action = basename( $action_file, '.yml' )
     file{ "${target_github_actions_dir}/${action_file}":
       content => file(
-        "profile/_github/workflows/${action_base}.${target_repo_name}.yml",
-        "profile/_github/workflows/${action_base}.yml"
+        "profile/${project_type}/_github/workflows/${action}.${target_repo_name}.yml",
+        "profile/${project_type}/_github/workflows/${action}.yml",
+        "profile/_github/workflows/${action}.${target_repo_name}.yml",
+        "profile/_github/workflows/${action}.yml"
       ),
     }
   }
