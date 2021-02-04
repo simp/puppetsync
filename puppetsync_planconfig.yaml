@@ -6,6 +6,7 @@ puppetsync:
   plans:
     sync:
       # clone_git_repos: false
+      github_api_delay_seconds: 5
       stages:
         #        - install_gems
         - checkout_git_feature_branch_in_each_repo
@@ -35,10 +36,10 @@ puppetsync:
         - merge_github_pr_for_each_repo
 
 jira:
-  parent_issue: SIMP-9126
+  parent_issue: SIMP-9266
   project: SIMP
   jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Add GHA CI/CD workflows to %COMPONENT%'
+  subtask_title: 'Improve GHA GLCI trigger logic in %COMPONENT%'
   # optional:
   subtask_story_points: 0
   subtask_assignee: true
@@ -47,17 +48,16 @@ git:
   # 0---------1---------2---------3---------4---------5---------6---------7|
   # (SIMP-XXXX) 12345678                                     |
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Add GHA workflows to %COMPONENT%
+    (%JIRA_PARENT_ISSUE%) Improve GHA GCLI trigger in %COMPONENT%
 
-    This patch adds standardized GitHub Actions to provide GitHub-based
-    CI/CD workflows.  Among this first batch are:
+    This patch updates the standardized GitHub Actions that trigger GLCI
+    pipelines:
 
-    * PR Tests - Puppet module checks & test matrix
-    * PR GLCI - Auto-trigger corresponding GLCI (if actor has write perms)
-    * Manual: PR GLCI - Team members can trigger corresponding GLCI for a PR
-    * PR GLCI Cleanup - Clean up any auto-triggered GLCI pipelines/branches
-    * Manual: Validate API tokens - Team members can validate GHA secrets
-    * Tag: Release to GitHub & PuppetForge - (only on SemVer tag)
+      - Still preemptively cancels existing GLCI pipelines for the same
+        branch, EXCEPT when a pipeline is for the same commit hashref.
+      - Refactored common GLCI logic into new composite run steps actions:
+        - [github-action-gitlab-ci-pipeline-trigger@v1][0]
+        - [github-action-gitlab-ci-syntax-check@v1][1]
 
     This patch also enforces the standardized asset baseline using
     simp/puppetsync, and may apply other updates to ensure conformity.
@@ -65,8 +65,10 @@ git:
     CI: SKIP MATRIX
     [%JIRA_SUBTASK%] #close
     [%JIRA_PARENT_ISSUE%] #comment Standardized GHA + assets in %COMPONENT%
-    [SIMP-9149] #comment Ensured Gemfile pathspec fix for %COMPONENT%
-    [SIMP-9150] #comment Remove .travis.yml from %COMPONENT%
+    [SIMP-9279] #comment `.fixtures.yml` triggers GLCI acc for %COMPONENT%
+
+    [0]: https://github.com/simp/github-action-gitlab-ci-pipeline-trigger
+    [1]: https://github.com/simp/github-action-gitlab-ci-syntax-check
 
 github:
   pr_user: op-ct  # This should be the account that *submitted* the PRs (Used

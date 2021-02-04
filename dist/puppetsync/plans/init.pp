@@ -411,7 +411,7 @@ plan puppetsync(
             $results.first.error.msg,'','', $results.first.error.details,'', ].join("\n")
         )
       }
-      $ctrl::sleep($opts['github_api_delay_seconds'])
+      ctrl::sleep($opts['github_api_delay_seconds'])
       $results.first
     }
   }
