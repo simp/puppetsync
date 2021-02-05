@@ -6,7 +6,7 @@ profile::obsoletes::files:
   - 'spec/fixtures/site.pp'           # Several modules had this incorrect path
   - 'spec/fixtures/manifests/site.pp' # Not required since Puppet 3.x
 
-profile::pupmod::github_actions::present_action_files:
+profile::github_actions::present_action_files:
   - pr_tests.yml         # PR-triggered Pupmod checks + test matrix
   - pr_glci.yml          # PR-triggered GLCI actions
   - pr_glci_manual.yml   # --> manual trigger for external contributors

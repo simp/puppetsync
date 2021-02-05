@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+
+- (SIMP-9239) Rubygem GHA CLI workflows
+
+### Changed
+
+- Moved repolists and configs into Hiera
+
+### Removed
+
+- (SIMP-9239) Removed `.travis.yml` from rubygems
+
 ## [SIMP-9266]
 
 ### Added
@@ -23,7 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - GHA: (SIMP-9226) GLCI trigger now smart enough to NOT cancel + restart
-  existing pipelines for identical hashrefs
+  existing [pipelines](pipelines) for identical hashrefs
 - 'bolt-project.yaml` no longer tries to write to logs under
   `~/.puppetlabs/bolt/`, because it causes errors for users who don't have that
   directory.

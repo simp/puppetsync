@@ -2,11 +2,19 @@
 classes:
   - 'role::pupmod_skeleton'
 
-profile::obsoletes::files:
-  - 'spec/fixtures/site.pp'           # Several modules had this incorrect path
-  - 'spec/fixtures/manifests/site.pp' # Not required since Puppet 3.x
-
 profile::pupmod::gitlab_ci::target_gitlabci_yml_path: "%{::repo_path}/skeleton/.gitlab-ci.yml"
 profile::pupmod::gemfile::gemfile_path: "%{::repo_path}/skeleton/Gemfile"
 profile::pupmod::rspec::rspec_path: "%{::repo_path}/skeleton/.rspec"
 profile::obsoletes::repo_path: "%{::repo_path}/skeleton"
+
+profile::obsoletes::files:
+  - 'spec/fixtures/site.pp'           # Several modules had this incorrect path
+  - 'spec/fixtures/manifests/site.pp' # Not required since Puppet 3.x
+
+profile::github_actions::present_action_files:
+  - pr_tests.yml         # PR-triggered Pupmod checks + test matrix
+  - pr_glci.yml          # PR-triggered GLCI actions
+  - pr_glci_manual.yml   # --> manual trigger for external contributors
+  - pr_glci_cleanup.yml  # --> clean up old GLCI branches
+  - tag_deploy.yml       # Release on tag
+  - validate_tokens.yml  # Diagnostic workflow to check API tokens work

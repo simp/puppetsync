@@ -7,23 +7,23 @@ puppetsync::plan_config:
       - rubygem
     plans:
       sync:
-        # clone_git_repos: false
+        clone_git_repos: false
         # clear_before_clone: false
         stages:
           #        - install_gems
-          - checkout_git_feature_branch_in_each_repo
-  ###        - ensure_jira_subtask
-          - apply_puppet_role
-            #        - remove_el6
-          - modernize_gitlab_files
-          - lint_gitlab_ci
-  ###        - git_commit_changes
-  ###        - ensure_github_fork
-  ###        - ensure_git_remote
-  ###        - git_push_to_remote
-  ###        - ensure_gitlab_remote
-  ###        - git_push_to_gitlab
-  ###        - ensure_github_pr
+          ###        - checkout_git_feature_branch_in_each_repo
+          - ensure_jira_subtask
+          ###        - apply_puppet_role
+          ###          #        - remove_el6
+          ###        - modernize_gitlab_files
+          ###        - lint_gitlab_ci
+          ###        - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_gitlab_remote
+          - git_push_to_gitlab
+          - ensure_github_pr
 
       approve_github_prs:
         clone_git_repos: false
