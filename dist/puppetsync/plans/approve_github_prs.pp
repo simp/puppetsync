@@ -39,9 +39,10 @@
 plan puppetsync::approve_github_prs(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
-  Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
-  Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
-  Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
+  String[1]            $config,
+  String[1]            $repolist,
+  Hash                 $puppetsync_config      = lookup('puppetsync::plan_config'),
+  Hash                 $repos_config           = lookup('puppetsync::repos_config'),
   String[1]            $pr_user                = $puppetsync_config.dig('github','pr_user').lest || { undef },
   String[1]            $approval_message       = $puppetsync_config.dig('github','approval_message').lest || { ':+1: :ghost:' },
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
@@ -53,11 +54,10 @@ plan puppetsync::approve_github_prs(
   } + getvar('puppetsync_config.puppetsync.plans.approve_github_prs').lest || {{}} + $options
   $repos = puppetsync::setup_project_repos(
     $puppetsync_config,
+    $repos_config,
     $project_dir,
-    $puppetfile,
     { 'clone_git_repos' => $opts['clone_git_repos'], }
   )
-
   $feature_branch = getvar('puppetsync_config.jira.parent_issue')
 
   $repos.puppetsync::pipeline_stage(

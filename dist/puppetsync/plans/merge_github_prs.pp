@@ -16,15 +16,6 @@
 # @param project_dir
 #   The bolt project directory (Defaults to `$PWD`)
 #
-# @param puppetfile
-#   A special Puppetfile with :git repos to clone, update, and PR
-#   (Default: `${project_dir}/Puppetfile.repos`)
-#
-# @param puppetsync_config_path
-#   Path to a YAML file with settings for a specific puppetsync session
-#   See the project README.md for an example.
-#   (Default: `${project_dir}/puppetsync_planconfig.yaml`)
-#
 # @param extra_gem_path
 #   Path to a gem path with extra gems the bolt interpreter will to run
 #   some of the Ruby tasks.
@@ -36,9 +27,10 @@
 plan puppetsync::merge_github_prs(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
-  Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
-  Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
-  Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
+  String[1]            $config,
+  String[1]            $repolist,
+  Hash                 $puppetsync_config      = lookup('puppetsync::plan_config'),
+  Hash                 $repos_config           = lookup('puppetsync::repos_config'),
   String[1]            $pr_user                = $puppetsync_config.dig('github','pr_user').lest || { undef },
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
@@ -49,8 +41,8 @@ plan puppetsync::merge_github_prs(
   } + getvar('puppetsync_config.puppetsync.plans.merge_github_prs').lest || {{}} + $options
   $repos = puppetsync::setup_project_repos(
     $puppetsync_config,
+    $repos_config,
     $project_dir,
-    $puppetfile,
     { 'clone_git_repos' => $opts['clone_git_repos'], }
   )
   $feature_branch = getvar('puppetsync_config.jira.parent_issue')

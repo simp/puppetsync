@@ -1,0 +1,72 @@
+---
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - unknown
+      - simp_unknown
+      - rubygem
+    plans:
+      sync:
+        # clone_git_repos: false
+        # clear_before_clone: false
+        stages:
+          #        - install_gems
+          - checkout_git_feature_branch_in_each_repo
+  ###        - ensure_jira_subtask
+          - apply_puppet_role
+            #        - remove_el6
+          - modernize_gitlab_files
+          - lint_gitlab_ci
+  ###        - git_commit_changes
+  ###        - ensure_github_fork
+  ###        - ensure_git_remote
+  ###        - git_push_to_remote
+  ###        - ensure_gitlab_remote
+  ###        - git_push_to_gitlab
+  ###        - ensure_github_pr
+
+      approve_github_prs:
+        clone_git_repos: false
+        stages:
+          - install_gems
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        clone_git_repos: false
+        stages:
+          - install_gems
+          - merge_github_pr_for_each_repo
+
+  jira:
+    parent_issue: SIMP-9239
+    project: SIMP
+    jira_site: https://simp-project.atlassian.net
+    subtask_title: 'Add GHA CI/CD workflows to %COMPONENT%'
+    # optional:
+    subtask_story_points: 0
+    subtask_assignee: true
+
+  git:
+    # 0---------1---------2---------3---------4---------5---------6---------7|
+    # (SIMP-XXXX) 12345678                                     |
+    commit_message: |
+      (%JIRA_PARENT_ISSUE%) Add GHA workflows to %COMPONENT%
+
+      This patch adds standardized GitHub Actions to provide GitHub-based
+      CI/CD workflows.  Among this first batch are:
+
+      * PR GLCI - Auto-trigger corresponding GLCI (if actor has write perms)
+      * Manual: PR GLCI - Team members can trigger corresponding GLCI for a PR
+      * PR GLCI Cleanup - Clean up any auto-triggered GLCI pipelines/branches
+
+      This patch also enforces the standardized asset baseline using
+      simp/puppetsync, and may apply other updates to ensure conformity.
+
+      CI: SKIP MATRIX
+      [%JIRA_SUBTASK%] #close
+      [%JIRA_PARENT_ISSUE%] #comment Standardized GHA + assets in %COMPONENT%
+
+  github:
+    pr_user: op-ct  # This should be the account that *submitted* the PRs (Used
+                    # by the idempotency checks when approving/merging PRs)
+    proval_message: ':+1: :ghost:'

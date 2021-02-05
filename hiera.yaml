@@ -11,6 +11,13 @@ hierarchy:
     - "project_types/%{facts.project_type}.yaml"
     - "common.yaml"
 
+plan_hierarchy:
+  - name: 'Basic plan hierarchy'
+    paths:
+    - "sync/configs/%{config}.yaml"
+    - "sync/repolists/%{repolist}.yaml"
+    - "plan_common.yaml"
+
 defaults:
   datadir: data
   data_hash: yaml_data

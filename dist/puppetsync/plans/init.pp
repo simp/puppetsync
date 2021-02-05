@@ -37,11 +37,6 @@
 #   A special Puppetfile with :git repos to clone, update, and PR
 #   (Default: `${project_dir}/Puppetfile.repos`)
 #
-# @param puppetsync_config_path
-#   Path to a YAML file with settings for a specific update session
-#   See the project README.md for an example.
-#   (Default: `${project_dir}/puppetsync_planconfig.yaml`)
-#
 # @param puppetsync_config
 #   Hash of settings for this specific update session
 #
@@ -73,9 +68,10 @@
 plan puppetsync(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
-  Stdlib::Absolutepath $puppetfile             = "${project_dir}/Puppetfile.repos",
-  Stdlib::Absolutepath $puppetsync_config_path = "${project_dir}/puppetsync_planconfig.yaml",
-  Hash                 $puppetsync_config      = loadyaml($puppetsync_config_path),
+  String[1]            $config,
+  String[1]            $repolist,
+  Hash                 $puppetsync_config      = lookup('puppetsync::plan_config'),
+  Hash                 $repos_config           = lookup('puppetsync::repos_config'),
   Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
   String[1]            $jira_username          = system::env('JIRA_USER'),
@@ -83,11 +79,12 @@ plan puppetsync(
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Hash                 $options                = {},
 ) {
+
   $opts = {
     'clone_git_repos'          => true,
     'github_api_delay_seconds' => 1,
    } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{}} + $options
-  $repos = puppetsync::setup_project_repos( $puppetsync_config, $project_dir, $puppetfile, $opts )
+  $repos = puppetsync::setup_project_repos( $puppetsync_config, $repos_config, $project_dir, $opts )
   $feature_branch    = getvar('puppetsync_config.jira.parent_issue')
 
   # ----------------------------------------------------------------------------

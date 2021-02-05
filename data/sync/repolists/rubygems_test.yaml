@@ -1,0 +1,5 @@
+---
+puppetsync::repos_config:
+
+  https://github.com/simp/rubygem-simp-test:
+    branch: main

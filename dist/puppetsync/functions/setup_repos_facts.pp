@@ -4,7 +4,6 @@
 # @return [TargetSpec] The same repos
 function puppetsync::setup_repos_facts(
   TargetSpec $repos,
-  String[1]  $repo_specific_metadata_dirname = '.repo_metadata',
 ){
   $repos.each |$target| {
     $target.add_facts( {'project_attributes' => []} )
@@ -58,17 +57,6 @@ function puppetsync::setup_repos_facts(
       warning( "WARNING: ${target.name} project_type remains 'unknown'" )
       $target.add_facts({'project_type' => 'unknown'})
     }
-
-    ### # NOTE this may not be needed yet
-    ###
-    ### # Repo-specific sync metadata path
-    ### # ------------------------------------------------------------------------
-    ### $sync_metadata_dir = "${target.vars['repo_path']}/${repo_specific_metadata_dirname}"
-    ### $sync_metadata_dir_val = file::exists($sync_metadata_dir) ? {
-    ###   true    => $sync_metadata_dir,
-    ###   default => false,
-    ### }
-    ### $target.add_facts({'sync_metadata_dir' => $sync_metadata_dir_val})
   }
   $repos
 }
