@@ -8,15 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- (SIMP-9239) Rubygem GHA CLI workflows
+- (SIMP-9239) GHA CLI workflows for RubyGems
 
 ### Changed
 
 - Moved repolists and configs into Hiera
 
+### Fixed
+
+- GitHub actions now use password-less sudo with `apt-get`
+
 ### Removed
 
-- (SIMP-9239) Removed `.travis.yml` from rubygems
+- (SIMP-9239) Removed `.travis.yml` from RubyGems
+- Removed Travis-related files and classes
 
 ## [SIMP-9266]
 

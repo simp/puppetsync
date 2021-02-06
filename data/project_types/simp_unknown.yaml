@@ -1,3 +1,6 @@
 ---
 classes:
   - 'role::unknown_with_ci'
+
+profile::github_actions::present_action_files:
+  - tag_deploy_github-only  # Release on tag

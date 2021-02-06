@@ -1,0 +1,71 @@
+# Deploy GitHub release when a SemVer tag is pushed
+# ------------------------------------------------------------------------------
+#
+#             NOTICE: **This file is maintained with puppetsync**
+#
+# This file is updated automatically as part of a standardized asset baseline.
+#
+# The next baseline sync will overwrite any local changes to this file!
+#
+# ------------------------------------------------------------------------------
+#
+# NOTES:
+#
+# * The CHANGLOG text is altered to remove RPM-style date headers, which don't
+#   render well as markdown on the GitHub release pages
+#
+---
+name: 'Tag: Release to GitHub'
+
+on:
+  push:
+    tags:
+      - '[0-9]+\.[0-9]+\.[0-9]+'
+
+env:
+  PUPPET_VERSION: '~> 6'
+  LOCAL_WORKFLOW_CONFIG_FILE: .github/workflows.local.json
+
+jobs:
+  create-github-release:
+    name: Deploy GitHub Release
+    needs: [ releng-checks ]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+          clean: true
+          fetch-depth: 0
+      - name: Get tag & annotation info (${{github.ref}})
+        id: tag-check
+        run: |
+          tag="${GITHUB_REF/refs\/tags\//}"
+          annotation="$(git for-each-ref "$GITHUB_REF" --format='%(contents)' --count=1)"
+          annotation_title="$(echo "$annotation" | head -1)"
+
+          echo "::set-output name=tag::${tag}"
+          echo "::set-output name=annotation_title::${annotation_title}"
+
+          # Prepare annotation body as a file for the next step
+          #
+          # * The GitHub Release render the text in this file as markdown
+          # * The file is needed because :set-output only supports single lines
+          # * The `perl -pe` removes RPM-style date headers from the CHANGELOG,
+          #   because they don't render well as markdown on the Release page
+          #
+          echo "$annotation" |  tail -n +2 | \
+            perl -pe 'BEGIN{undef $/;} s/\n\* (Mon|Tue|Wed|Thu|Fri|Sat|Sun) .*?\n//smg;' > /tmp/annotation.body
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ steps.tag-check.outputs.annotation_title }}
+          body_path: /tmp/annotation.body
+          draft: false
+          prerelease: false
