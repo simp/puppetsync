@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- :warning: Puppetsync configuration is now managed as Hiera data
+  - `puppetsync_planconfig.yaml` has been replaced by `data/sync/config/*.yaml`
+  - `Puppetfile.repos` has been replaced by `data/sync/repolists/*.yaml`
+- :warning: Invoking puppetsync now requires the `config` and `repolist` to use:
+
+  ```sh
+  bolt plan run puppetsync config=SIMP-9239 repolist=rubygems
+  ```
+
+- Overrode simp-cli's GHA workflows so it won't try to publish releases to
+  rubygems.org
+
+### Added
+
+- Prepared puppetsync to handle misc `simp-*` repos (type `simp_unknown`)
+
 ## [SIMP-9239]
 
 ### Added

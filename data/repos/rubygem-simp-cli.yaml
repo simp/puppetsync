@@ -1,3 +1,6 @@
+# The rubygem-simp-cli gem is not released to rubygems.org, so we override some
+# of the GHA files:
+
 profile::github_actions::present_action_files:
   - pr_glci.yml                         # PR-triggered GLCI actions
   - pr_glci_manual.yml                  # --> manual trigger for external contributors
