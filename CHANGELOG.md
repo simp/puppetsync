@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [SIMP-9239]
 
 ### Added
 
@@ -184,4 +184,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-8958]: https://github.com/op-ct/puppetsync/compare/SIMP-8703...SIMP-8958
 [SIMP-9126]: https://github.com/op-ct/puppetsync/compare/SIMP-8958...SIMP-9126
 [SIMP-9266]: https://github.com/op-ct/puppetsync/compare/SIMP-9126...SIMP-9266
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-9266...HEAD
+[SIMP-9239]: https://github.com/op-ct/puppetsync/compare/SIMP-9266...SIMP-9239
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-9239...HEAD
