@@ -1,4 +1,6 @@
 # Build & Deploy RubyGem & GitHub release when a SemVer tag is pushed
+#
+# This workflow's jobs only trigger within the `simp` organization
 # ------------------------------------------------------------------------------
 #
 #             NOTICE: **This file is maintained with puppetsync**
@@ -36,6 +38,7 @@ env:
 jobs:
   releng-checks:
     name: "RELENG checks"
+    if: github.repository_owner == 'simp'
     runs-on: ubuntu-18.04
     outputs:
       build_command: ${{ steps.commands.outputs.build_command }}
@@ -70,10 +73,15 @@ jobs:
           bundler-cache: true
       - name: Test build the package
         run: "${{ steps.commands.outputs.build_command }}"
+      - name: "Assert '${{ github.ref }}' matches the package version"
+        run: |
+          tag="${GITHUB_REF/refs\/tags\//}"
+          [ -f pkg/*-${tag}.gem ] || { echo "::error ::tag '${tag}' does not match package $(ls -1 pkg/*.gem)"; exit 1 ; }
 
   create-github-release:
     name: Deploy GitHub Release
     needs: [ releng-checks ]
+    if: github.repository_owner == 'simp'
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout code
@@ -117,6 +125,7 @@ jobs:
   deploy-rubygem:
     name: Deploy RubyGem Release
     needs: [ releng-checks ]
+    if: github.repository_owner == 'simp'
     runs-on: ubuntu-18.04
     env:
       RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}

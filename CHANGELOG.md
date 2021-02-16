@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   bolt plan run puppetsync config=SIMP-9239 repolist=rubygems
   ```
 
+### Fixed
+
+- (SIMP-9399) GHA: Forked rubygem repos no longer attempt to release on tags
+- (SIMP-9400) GHA: Rubygem releases now validate that package version matches tag
 - Overrode simp-cli's GHA workflows so it won't try to publish releases to
   rubygems.org
 
