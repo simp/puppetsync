@@ -17,13 +17,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   bolt plan run puppetsync config=SIMP-9239 repolist=rubygems
   ```
 
+- The main `puppetsync` plan now requires a new environment variable,
+  `GITLAB_API_TOKEN`, which should contain a private API toekn with `api`
+  scope.  This is now required to access GitLab's CI Lint API:
+  https://gitlab.com/gitlab-org/gitlab/-/issues/321290
+
 ### Fixed
 
-- (SIMP-9399) GHA: Forked rubygem repos no longer attempt to release on tags
-- (SIMP-9400) GHA: Rubygem releases now validate that package version matches tag
-- (SIMP-9407) GHA: Fixed override file quotation bug
-
-- Overrode simp-cli's GHA workflows so it won't try to publish releases to
+- (SIMP-9399) GHA: Forked pupmod & rubygem repos no longer try to release on tag
+- (SIMP-9400) GHA: Rubygem releases now validate that .gem version matches tag
+- (SIMP-9407) GHA: Fixed jq quote bug while reading gems' `workflows.local.json`
+- Customized simp-cli's GHA workflows so it won't try to publish releases to
   rubygems.org
 
 ### Added

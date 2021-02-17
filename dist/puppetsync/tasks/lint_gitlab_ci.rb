@@ -5,7 +5,7 @@ require 'uri'
 require 'json'
 require 'yaml'
 
-def gitlab_ci_lint(gitlab_ci_url, gitlab_ci_yml_path)
+def gitlab_ci_lint(gitlab_ci_url, gitlab_ci_yml_path, gitlab_token)
   unless File.exist? gitlab_ci_yml_path
     warn "WARNING: no GitLab CI config found at '#{gitlab_ci_yml_path}'"
     warn '(skipping)'
@@ -18,6 +18,7 @@ def gitlab_ci_lint(gitlab_ci_url, gitlab_ci_yml_path)
 
   content = YAML.load_file(gitlab_ci_yml_path)
   request.body = JSON.dump('content' => content.to_json)
+  request['PRIVATE-TOKEN'] = gitlab_token
   req_options = {
     use_ssl: uri.scheme == 'https',
   }
@@ -47,6 +48,7 @@ stdin = STDIN.read
 params = JSON.parse(stdin)
 warn stdin
 
+gitlab_token = params['gitlab_private_api_token'] || ENV['GITLAB_API_TOKEN']
 files = params['repo_paths'].map { |x| File.join(x, '.gitlab-ci.yml') } || ARGV
 raise('No repo_paths given') unless params['repo_paths'] && ARGV.empty?
 
@@ -55,6 +57,7 @@ files.each do |path|
   gitlab_ci_lint(
     'https://gitlab.com/api/v4/ci/lint',
     path,
+    gitlab_token,
   )
 end
 warn "FINIS: #{__FILE__}"

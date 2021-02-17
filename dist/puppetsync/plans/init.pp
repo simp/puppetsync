@@ -9,17 +9,18 @@
 #     (requires `$GITHUB_API_TOKEN`)
 #
 # Files:
-#   - `Puppetfile.repos`:           Defines :git repos (with :branch) to clone and update
-#   - `puppetsync_planconfig.yaml`: Defines settings for this particular update session
+#   - `data/sync/repolists/*.yaml`: Defines git repos (with branch) to clone and update
+#   - `data/sync/config/*.yaml`:    Defines settings for a particular update session
 #
 # @summary Update assets across multiple git repos using Bolt tasks and Puppet
 #
 # @example
 #
 #   1. Set environment vars: `JIRA_USER`, `JIRA_API_TOKEN`, `GITHUB_API_TOKEN`
-#   2. Run:
+#   2. Select/create/edit relevant config and repolist files under `data/sync/`
+#   3. Run:
 #
-#      bolt plan run puppetsync::sync
+#      bolt plan run puppetsync::sync config=<config> repolist=<repolist>
 #
 # @param targets
 #   Bolt requires this parameter to exist, however: **it is unused.**
@@ -27,22 +28,43 @@
 #
 # @param puppet_role
 #   An optional Puppet class to classify and apply to all repos.
-#   If left undefined, the Puppet classes for each target will be
-#   looked up from Hiera (using `classes`)
+#
+#   * If left undefined, the Puppet classes for each target will be
+#     looked up from Hiera (using the key `classes`)
+#   * When set, it is usually defined in the config file's
+#    `puppetsync::puppet_role` key in Hiera.
 #
 # @param project_dir
 #   The bolt project directory.  Defaults to `$PWD`.
 #
-# @param puppetfile
-#   A special Puppetfile with :git repos to clone, update, and PR
-#   (Default: `${project_dir}/Puppetfile.repos`)
+# @param repolist
+#   Specifies the list of repos to clone, modify, and PR.
+#   The name maps to a Hiera .yaml file under `data/sync/repolist/`
+#   (Default: 'default')
+#
+# @param config
+#   Specifies the puppetsync settings used to customize the sync session.
+#   The name maps to a Hiera .yaml file under `data/sync/configs/`
+#   (Default: 'default')
 #
 # @param puppetsync_config
-#   Hash of settings for this specific update session
+#   A Hash of puppetsync settings used to customize the sync session.
+#   By default, this is loaded from Hiera data based on the `repolist`
+#   parameter.
+#
+# @param repos_config
+#   A Hash of repos and branches to to clone, modify, and PR.
+#   By default, this is loaded from Hiera data based on the `config` parameter.
 #
 # @param extra_gem_path
-#   Path to a gem path with extra gems the bolt interpreter will to run
-#   some of the Ruby tasks.
+#   Absolute path to a gem path with extra gems the bolt interpreter will to run
+#   some of the Ruby tasks.  This may be needed to provide rubygems for Jira,
+#   GitHub, and `puppetsync::output_pipeline_results`
+#
+#   You can quickly install gems into the default extra_gem_path by running:
+#
+#          ./Rakefile install
+#
 #   (Default: `${project_dir}/.plan.gems`)
 #
 # @param jira_username
@@ -62,14 +84,19 @@
 #   GitHub API token
 #    (Default: Environment variable `$GITHUB_API_TOKEN`)
 #
+# @param options
+#   Hash of options used to customize tweak local settings in the plan
+#   This is generally provided under the `puppetsync::plan_config` > `plans` >
+#   `sync` key of the `puppetsync_config` pHash
+#
 # @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
 plan puppetsync(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
-  String[1]            $config,
-  String[1]            $repolist,
+  String[1]            $config                 = 'latest',
+  String[1]            $repolist               = 'latest',
   Hash                 $puppetsync_config      = lookup('puppetsync::plan_config'),
   Hash                 $repos_config           = lookup('puppetsync::repos_config'),
   Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
@@ -77,6 +104,7 @@ plan puppetsync(
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
+  Sensitive[String[1]] $gitlab_token           = Sensitive(system::env('GITLAB_API_TOKEN')),
   Hash                 $options                = {},
 ) {
 
@@ -237,8 +265,9 @@ plan puppetsync(
       'localhost',
       "lint .gitlab-ci.yml file to make sure it hasn't become an abomination",
       {
-        'repo_paths'    =>  $ok_repos.map |$x| { $x.vars['repo_path'] },
-        '_catch_errors' => false,
+        'repo_paths'               => $ok_repos.map |$x| { $x.vars['repo_path'] },
+        'gitlab_private_api_token' => $gitlab_token.unwrap,
+        '_catch_errors'            => false,
       }
     )
   }
