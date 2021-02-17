@@ -21,12 +21,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - (SIMP-9399) GHA: Forked rubygem repos no longer attempt to release on tags
 - (SIMP-9400) GHA: Rubygem releases now validate that package version matches tag
+- (SIMP-9407) GHA: Fixed override file quotation bug
+
 - Overrode simp-cli's GHA workflows so it won't try to publish releases to
   rubygems.org
 
 ### Added
 
 - Prepared puppetsync to handle misc `simp-*` repos (type `simp_unknown`)
+- (SIMP-9407) GHA: Rubygem override file now provides `gem_pkg_dir`
 
 ## [SIMP-9239]
 
