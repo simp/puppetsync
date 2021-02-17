@@ -1,8 +1,10 @@
 ---
+name: simp_puppetsync
 modulepath: modules:site-modules:site:dist:custom
 save-rerun: false
-transport: local
 concurrency: 10
+plans:
+  - puppetsync*
 log:
   console:
     level: error

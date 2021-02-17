@@ -20,7 +20,7 @@ function puppetsync::repo_targets_from_repolist(
   Hash $repos_config,
   String[1] $inventory_group,
   Stdlib::Absolutepath $project_dir,
-  String[1] $default_moduledir                  = '_repos',
+  String[1] $default_moduledir = '_repos',
 ) {
   $pf_repos = Hash($repos_config.map |$url, $data| {
     [
@@ -34,7 +34,7 @@ function puppetsync::repo_targets_from_repolist(
         ###'mod_name'     => $url.basename,
         'repo_name'    => $url.basename('.git'),  # used by function template_git_commit_message()
         'branch'       => $data['branch'],
-      }
+      },
     ]
   })
 
