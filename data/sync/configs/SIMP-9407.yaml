@@ -2,26 +2,25 @@
 puppetsync::plan_config:
   puppetsync:
     permitted_project_types:
-      - pupmod
       - rubygem
     plans:
       sync:
-        #clone_git_repos: false    # set to `false` when applying manual updates on a second run
-        #clear_before_clone: false # set to `false` when applying manual updates on a sceond run
+        clone_git_repos: false    # set to `false` when applying manual updates on a second run
+        clear_before_clone: false # set to `false` when applying manual updates on a sceond run
         stages:
           #        - install_gems
-          - checkout_git_feature_branch_in_each_repo
-###          - ensure_jira_subtask
-          - apply_puppet_role
-          - modernize_gitlab_files
-          - lint_gitlab_ci
-###          - git_commit_changes
-###          - ensure_github_fork
-###          - ensure_git_remote
-###          - git_push_to_remote
+###          - checkout_git_feature_branch_in_each_repo
+          - ensure_jira_subtask
+###          - apply_puppet_role
+###          - modernize_gitlab_files
+###          - lint_gitlab_ci
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
 ###          - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
 ###          - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
-###          - ensure_github_pr
+          - ensure_github_pr
 
       approve_github_prs:
         clone_git_repos: false
@@ -52,19 +51,18 @@ puppetsync::plan_config:
 
       This patch fixes some problems with GitHub Actions release workflows:
 
-      * GLCI pipeline logic correctly handles when rvm is present, but a desired
-        ruby version is missing, with failing silently during setup
-      * Forked repos's GHA workflows no longer attempt to release when
-        SemVer-compatible tags are pushed
       * Individual RubyGems can read `.github/workflows.local.json` to override
         build/release commands
+      * Forked repos's GHA workflows no longer attempt to release when
+        SemVer-compatible tags are pushed
 
       This patch also enforces the standardized asset baseline using
       simp/puppetsync, and may apply other updates to ensure conformity.
 
       CI: SKIP MATRIX
       [%JIRA_SUBTASK%] #close
-      [%JIRA_PARENT_ISSUE%] #comment Forks won't try to rel on tag in %COMPONENT%
+      [%JIRA_PARENT_ISSUE%] #comment rubygem tag fixes in %COMPONENT%
+      [SIMP-9407] #close #comment customized release w/`workflows.local.json`
 
   github:
     pr_user: op-ct  # This should be the account that *submitted* the PRs (Used
