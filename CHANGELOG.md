@@ -35,7 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Prepared puppetsync to handle misc `simp-*` repos (type `simp_unknown`)
 - (SIMP-9407) GHA: Rubygem override file now provides `gem_pkg_dir`
 
-## [SIMP-9239]
+## [SIMP-9239] - 2021-02-05
 
 ### Added
 
@@ -54,7 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - (SIMP-9239) Removed `.travis.yml` from RubyGems
 - Removed Travis-related files and classes
 
-## [SIMP-9266]
+## [SIMP-9266] - 2021-01-29
 
 ### Added
 
@@ -81,7 +81,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 
 
-## [SIMP-9126]
+## [SIMP-9126] - 2021-01-26
 
 ### Added
 
@@ -107,7 +107,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - (SIMP-9150) No more `.travis.yml` file in Puppet modules
 
-## [SIMP-8958]
+## [SIMP-8958] - 2020-12-15
 
 ### Added
 
@@ -129,7 +129,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - (SIMP-8839) Removed EL6 from Puppet modules' metadata, hiera, and nodesets
 - (SIMP-8931) No more `.ruby-version` file in Puppet modules
 
-## [SIMP-8703]
+## [SIMP-8703] - 2020-12-15
 
 ### Changed
 
@@ -139,7 +139,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated PE LTS EOL versions in `.gitlab-ci.yml` and `.travis.yml`
 - Added puppetsync management notice to static files
 
-## [SIMP-7855]
+## [SIMP-7855] - 2020-08-11
 
 ### Changed
 
@@ -152,7 +152,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Reintroduced missing `--no-parameter_order-check` to `.puppet-lint.rc`
 
 
-## [SIMP-8139]
+## [SIMP-8139] - 2020-08-03
 
 ### Added
 

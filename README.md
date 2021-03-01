@@ -16,12 +16,13 @@
   * [Inspecting pipeline stages](#inspecting-pipeline-stages)
 * [Reference](#reference)
   * [Environment variables](#environment-variables)
-  * [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
+  * [Puppetsync `config`](#puppetsync-config)
+  * [Puppetsync `repolist`](#puppetsync-repolist)
   * [Plans](#plans)
     * [`puppetsync`](#puppetsync)
     * [`puppetsync::approve_github_prs`](#puppetsyncapprove_github_prs)
     * [`puppetsync::merge_github_prs`](#puppetsyncmerge_github_prs)
-  * [Manually install dependencies](#manually-install-dependencies)
+  * [Manually installing dependencies](#manually-installing-dependencies)
 * [Troubleshooting](#troubleshooting)
   * [Error: `Ignoring <x> because its extensions are not built.`](#error-ignoring-x-because-its-extensions-are-not-built)
   * [Error: `puppetsync: parameter 'puppetfile' expects a Stdlib::Absolutepath`](#error-puppetsync-parameter-puppetfile-expects-a-stdlibabsolutepath)
@@ -45,7 +46,8 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
 
 ### Requirements
 
-* [Puppet Bolt 2.15+][bolt], installed from an [OS package][bolt-install] (don't use the RubyGem)
+* [Puppet Bolt 2.15+][bolt] (Bolt 3.0+ recommended), installed from an [OS
+  package][bolt-install] (don't use the RubyGem)
 * The `git` command must be available
   * SSH + ssh-agent must be set up to push changes
 * Some specific [environment variables](#environment-variables) are required
@@ -62,14 +64,17 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
 1. Before running any plans, from the top level of this repository:
 
    ```sh
-   command -v rvm && rvm use system    # make sure you're using the packaged `bolt`
+   command -v rvm && rvm use system    # make sure you're using packaged `bolt`
    ./Rakefile install                  # Install Puppet module and Ruby Gem deps
-   bolt plan show --filter puppetsync  # Validate bolt is working
+   bolt plan show                      # Validate bolt is working;
+                                       #   verify `puppetsync::` plans are visible
    ```
 
 2. Set the [environment variable](#environment-variables) `GITHUB_API_TOKEN`.
+   * Before using the main `puppetsync::` plan, also set `JIRA_USER`,
+     `JIRA_API_TOKEN`, and `GITLAB_API_TOKEN`
 
-3. At this point, you are ready to run a plan.  The plan to run will depend on your role:
+4. At this point, you are ready to run a plan.  The plan to run will depend on your role:
 
    | Plan | Role | Purpose |
    | --- | --- | --- |
@@ -83,26 +88,28 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
 :warning: You only need to change these files when preparing a new
 `puppetsync`!
 
-1. Add `mod` entries for the repos you want to affect in `Puppetfile.repos`
-2. Customize the [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
-   file to your workflow
-3. Set [environment variables](#environment-variables) for JIRA API
-   authentication
+1. Find/add a repolist file for the repos you want to affect under
+   `data/sync/repolists/`
+2. Copy and customize a Puppetsync config file under `data/sync/configs/` to
+   fit your workflow
+3. Set [environment variables](#environment-variables) for GITHUB, GITLAB, and
+   JIRA API authentication
 4. (Optional) Develop Puppet code/Hiera data/Tasks to provide new features
 
-Note: If you are just approving or merging PRs, you will reuse the
-files from the puppetsync run that submitted them.
+Note: If you are just approving or merging PRs, you will reuse the repolist and
+config files from the puppetsync session you used.
 
 #### Running `puppetsync`
 
 
 ```sh
-# (PROTIP: don't actually expose API tokens when running commands)
+# (PROTIP: don't actually expose API tokens on the CLI when running commands)
 
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
   JIRA_USER=$JIRA_USER \
   JIRA_API_TOKEN=$JIRA_API_TOKEN \
-    bolt plan run puppetsync
+  GITLAB_API_TOKEN=$JIRA_API_TOKEN \
+    bolt plan run puppetsync config={CONFIG_NAME} repolist={REPOLIST_NAME}
 ```
 
 See the [`puppetsync`](#puppetsync) reference for details.
@@ -133,6 +140,14 @@ See the [`puppetsync::merge_github_prs`](#puppetsyncmerge_github_prs) reference 
 
 After [setup](#setup), sync all repos by running:
 
+        /opt/puppetlabs/bin/bolt plan run puppetsync \
+          config=CONFIG_NAME repolist=REPOLIST_NAME
+
+If the config and repolist's  `latest.yaml` files are symlinked to the target
+config and repolist, you don't have to specify `config=` or `repolist=`
+(for brevity, following examples will assume this is
+the case):
+
         /opt/puppetlabs/bin/bolt plan run puppetsync
 
 To see what's going on under the hood (potentially less irritating when
@@ -149,9 +164,11 @@ To see what's going on under the hood (potentially less irritating when
 To list all pipeline stages in a plan (and inspect which stages will be
 skipped), run:
 
-        bolt plan run puppetsync options='{"list_pipeline_stages": true}'
+        bolt plan run puppetsync options='{"list_pipeline_stages": true}' \
+          config=CONFIG_NAME repolist=REPOLIST_NAME
 
-These steps can be specified/commented out in `puppetsync_planconfig.yaml` under the corresponding plan.
+These steps can be specified/commented out in the [Puppetsync `config`] file,
+under the corresponding plan.
 
 **Example:**
 
@@ -179,7 +196,7 @@ bolt plan run puppetsync \
 ```
 
 At the time the command above was run, the corresponding
-`puppetsync_planconfig.yaml` contained the following
+[Puppetsync `config`] file contained the following
 `puppetsync.plans.sync.stages`:
 
 ```yaml
@@ -220,24 +237,40 @@ To fork GitHub repositories and submit Pull Requests, these environment variable
 | ------------       | -------          | --- |
 | `GITHUB_API_TOKEN` | GitHub API token |     |
 
+To use GitLab's CI lint API, these environment variables are necessary:
+
+| Env variable       | Purpose                   |                      |
+| ------------       | -------                   | -------------------- |
+| `GITLAB_API_TOKEN` | GitLab Personal API Token | Requires `api` acope |
+
 (Recommended) To prevent bolt from collecting analytics, set this environment variable:
 
 | Env variable                  | Purpose                                                                           |     |
 | ------------                  | -------                                                                           | --- |
 | `BOLT_DISABLE_ANALYTICS=true` | Prevent bolt's analytics from phoning home to tell Puppet about everything you do |     |
 
-### `puppetsync_planconfig.yaml`
+### Puppetsync `config`
+
+The workflow of a specific Puppetsync session (sync -> apply -> merge of
+releated PRs) is controlled by a single configuration data structure, defined
+in Hiera using the key `puppetsync::plan_config`.
+
+Typically, the `puppetsync::plan_config` data structure is defined in its own
+Hiera YAML file, located at `data/sync/configs/{CONFIG_NAME}.yaml`.
+The Hiera file's name is is the `CONFIG_NAME` in a Puppetsync plan's
+`config=CONFIG_NAME`
 
 Example:
 
 ```yaml
 ---
-puppetsync:
-  puppet_role: 'role::pupmod_travis_only'
+puppetsync::plan_config:
   permitted_project_types:
     - pupmod
     - pupmod_skeleton
   plans:
+    # clone_git_repos: false     # set to `false` when applying manual updates on a second run
+    # clear_before_clone: false  # set to `false` when applying manual updates on a second run
     sync:
       stages:
         - install_gems
@@ -253,7 +286,7 @@ puppetsync:
         - ensure_gitlab_remote
         - git_push_to_gitlab
         - ensure_github_pr
-#
+
     approve_github_pr:
       clone_git_repos: false
       stages:
@@ -289,28 +322,56 @@ git:
     [%JIRA_SUBTASK%] #close
 
 github:
-  pr_user: op-ct
+  pr_user: op-ct  # This should be the account that *submitted* the PRs (Used
+                  # by idempotency checks when approving/merging PRs)
   approval_message: ':+1: lgtm'
+```
+
+### Puppetsync `repolist`
+
+Data about each repo/branch to target.
+The data is defined in a Hiera YAML file, located at
+`data/sync/repolists/{REPOLIST_NAME}.yaml`.
+Each repolist is named after its file.
+
+
+```yaml
+puppetsync::repos_config:
+
+  https://github.com/simp/pupmod-simp-acpid:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-aide:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-at:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-auditd:
+    branch: master
+
+  # ... and so on
 ```
 
 ### Plans
 
 Each plan:
 
-* Reads its config from [`puppetsync_planconfig.yaml`](#puppetsync_planconfigyaml)
-* Has its own specific configuration (`plans.sync`, `plans.approve_github_pr`,
-  `plans.merge_github_pr`)
-* Executes its workflow as a series of pipeline stages for each repo in `Puppetfile.repos`
+* Reads its config data from the [Puppetsync `config`] file
+* Reads its repolist data from the [Puppetsync `repolist`] file
+* Has its own specific configuration under the keys (`plans.sync`,
+  `plans.approve_github_pr`, and `plans.merge_github_pr`)
+* Executes its workflow as a series of pipeline stages for each repo in the
+  repolist file (in Hiera at `data/sync/configs/{CONFIG_FILE}.yaml`).
 
 #### `puppetsync`
 
-The main plan (`puppetsync`) clones updates each repo in
-`Puppetfile.repos`.  It (idempotently) ensures a Jira subtask and GitHub PR
-exists for each change.
+The main plan (`puppetsync`) clones and updates each repo in the [Puppetsync `repolist`].
+It (idempotently) ensures a Jira subtask and GitHub PR exists for each change.
 
 Workflow:
 
-1. Clone `:git` repositories defined in a `Puppetfile.repos` file
+1. Clone `:git` repositories defined in the [Puppetsync `repolist`]
    * (disable with `clone_git_repos: false`)
 
 It will then execute the following pipeline stages for each repo (in parallel):
@@ -331,14 +392,14 @@ All failures are summarized after the full plan finishes executing.
 #### `puppetsync::approve_github_prs`
 
 Idempotently approves every open PR from user `github.pr_user` on
-branch `jira.parent_issue` for each repo in `Puppetfile.repos`.
+branch `jira.parent_issue` for each repo in the [Puppetsync `repolist`].
 
 #### `puppetsync::merge_github_prs`
 
 Idempotently merges every approved PR from user `github.pr_user` on
-branch `jira.parent_issue` for each repo in `Puppetfile.repos`.
+branch `jira.parent_issue` for each repo in the [Puppetsync `repolist`].
 
-### Manually install dependencies
+### Manually installing dependencies
 
 Use `bolt` to download the project's dependencies from `Puppetfile` and
 `gems.deps.rb`:
@@ -356,7 +417,7 @@ Use `bolt` to download the project's dependencies from `Puppetfile` and
 ### Error: `Ignoring <x> because its extensions are not built.`
 
 **Cause:** Running `bolt plan run puppetsync` from a Ruby interpreter other
-than the bolt package.
+than the `bolt` package.
 
 **Fix:** Make sure you're not using RVM.  If necessary, invoke the packaged
 bolt executable directly:
@@ -415,3 +476,5 @@ bolt plan run puppetsync puppetfile="$PWD/Puppetfile.skeleton"
 [bolt]: https://puppet.com/docs/bolt/latest/bolt.html
 [puppet]: https://puppet.com/docs/puppet/latest/
 [bolt-install]: https://puppet.com/docs/bolt/latest/bolt_installing.html
+[Puppetsync `config`]: #puppetsync-config
+[Puppetsync `repolist`]: #puppetsync-repolist
