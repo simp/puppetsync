@@ -224,26 +224,26 @@ puppetsync:
 
 ### Environment variables
 
-To create Jira subtasks, these environment variables are necessary:
+These environment variables are necessary to create Jira subtasks:
 
 | Env variable | Purpose   |                           |
 | ------------ | -------   | ------------------------- |
 | `JIRA_USER`  | Jira user | Probably an email address |
 | `JIRA_API_TOKEN` | Jira API token | You MUST generate an API token (basic auth no longer works). To do so, you must have Jira instance access rights.  You can generate a token here: https://id.atlassian.com/manage/api-tokens |
 
-To fork GitHub repositories and submit Pull Requests, these environment variables are necessary:
+These environment variables are necessary to fork GitHub repositories and submit Pull Requests:
 
 | Env variable       | Purpose          |     |
 | ------------       | -------          | --- |
 | `GITHUB_API_TOKEN` | GitHub API token |     |
 
-To use GitLab's CI lint API, these environment variables are necessary:
+These environment variables are necessary to use GitLab's CI lint API:
 
 | Env variable       | Purpose                   |                      |
 | ------------       | -------                   | -------------------- |
-| `GITLAB_API_TOKEN` | GitLab Personal API Token | Requires `api` acope |
+| `GITLAB_API_TOKEN` | GitLab Personal API Token | Requires `api` scope |
 
-(Recommended) To prevent bolt from collecting analytics, set this environment variable:
+(Recommended) To stop Bolt from collecting analytics, set this environment variable:
 
 | Env variable                  | Purpose                                                                           |     |
 | ------------                  | -------                                                                           | --- |
@@ -252,7 +252,7 @@ To use GitLab's CI lint API, these environment variables are necessary:
 ### Puppetsync `config`
 
 The workflow of a specific Puppetsync session (sync -> apply -> merge of
-releated PRs) is controlled by a single configuration data structure, defined
+related PRs) is controlled by a single configuration data structure, defined
 in Hiera using the key `puppetsync::plan_config`.
 
 Typically, the `puppetsync::plan_config` data structure is defined in its own
