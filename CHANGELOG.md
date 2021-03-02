@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+### Fixed
+
+- (SIMP-9519) GLCI RELENG checks use pup6+ `pdk build` to test-build modules
+  - This replaces the previous (and EOL) pup5 + `puppet module build`
+
+### Added
+
+- Add various directories to `.pmtignore` to better support `pdk build`
+
 ## [SIMP-9408] - 2021-03-02
 
 ### Changed
