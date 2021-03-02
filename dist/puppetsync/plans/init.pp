@@ -110,7 +110,7 @@ plan puppetsync(
 
   $opts = {
     'clone_git_repos'          => true,
-    'github_api_delay_seconds' => 1,
+    'github_api_delay_seconds' => 5,
    } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{}} + $options
   $repos = puppetsync::setup_project_repos( $puppetsync_config, $repos_config, $project_dir, $opts )
   $feature_branch    = getvar('puppetsync_config.jira.parent_issue')

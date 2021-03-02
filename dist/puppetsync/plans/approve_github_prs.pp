@@ -39,8 +39,8 @@
 plan puppetsync::approve_github_prs(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
-  String[1]            $config,
-  String[1]            $repolist,
+  String[1]            $config                 = 'latest',
+  String[1]            $repolist               = 'latest',
   Hash                 $puppetsync_config      = lookup('puppetsync::plan_config'),
   Hash                 $repos_config           = lookup('puppetsync::repos_config'),
   String[1]            $pr_user                = $puppetsync_config.dig('github','pr_user').lest || { undef },
@@ -51,13 +51,16 @@ plan puppetsync::approve_github_prs(
 ) {
   $opts = {
     'clone_git_repos' => false,
+    'github_api_delay_seconds' => 1,
   } + getvar('puppetsync_config.puppetsync.plans.approve_github_prs').lest || {{}} + $options
+
   $repos = puppetsync::setup_project_repos(
     $puppetsync_config,
     $repos_config,
     $project_dir,
     { 'clone_git_repos' => $opts['clone_git_repos'], }
   )
+
   $feature_branch = getvar('puppetsync_config.jira.parent_issue')
 
   $repos.puppetsync::pipeline_stage(
@@ -100,6 +103,7 @@ plan puppetsync::approve_github_prs(
         out::message( $error )
         warning( $error )
       }
+      ctrl::sleep($opts['github_api_delay_seconds'])
       $result
     }
   }
