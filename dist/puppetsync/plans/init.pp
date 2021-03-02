@@ -331,9 +331,9 @@ plan puppetsync(
       'puppetsync::ensure_git_remote', $ok_repos, '_catch_errors' => true
     ) |$repo| {
       {
-        'repo_path'     => $repo.vars['repo_path'],
-        'remote_url'    => $repo.vars['user_repo_fork']['ssh_url'],
-        'remote_name'   => $repo.vars['remote_name'],
+        'repo_path'     => $repo.vars.get('repo_path'),
+        'remote_url'    => $repo.vars.get('user_repo_fork.ssh_url'),
+        'remote_name'   => $repo.vars.get('remote_name'),
       }
     }
 
