@@ -63,10 +63,9 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
 1. Before running any plans, from the top level of this repository:
 
    ```sh
-   command -v rvm && rvm use system    # make sure you're using packaged `bolt`
-   ./Rakefile install                  # Install Puppet module and Ruby Gem deps
-   bolt plan show                      # Validate bolt is working;
-                                       #   verify `puppetsync::` plans are visible
+   command -v rvm && rvm use system    # Make sure you're using packaged `bolt`
+   ./Rakefile install                  # Install Puppet module + Ruby Gem deps;
+   bolt plan show                      # Verify `puppetsync::` plans are visible
    ```
 
 2. Set the [environment variable](#environment-variables) `GITHUB_API_TOKEN`.
@@ -406,10 +405,11 @@ Use `bolt` to download the project's dependencies from `bolt-project.yaml` and
        /opt/puppetlabs/bolt/bin/gem install --user-install -g gem.deps.rb
        /opt/puppetlabs/bin/bolt module install
 
- The Rakefile can be used as a shortcut:
+The Rakefile can be used as a shortcut:
 
       ./Rakefile install
 
+Run `./Rakefile -T` & `./Rakefile -D` to see other tasks & descriptions
 
 ## Troubleshooting
 

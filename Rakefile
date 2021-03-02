@@ -21,7 +21,7 @@ task :strings, [:verbose] do |t,args|
   args.with_defaults(:verbose => false)
   sh %Q[#{BOLT_PUPPET_EXE} strings generate \
      #{args.verbose ? ' --verbose' : '' } --format markdown \
-     "{dist,site-modules,modules}/**/*.{pp,rb,json}"].gsub(/ {3,}/,' ')
+     "{dist,modules}/**/*.{pp,rb,json}"].gsub(/ {3,}/,' ')
 end
 
 namespace :install do
@@ -32,8 +32,8 @@ namespace :install do
     sh %Q[ls -lart]
   end
 
-  desc "Install modules from Puppetfile into #{__dir__}/modules"
-  task :puppetfile do
+  desc "Install Puppet modules from bolt-project.yaml into #{__dir__}/.modules"
+  task :modules do
     Dir.chdir __dir__
     sh %Q[GEM_HOME="#{GEM_HOME}" "#{BOLT_EXE}" module install --force]
   end
@@ -50,7 +50,7 @@ namespace :list do
   end
 end
 
-desc 'Install prereqs'
-task :install => ['install:gems', 'install:puppetfile']
+desc 'Install prereqs (RubyGems and Puppet modules)'
+task :install => ['install:gems', 'install:modules']
 
 task :default => :install
