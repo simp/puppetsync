@@ -50,7 +50,8 @@ plan puppetsync::approve_github_prs(
   Hash                 $options                = {},
 ) {
   $opts = {
-    'clone_git_repos' => false,
+    'clone_git_repos'          => false, # Don't need to clone repos just to approve PRs
+    'filter_permitted_repos'   => false, # Assume all matching PRs are permitted repo types
     'github_api_delay_seconds' => 1,
   } + getvar('puppetsync_config.puppetsync.plans.approve_github_prs').lest || {{}} + $options
 
@@ -58,9 +59,11 @@ plan puppetsync::approve_github_prs(
     $puppetsync_config,
     $repos_config,
     $project_dir,
-    { 'clone_git_repos' => $opts['clone_git_repos'], }
+    {
+      'clone_git_repos'        => $opts['clone_git_repos'],
+      'filter_permitted_repos' => $opts['filter_permitted_repos'],
+    }
   )
-
   $feature_branch = getvar('puppetsync_config.jira.parent_issue')
 
   $repos.puppetsync::pipeline_stage(

@@ -11,6 +11,7 @@ function puppetsync::setup_project_repos(
     'clone_git_repos'        => true,
     'default_repo_moduledir' => '_repos',
     'clear_before_clone'     => true,
+    'filter_permitted_repos' => true,
   } + $options
   if $opts.dig('list_pipeline_stages') { return [] }
 
@@ -39,24 +40,24 @@ function puppetsync::setup_project_repos(
       out::message($cmd)
       run_command($cmd, $t)
     }
+  } else {
+    warning( '' )
+    warning( '== WARNING: **NOT** cloning git repos because $opts["clone_git_repos"] = false!' )
+    warning( '== WARNING: This speeds up the start of plans, and is probably fine outside of a puppetsync.  HOWEVER:' )
+    warning( '== WARNING: * This will stop puppetsync from cloning, adding file-derived facts, and filtering repos (e.g., on project_type)' )
+    warning( "== WARNING: * Among other consequences, all repo's project_type will remain 'unknown'." )
+    warning( "== WARNING: If things go wrong, make SURE you didn't actually need facts or repo type-filtering!" )
+    warning( '' )
   }
-###
-###    puppetsync::setup_repos_facts( $pf_repos )
-###    $repos = puppetsync::filter_permitted_repos( $pf_repos, $puppetsync_config )
-###
-###    if $repos.size == 0 { fail_plan( "No repos left to sync after filtering! Do the config's `permitted_project_types` match the repos in the repolist?" ) }
-###  } else {
-###    warning( '' )
-###    warning( '== WARNING: **NOT** cloning git repos with `puppetsync::install_puppetfile` because \$opts["clone_git_repos"] = false!' )
-###    warning( '== WARNING: This speed up the start of plans and is probably fine outside of a ::sync, HOWEVER:' )
-###    warning( '== WARNING: This will stop puppetsync from downloading, adding facts, and fact-filtering repos (e.g., on project_type)' )
-###    warning( "== WARNING: If things go wrong, make SURE you didn't actually need facts or repo-filtering!" )
-###    warning( '' )
-###    $repos = $pf_repos
-###  }
-  puppetsync::setup_repos_facts( $pf_repos )
-  $repos = puppetsync::filter_permitted_repos( $pf_repos, $puppetsync_config )
 
+  puppetsync::setup_repos_facts( $pf_repos )
+  $repos =  $opts['filter_permitted_repos'] ? {
+    true    => puppetsync::filter_permitted_repos( $pf_repos, $puppetsync_config ),
+    default => $pf_repos,
+  }
+
+  if $repos.size == 0 {
+    fail_plan( "No repos left to sync after filtering! Do the config's `permitted_project_types` match the repos in the repolist?" )  }
 
   out::message(puppetsync::summarize_repo_targets($repos))
   warning(puppetsync::summarize_repo_targets($repos,true))
