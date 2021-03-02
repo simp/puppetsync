@@ -5,9 +5,9 @@ puppetsync::plan_config:
       - pupmod
     plans:
       sync:
-        github_api_delay_seconds: 10
         # clone_git_repos: false    # set to `false` when applying manual updates on a second run
         # clear_before_clone: false # set to `false` when applying manual updates on a sceond run
+        github_api_delay_seconds: 10
         stages:
           #        - install_gems
           - checkout_git_feature_branch_in_each_repo
@@ -19,18 +19,20 @@ puppetsync::plan_config:
           - ensure_github_fork
           - ensure_git_remote
           - git_push_to_remote
-###          - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
-###          - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
+          ### - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
+          ### - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
           - ensure_github_pr
 
       approve_github_prs:
-        clone_git_repos: false
+        clone_git_repos: false         # No need to clone just to approve
+        filter_permitted_repos: false  # No need to filter (which requires clone)
         stages:
           - install_gems
           - approve_github_pr_for_each_repo
 
       merge_github_prs:
-        clone_git_repos: false
+        clone_git_repos: false         # No need to clone just to merge
+        filter_permitted_repos: false  # No need to filter (which requires clone)
         stages:
           - install_gems
           - merge_github_pr_for_each_repo
@@ -52,12 +54,12 @@ puppetsync::plan_config:
 
       This patch fixes some problems with GitHub Actions release workflows:
 
-      * GLCI pipeline logic correctly handles when rvm is present, but a desired
-        ruby version is missing, with failing silently during setup
-      * Forked repos's GHA workflows no longer attempt to release when
-        SemVer-compatible tags are pushed
+      * GLCI pipeline logic correctly handles when rvm is present but a desired
+        ruby version is missing.  This used to fail silently during setup.
+      * GHA workflows no longer attempt to release when SemVer-compatible tags
+        are pushed to a fork.
 
-      This patch also enforces the standardized asset baseline using
+      This patch enforces the standardized asset baseline using
       simp/puppetsync, and may apply other updates to ensure conformity.
 
       CI: SKIP MATRIX

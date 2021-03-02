@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [SIMP-9408] - 2021-03-02
 
 ### Changed
 
@@ -51,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- New 'filter_permitted_repos' option for `puppetsync::` plans
 - Prepared puppetsync to handle misc `simp-*` repos (type `simp_unknown`)
 - (SIMP-9407) GHA: Rubygem override file now provides `gem_pkg_dir`
 
@@ -235,4 +236,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-9126]: https://github.com/op-ct/puppetsync/compare/SIMP-8958...SIMP-9126
 [SIMP-9266]: https://github.com/op-ct/puppetsync/compare/SIMP-9126...SIMP-9266
 [SIMP-9239]: https://github.com/op-ct/puppetsync/compare/SIMP-9266...SIMP-9239
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-9239...HEAD
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-9239...SIMP-9408
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-9408...HEAD
