@@ -8,17 +8,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- :warning: Converted Bolt project to Bolt 3.0+
+  - Moved `site-modules/` to `modules/`
+  - Removed `Puppetfile`, modules are now defined in `bolt-project.yaml` and
+    installed with `bolt module install`
+  - Updated `Rakefile install` to reflect recent changes
 - :warning: Puppetsync configuration is now managed as Hiera data
   - `puppetsync_planconfig.yaml` has been replaced by `data/sync/config/*.yaml`
   - `Puppetfile.repos` has been replaced by `data/sync/repolists/*.yaml`
-- :warning: Invoking puppetsync now requires the `config` and `repolist` to use:
+- :warning: Invoking puppetsync now requires  `config=` and `repolist=`
+  parameters:
 
   ```sh
   bolt plan run puppetsync config=SIMP-9239 repolist=rubygems
   ```
 
+  - Both `config=` and `repolist=` default to `latest`, so it is possible to
+    duplicate the old behavior by symlinking each parameter's `latest.yaml`
+    file in Hiera to the current Puppetsync session's files:
+
+    ```sh
+    # ONLY when `data/sync/config/latest.yaml` and
+    # `data/sync/repolists/latest.yaml` are pointed to the correct files!
+    bolt plan run puppetsync
+    ```
+
+  - PROTIP: Make sure both `latest.yaml` files are symlinked to the correct
+    targets before handing off a Puppetsync session to be mass-approved!
+
 - The main `puppetsync` plan now requires a new environment variable,
-  `GITLAB_API_TOKEN`, which should contain a private API toekn with `api`
+  `GITLAB_API_TOKEN`, which should contain a private API token with `api`
   scope.  This is now required to access GitLab's CI Lint API:
   https://gitlab.com/gitlab-org/gitlab/-/issues/321290
 

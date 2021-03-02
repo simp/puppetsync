@@ -1,7 +1,0 @@
-###mod 'puppetmodule-skeleton',
-###   :git => 'https://github.com/simp/puppet-module-skeleton',
-###   :branch => 'master'
-
-mod 'simp-dummy',
-   :git => 'https://github.com/simp/pupmod-simp-dummy',
-   :branch => 'master'

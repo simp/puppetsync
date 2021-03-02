@@ -5,6 +5,13 @@ save-rerun: false
 concurrency: 10
 plans:
   - puppetsync*
+
 log:
   console:
     level: error
+
+modules:
+  - name: puppetlabs/stdlib
+  - name: puppetlabs/ruby_task_helper
+  - name: puppet/format
+  - name: nwops/debug # only needed for debugging plans with `debug::break`

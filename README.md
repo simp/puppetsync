@@ -25,7 +25,6 @@
   * [Manually installing dependencies](#manually-installing-dependencies)
 * [Troubleshooting](#troubleshooting)
   * [Error: `Ignoring <x> because its extensions are not built.`](#error-ignoring-x-because-its-extensions-are-not-built)
-  * [Error: `puppetsync: parameter 'puppetfile' expects a Stdlib::Absolutepath`](#error-puppetsync-parameter-puppetfile-expects-a-stdlibabsolutepath)
 * [Limitations](#limitations)
 
 <!-- vim-markdown-toc -->
@@ -46,14 +45,14 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
 
 ### Requirements
 
-* [Puppet Bolt 2.15+][bolt] (Bolt 3.0+ recommended), installed from an [OS
-  package][bolt-install] (don't use the RubyGem)
+* [Puppet Bolt 3.0+][bolt], installed from an [OS package][bolt-install] (don't
+  use the RubyGem)
 * The `git` command must be available
   * SSH + ssh-agent must be set up to push changes
 * Some specific [environment variables](#environment-variables) are required
   to handle API authentication (e.g., GitHub)
 * Runtime dependencies (installed by `./Rakefile install`)
-  * Puppet modules (defined in bolt project's `Puppetfile`):
+  * Puppet modules (defined in bolt project's `bolt-project.yaml`):
   * Ruby Gems (defined in `gem.deps.rb`): octokit, jira-ruby, etc
 
 
@@ -401,11 +400,11 @@ branch `jira.parent_issue` for each repo in the [Puppetsync `repolist`].
 
 ### Manually installing dependencies
 
-Use `bolt` to download the project's dependencies from `Puppetfile` and
+Use `bolt` to download the project's dependencies from `bolt-project.yaml` and
 `gems.deps.rb`:
 
        /opt/puppetlabs/bolt/bin/gem install --user-install -g gem.deps.rb
-       /opt/puppetlabs/bin/bolt puppetfile install
+       /opt/puppetlabs/bin/bolt module install
 
  The Rakefile can be used as a shortcut:
 
@@ -443,30 +442,6 @@ Ignoring executable-hooks-1.6.0 because its extensions are not built. Try: gem p
 Ignoring ffi-1.12.2 because its extensions are not built. Try: gem pristine ffi --version 1.12.2
 ...
 ```
-
-### Error: `puppetsync: parameter 'puppetfile' expects a Stdlib::Absolutepath`
-
-**Cause:** Running `bolt plan run puppetsync puppetfile=` with relative path to the
-desired Puppetfile.
-
-**Fix:** Use an absolute path to reference the Puppetfile you want:
-
-```sh
-bolt plan run puppetsync puppetfile="$PWD/Puppetfile.skeleton"
-```
-
-**Characteristic error message:**
-
-```
-{
-  "kind": "bolt/pal-error",
-  "msg": "puppetsync: parameter 'puppetfile' expects a Stdlib::Absolutepath = Variant[Stdlib::Windowspath = Pattern[/^(([a-zA-Z]:
-[\\\\\\/])|([\\\\\\/][\\\\\\/][^\\\\\\/]+[\\\\\\/][^\\\\\\/]+)|([\\\\\\/][\\\\\\/]\\?[\\\\\\/][^\\\\\\/]+))/], Stdlib::Unixpath =
- Pattern[/^\\/([^\\/\\0]+\\/*)*$/]] value, got String",
-  "details": {
-  }
-```
-
 
 ## Limitations
 

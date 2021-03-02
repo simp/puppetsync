@@ -21,7 +21,7 @@ task :strings, [:verbose] do |t,args|
   args.with_defaults(:verbose => false)
   sh %Q[#{BOLT_PUPPET_EXE} strings generate \
      #{args.verbose ? ' --verbose' : '' } --format markdown \
-     "{dist,site-modules}/**/*.{pp,rb,json}"].gsub(/ {3,}/,' ')
+     "{dist,site-modules,modules}/**/*.{pp,rb,json}"].gsub(/ {3,}/,' ')
 end
 
 namespace :install do
@@ -35,7 +35,7 @@ namespace :install do
   desc "Install modules from Puppetfile into #{__dir__}/modules"
   task :puppetfile do
     Dir.chdir __dir__
-    sh %Q[GEM_HOME="#{GEM_HOME}" "#{BOLT_EXE}" puppetfile install]
+    sh %Q[GEM_HOME="#{GEM_HOME}" "#{BOLT_EXE}" module install --force]
   end
 end
 
