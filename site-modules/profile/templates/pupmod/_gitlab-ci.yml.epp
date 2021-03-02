@@ -76,7 +76,7 @@ variables:
     - echo -e "\e[0Ksection_start:`date +%s`:before_script20[collapsed=true]\r\e[0KEnsure RVM & ruby is installed"
     - "if command -v rvm; then if declare -p rvm_path &> /dev/null; then source \"${rvm_path}/scripts/rvm\"; else source \"$HOME/.rvm/scripts/rvm\" || source /etc/profile.d/rvm.sh; fi; fi"
     - "if command -v rvm && ! grep rvm_install_on_use_flag=1 ~/.rvmrc; then echo rvm_install_on_use_flag=1 >> ~/.rvmrc || echo '== WARNING: ~/.rvmrc is missing rvm_install_on_use_flag=1 and I failed to add it'; fi"
-    - "rvm use \"$MATRIX_RUBY_VERSION\""
+    - "if command -v rvm; then rvm use \"$MATRIX_RUBY_VERSION\"; else echo \"rvm not detected; skipping 'rvm use'\"; fi"
     - 'ruby --version || :'
     - 'gem list sync || :'
     - echo -e "\e[0Ksection_end:`date +%s`:before_script20\r\e[0K"

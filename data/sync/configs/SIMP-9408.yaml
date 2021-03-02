@@ -5,8 +5,9 @@ puppetsync::plan_config:
       - pupmod
     plans:
       sync:
-        #clone_git_repos: false    # set to `false` when applying manual updates on a second run
-        #clear_before_clone: false # set to `false` when applying manual updates on a sceond run
+        github_api_delay_seconds: 10
+        # clone_git_repos: false    # set to `false` when applying manual updates on a second run
+        # clear_before_clone: false # set to `false` when applying manual updates on a sceond run
         stages:
           #        - install_gems
           - checkout_git_feature_branch_in_each_repo

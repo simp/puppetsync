@@ -16,7 +16,7 @@ plan_hierarchy:
     paths:
     - "sync/configs/%{config}.yaml"
     - "sync/repolists/%{repolist}.yaml"
-    - "plan_common.yaml"
+    - "sync/common.yaml"
 
 defaults:
   datadir: data
