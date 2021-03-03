@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Bumped modules' default Gemfile simp-beaker-helpers version to `= 1.22.1`
+
 ### Fixed
 
 - (SIMP-9519) GLCI RELENG checks use pup6+ `pdk build` to test-build modules
