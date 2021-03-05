@@ -5,6 +5,7 @@ classes:
 profile::obsoletes::files:
   - 'spec/fixtures/site.pp'           # Several modules had this incorrect path
   - 'spec/fixtures/manifests/site.pp' # Not required since Puppet 3.x
+  - '.pmtignore'                      # Now using .pdkignore
 
 profile::github_actions::present_action_files:
   - pr_tests.yml         # PR-triggered Pupmod checks + test matrix
