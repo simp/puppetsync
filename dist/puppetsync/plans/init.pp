@@ -205,7 +205,7 @@ plan puppetsync(
       if $puppet_role {
         include $puppet_role
       } else {
-        warning('$puppet_role is empty!')
+        warning('No $puppet_role given; looking up classes from Hiera instead')
         $classes = lookup('classes', undef, undef, [])
         warning("Hiera classes: [${classes.join(',')}]")
         $classes.include
