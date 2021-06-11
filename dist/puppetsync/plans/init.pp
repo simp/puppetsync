@@ -272,6 +272,26 @@ plan puppetsync(
     )
   }
 
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'modernize_metadata_json',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::modernize_metadata_json',
+      $ok_repos,
+      '_catch_errors'  => false,
+    ) |$repo| {
+      $file_path = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/metadata.json.erb",
+        default           => "${repo.vars['repo_path']}/metadata.json",
+      }
+      Hash.new({
+        'file' => $file_path,
+      })
+    }
+  }
+
   # To inspect Puppet catalog resource events:
   #   $repos[0].vars["puppetsync_stage_results"]["apply_puppet_role"]['data']['value']['report']["resource_statuses"]["File[/var/simpdev/ctessmer/src/puppetsync/_repos/acpid/.gitlab-ci.yml]"]["events"]
 

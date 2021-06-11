@@ -15,6 +15,7 @@ puppetsync::plan_config:
           - apply_puppet_role
           - modernize_gitlab_files
           - lint_gitlab_ci
+          - modernize_metadata_json
           - git_commit_changes
           - ensure_github_fork
           - ensure_git_remote
