@@ -9,6 +9,9 @@ puppetsync::repos_config:
   https://github.com/simp/simp-core:
     branch: master
 
+  https://github.com/simp/simp-doc:
+    branch: master
+
   https://github.com/simp/simp-environment-skeleton:
     branch: master
 
@@ -20,3 +23,4 @@ puppetsync::repos_config:
 
   https://github.com/simp/simp-utils:
     branch: master
+

@@ -15,13 +15,13 @@ puppetsync::plan_config:
           - apply_puppet_role
           - modernize_gitlab_files
           - lint_gitlab_ci
-            #          - git_commit_changes
-            #          - ensure_github_fork
-            #          - ensure_git_remote
-            #          - git_push_to_remote
-            #          ### - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
-            #          ### - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
-            #          - ensure_github_pr
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+            # - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
+            # - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
+          - ensure_github_pr
 
       approve_github_prs:
         clone_git_repos: false         # No need to clone just to approve
@@ -41,7 +41,7 @@ puppetsync::plan_config:
     parent_issue: SIMP-9670
     project: SIMP
     jira_site: https://simp-project.atlassian.net
-    subtask_title: 'Update PE to 6.21.1 in %COMPONENT%'
+    subtask_title: 'Update PE to 6.22.1 in %COMPONENT%'
     # optional:
     subtask_story_points: 0
     subtask_assignee: true
@@ -50,16 +50,19 @@ puppetsync::plan_config:
     # 0---------1---------2---------3---------4---------5---------6---------7|
     # (SIMP-XXXX) 12345678                                     |
     commit_message: |
-      (%JIRA_PARENT_ISSUE%) Puppetsync: Update Puppet PE to 6.21.1
+      [WIP] (%JIRA_PARENT_ISSUE%) Puppetsync: Update Puppet PE to 6.22.1
 
-      This patch updates CI matrix Puppet PE to 6.21.1
+      This patch:
+
+        * Updates CI matrix Puppet PE to 6.22.1
+        * Removes Puppet 5 from the CI matrix
 
       It also enforces the standardized asset baseline using simp/puppetsync,
       and may apply other updates to ensure conformity.
 
       CI: SKIP MATRIX
       [%JIRA_SUBTASK%] #close
-      [%JIRA_PARENT_ISSUE%] #comment update Puppet 6.21.1 in %COMPONENT%
+      [%JIRA_PARENT_ISSUE%] #comment update Puppet 6.22.1 in %COMPONENT%
 
   github:
     pr_user: op-ct  # This should be the account that *submitted* the PRs
