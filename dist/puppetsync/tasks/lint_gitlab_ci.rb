@@ -18,9 +18,9 @@ def lint_request(gitlab_ci_url, gitlab_token, body)
   end
 end
 
-def err_msg_about_response(response, gitlab_ci_yml_path)
+def err_msg_about_response(response, gitlab_ci_url, gitlab_ci_yml_path)
   unless response.success?
-    return "ERROR: Could not use CI linter at #{gitlab_ci_url} (#{response.code}: #{response.message})\n\n"
+    return "ERROR: Could not use CI linter at #{gitlab_ci_url} (#{response.status} #{response.reason_phrase}):\n#{JSON.parse(response.body).to_yaml}\n\n"
   end
   if JSON.parse(response.body).fetch('status', '') != 'valid'
     msg =  "ERROR: #{File.basename(gitlab_ci_yml_path)} is not valid!\n\n"
@@ -42,7 +42,7 @@ def gitlab_ci_lint(gitlab_ci_url, gitlab_ci_yml_path, gitlab_token)
   content = YAML.load_file(gitlab_ci_yml_path)
   body = JSON.dump('content' => content.to_json)
   response = lint_request(gitlab_ci_url, gitlab_token, body)
-  msg = err_msg_about_response(response, gitlab_ci_yml_path)
+  msg = err_msg_about_response(response, gitlab_ci_url, gitlab_ci_yml_path)
   msg ? abort(msg) : puts( "#{File.basename(gitlab_ci_yml_path)} is valid\n\n")
 end
 
@@ -68,10 +68,10 @@ raise('No repo_paths given') if params.to_h['repo_paths'].to_a.empty?
 files.each do |path|
   warn "\n\n#{path}"
   gitlab_ci_lint(
-    #'http://localhost:8088/anything',
     'https://gitlab.com/api/v4/ci/lint',
     path,
     gitlab_token,
   )
 end
+
 warn "FINIS: #{__FILE__}"
