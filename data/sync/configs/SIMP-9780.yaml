@@ -39,10 +39,10 @@ puppetsync::plan_config:
           - merge_github_pr_for_each_repo
 
   jira:
-    parent_issue: SIMP-9670
+    parent_issue: SIMP-9780
     project: SIMP
     jira_site: https://simp-project.atlassian.net
-    subtask_title: 'Update PE to 6.22.1 in %COMPONENT%'
+    subtask_title: 'Remove Puppet 5 from %COMPONENT%'
     # optional:
     subtask_story_points: 0
     subtask_assignee: true
@@ -55,15 +55,20 @@ puppetsync::plan_config:
 
       This patch:
 
-        * Updates CI matrix Puppet PE to 6.22.1
-        * Removes Puppet 5 from the CI matrix
+        * Removes Puppet 5 from metadata.json and the GHA & GLCI matrix
+        * Ensure support for Puppet 7 in metadata requirements and stdlib
+        * Updates GLCI and GHA matrix to model Puppet PE using Puppet 6.22.1
+        * Bumps Gemfile's simp-rake-helpers and simp-beaker-helpers min vers
+        * Removes `.pmtignore` and adds `.pdkignore`
 
-      It also enforces the standardized asset baseline using simp/puppetsync,
+      The patch enforces a standardized asset baseline using simp/puppetsync,
       and may apply other updates to ensure conformity.
 
-      CI: SKIP MATRIX
       [%JIRA_SUBTASK%] #close
-      [%JIRA_PARENT_ISSUE%] #comment update Puppet 6.22.1 in %COMPONENT%
+      [%JIRA_PARENT_ISSUE%] #comment Drop Puppet 5 in %COMPONENT%
+      [SIMP-9670] #comment update Puppet 6.22.1 in %COMPONENT%
+      [SIMP-9606] #comment Switch %COMPONENT% from .pmtignore to .pdkignore
+      [SIMP-9781] #comment bump Gemfile versons in %COMPONENT%
 
   github:
     pr_user: op-ct  # This should be the account that *submitted* the PRs
