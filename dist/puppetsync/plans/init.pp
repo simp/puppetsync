@@ -287,7 +287,7 @@ plan puppetsync(
         default           => "${repo.vars['repo_path']}/metadata.json",
       }
       Hash.new({
-        'file' => $file_path,
+        'filename' => $file_path,
       })
     }
   }

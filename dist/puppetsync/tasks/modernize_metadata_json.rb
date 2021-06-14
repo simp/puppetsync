@@ -3,12 +3,7 @@
 require 'fileutils'
 require 'json'
 
-
-
-
 require 'tempfile'
-require 'bundler'
-require 'rake'
 require 'tmpdir'
 
 require 'fileutils'
@@ -47,16 +42,27 @@ end
 
 
 def tmp_bundle_rake_execs(repo_path, tasks)
-  Dir.mktmpdir do |tmp_dir|
-    gemfile = File.expand_path('Gemfile',tmp_dir)
-    FileUtils.cp File.join(repo_path, 'Gemfile'), gemfile
+  Dir.mktmpdir('tmp_bundle_rake_execs') do |tmp_dir|
     Dir.chdir repo_path
+    gemfile_lock = false
+    if File.exist?('Gemfile.lock')
+      gemfile_lock = File.expand_path('Gemfile.lock',tmp_dir)
+      FileUtils.cp File.join(repo_path, 'Gemfile.lock'), gemfile_lock
+    end
     results = []
+    require 'bundler'
+    require 'rake'
     Bundler.with_unbundled_env do
-      sh "/opt/puppetlabs/bolt/bin/bundle --gemfile '#{gemfile}' &> /dev/null"
+      sh "/opt/puppetlabs/bolt/bin/bundle install &> /dev/null"
       tasks.each do |task|
         puts
-        results << sh( "/opt/puppetlabs/bolt/bin/bundle exec /opt/puppetlabs/bolt/bin/rake #{task}")
+        cmd = "/opt/puppetlabs/bolt/bin/bundle exec /opt/puppetlabs/bolt/bin/rake #{task}"
+        results << sh(cmd)
+      end
+      if gemfile_lock
+        FileUtils.cp gemfile_lock, File.join(repo_path, 'Gemfile.lock')
+      else
+        FileUtils.rm('Gemfile.lock')
       end
     end
     if results.all?{ |x| x } ###$CHILD_STATUS.success?
@@ -75,7 +81,7 @@ if ARGF.filename == '-'
   stdin = ARGF.file.read
   warn "== stdin: '#{stdin}'"
   params = JSON.parse(stdin)
-  file = params['file']
+  file = params['filename']
 else
   file = ARGF.filename
 end
@@ -99,10 +105,16 @@ content['requirements'].select{|x| x['name'] == 'puppet' }.map do |x|
   x['version_requirement'] = '>= 6.18.0 < 8.0.0'
 end
 
-content['dependencies'].select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
-  x['version_requirement'] = '>= 6.18.0 < 8.0.0'
-end
+dep_sections = [content['dependencies'], (content['simp']||{})['optional_dependencies']].select{|x| x }
+dep_sections.each do |dependencies|
+  dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
+    x['version_requirement'] = '>= 6.18.0 < 8.0.0'
+  end
 
+  dependencies.select{|x| x['name'] == 'puppetlabs/concat' }.map do |x|
+    x['version_requirement'] = '>= 6.4.0 < 8.0.0'
+  end
+end
 # Write content back to original file
 File.open(file, 'w') { |f| f.puts JSON.pretty_generate(content) }
 

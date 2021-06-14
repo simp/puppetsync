@@ -1,0 +1,11 @@
+{
+  "description": "Modernize & validate metadata.json file",
+  "input_method": "stdin",
+  "parameters": {
+    "filename": {
+      "description": "Absolute path metadata.json file",
+      "type": "Stdlib::Absolutepath"
+    }
+  }
+}
+
