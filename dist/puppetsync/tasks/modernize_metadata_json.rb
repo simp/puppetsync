@@ -65,10 +65,8 @@ def tmp_bundle_rake_execs(repo_path, tasks)
         FileUtils.rm('Gemfile.lock')
       end
     end
-    if results.all?{ |x| x } ###$CHILD_STATUS.success?
-      puts "== #{File.basename(repo_path)} : committed changes in #{repo_path}"
-    else
-warn 'bad result'
+    unless results.all?{ |x| x }
+      warn 'bad result'
     end
   end
 end
@@ -100,12 +98,15 @@ original_content_str = content.to_s
 content['requirements'].select{|x| x['name'] == 'puppet' }.map do |x|
   #x['version_requirement'].gsub!( regexp_for_low_high_bounds ) do |y|
   #  m = Regexp.last_match
-  #  "#{m[:low_op} #{m[:low_ver]} >= 6.18.0 < 8.0.0"
+  #  "#{m[:low_op} #{m[:low_ver]} >= 6.22.1 < 8.0.0"
   #end
-  x['version_requirement'] = '>= 6.18.0 < 8.0.0'
+  x['version_requirement'] = '>= 6.22.1 < 8.0.0'
 end
 
-dep_sections = [content['dependencies'], (content['simp']||{})['optional_dependencies']].select{|x| x }
+dep_sections = [
+  content['dependencies'],
+  (content['simp']||{})['optional_dependencies']
+].select{|x| x }
 dep_sections.each do |dependencies|
   dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
     x['version_requirement'] = '>= 6.18.0 < 8.0.0'
@@ -115,6 +116,7 @@ dep_sections.each do |dependencies|
     x['version_requirement'] = '>= 6.4.0 < 8.0.0'
   end
 end
+
 # Write content back to original file
 File.open(file, 'w') { |f| f.puts JSON.pretty_generate(content) }
 

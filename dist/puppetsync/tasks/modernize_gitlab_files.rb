@@ -3,7 +3,8 @@
 require 'fileutils'
 
 def modernize_gitlab_ci(content)
-  content.gsub!(%r[\n\n^pup5.*?(?=\n\n)]m,'')   # Remove pup5 blocks
+  content.gsub!(%r[\n\n^pup5.*?(?=\n\n)]m,'')   # Remove pup5 blocks (nice formatting)
+  content.gsub!(%r[^pup5.*?(?=\n\n)]m,'')   # Remove pup5 blocks that beign with comments
 
   content.gsub!(%r{pup6\.(?:16|17|18)\.0}, 'pup6.22.1')
   content.gsub!(%r{pup_6_(?:16|17|18)_0}, 'pup_6_22_1')
