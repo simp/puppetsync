@@ -69,7 +69,7 @@ puppetsync::plan_config:
       [%JIRA_PARENT_ISSUE%] #comment Drop Puppet 5 in %COMPONENT%
       [SIMP-9670] #comment update Puppet 6.22.1 in %COMPONENT%
       [SIMP-9606] #comment Switch %COMPONENT% from .pmtignore to .pdkignore
-      [SIMP-9781] #comment bump Gemfile versons in %COMPONENT%
+      [SIMP-9781] #comment bump Gemfile versions in %COMPONENT%
 
   github:
     pr_user: op-ct  # This should be the account that *submitted* the PRs
