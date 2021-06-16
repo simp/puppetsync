@@ -1,0 +1,11 @@
+{
+  "description": "Modernize & validate .fixtures file",
+  "input_method": "stdin",
+  "parameters": {
+    "filename": {
+      "description": "Absolute path .fixtures file",
+      "type": "Stdlib::Absolutepath"
+    }
+  }
+}
+

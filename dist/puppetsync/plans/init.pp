@@ -274,6 +274,26 @@ plan puppetsync(
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
+    'modernize_fixtures',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::modernize_fixtures',
+      $ok_repos,
+      '_catch_errors'  => false,
+    ) |$repo| {
+      $file_path = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/.fixtures.yml.erb",
+        default           => "${repo.vars['repo_path']}/.fixtures.yml",
+      }
+      Hash.new({
+        'filename' => $file_path,
+      })
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
     'modernize_metadata_json',
     # ---------------------------------------------------------------------------
     $opts
