@@ -180,8 +180,6 @@ puppetsync::repos_config:
   #  https://github.com/simp/pupmod-simp-simp_options:
   #    branch: master
   #
-  https://github.com/simp/pupmod-simp-simp_pki_service:
-    branch: master
 
   https://github.com/simp/pupmod-simp-simp_rsyslog:
     branch: master
