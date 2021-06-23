@@ -4,20 +4,33 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [SIMP-9780] - 2021-06-15
 
-### Changed
+### Removed
 
-- Bumped modules' default Gemfile simp-beaker-helpers version to `= 1.22.1`
-
-### Fixed
-
-- (SIMP-9519) GLCI RELENG checks use pup6+ `pdk build` to test-build modules
-  - This replaces the previous (and EOL) pup5 + `puppet module build`
+- (SIMP-9780) Dropped support for Puppet 5 from Puppet modules
+- Removed `pki_service` from pupmods repolist
 
 ### Added
 
 - Add various directories to `.pmtignore` to better support `pdk build`
+- Add `pupmods_batch.*` repolists to support staggered puppetsyncs
+
+### Changed
+
+- (SIMP-9780) Bumped modules version requirements:
+  - Puppet version: >= 6.22.1 < 8.0
+  - puppetlabs/stdlib: >= 6.18.0 <= 8.0
+  - puppetlabs/concat: >= 6.4.0 <= 8.0
+  - Min `.gitlab-ci.yml` bundler version: 2.2.19
+- (SIMP-9781) Bumped Gemfile defaults:
+    - simp-beaker-helpers:`= 1.23.1`
+    - simp-rake-helpers: `['>= 5.12.1', '< 6']`
+- (SIMP-9519) GLCI RELENG checks use pup6+ `pdk build` to test-build modules
+  - This replaces the previous (and EOL) pup5 + `puppet module build`
+- (SIMP-9606) Switched modules from `.pmtignore` to `.pdkignore`
+- (SIMP-9826) Ensured repo urls in `.fixtures.yml` end with `.git`
+
 
 ## [SIMP-9408] - 2021-03-02
 
@@ -252,4 +265,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-9266]: https://github.com/op-ct/puppetsync/compare/SIMP-9126...SIMP-9266
 [SIMP-9239]: https://github.com/op-ct/puppetsync/compare/SIMP-9266...SIMP-9239
 [SIMP-9408]: https://github.com/op-ct/puppetsync/compare/SIMP-9239...SIMP-9408
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-9408...HEAD
+[SIMP-9780]: https://github.com/op-ct/puppetsync/compare/SIMP-9408...SIMP-9780
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-9780...HEAD
