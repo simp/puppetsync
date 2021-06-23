@@ -15,6 +15,7 @@ puppetsync::plan_config:
           - apply_puppet_role
           - modernize_gitlab_files
           - lint_gitlab_ci
+          - modernize_fixtures
           - modernize_metadata_json
           - git_commit_changes
           - ensure_github_fork
@@ -61,6 +62,7 @@ puppetsync::plan_config:
         * Updates GLCI and GHA matrix to model Puppet PE using Puppet 6.22.1
         * Bumps Gemfile's simp-rake-helpers and simp-beaker-helpers min vers
         * Removes `.pmtignore` and adds `.pdkignore`
+        * Ensures `.git` is added to fixture URLs
 
       The patch enforces a standardized asset baseline using simp/puppetsync,
       and may apply other updates to ensure conformity.
@@ -70,6 +72,7 @@ puppetsync::plan_config:
       [SIMP-9670] #comment update Puppet 6.22.1 in %COMPONENT%
       [SIMP-9606] #comment Switch %COMPONENT% from .pmtignore to .pdkignore
       [SIMP-9781] #comment bump Gemfile versions in %COMPONENT%
+      [SIMP-9826] #comment Ensured fixture repo urls for %COMPONENT%
 
   github:
     pr_user: op-ct  # This should be the account that *submitted* the PRs
