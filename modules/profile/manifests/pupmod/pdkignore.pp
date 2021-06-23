@@ -13,8 +13,8 @@ class profile::pupmod::pdkignore(
 ){
   file{ $target_pdkignore_path:
     content => file(
-      "profile/pupmod/_pdkignore.${target_module_name}",
-      'profile/pupmod/_pdkignore'
+      "${module_name}/pupmod/_pdkignore.${target_module_name}",
+      "${module_name}/pupmod/_pdkignore"
     ),
   }
 }

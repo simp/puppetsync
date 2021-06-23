@@ -5,8 +5,8 @@ class profile::pupmod::rspec(
 ){
   file{ $rspec_path:
     content => file(
-      "profile/pupmod/_rspec.${target_module_name}",
-      'profile/pupmod/_rspec',
+      "${module_name}/pupmod/_rspec.${target_module_name}",
+      "${module_name}/pupmod/_rspec",
     ),
   }
 }

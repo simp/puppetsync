@@ -28,10 +28,10 @@ class profile::github_actions(
     $action = basename( $action_file, '.yml' )
     file{ "${target_github_actions_dir}/${action_file}":
       content => file(
-        "profile/${project_type}/_github/workflows/${action}.${target_repo_name}.yml",
-        "profile/${project_type}/_github/workflows/${action}.yml",
-        "profile/_github/workflows/${action}.${target_repo_name}.yml",
-        "profile/_github/workflows/${action}.yml"
+        "${module_name}/${project_type}/_github/workflows/${action}.${target_repo_name}.yml",
+        "${module_name}/${project_type}/_github/workflows/${action}.yml",
+        "${module_name}/_github/workflows/${action}.${target_repo_name}.yml",
+        "${module_name}/_github/workflows/${action}.yml"
       ),
     }
   }

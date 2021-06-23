@@ -37,6 +37,7 @@
 #
 class profile::pupmod::gitlab_ci(
   Stdlib::Absolutepath $target_gitlabci_yml_path = "${::repo_path}/.gitlab-ci.yml",
+  Optional[String[1]]  $target_module_name = $facts.dig('module_metadata','name'),
 ){
 
   # NOTE: as noted above, the default value first attempts to read in the
@@ -71,9 +72,14 @@ class profile::pupmod::gitlab_ci(
     $repo_specific_content = file("${module_name}/pupmod/_gitlab-ci.blank_repo_section.yml")
   }
 
+  $gitlab_ci_template_path = find_template(
+    "${module_name}/pupmod/_gitlab-ci.yml.${target_module_name}.epp",
+    "${module_name}/pupmod/_gitlab-ci.yml.epp"
+  )
+
   file{ $target_gitlabci_yml_path:
     content => epp(
-      "${module_name}/pupmod/_gitlab-ci.yml.epp", {
+      $gitlab_ci_template_path, {
         'repo_specific_content' => $repo_specific_content,
       }
     ),

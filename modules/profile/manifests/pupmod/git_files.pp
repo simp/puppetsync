@@ -6,15 +6,15 @@ class profile::pupmod::git_files(
 ){
   file{ $gitignore_path:
     content => file(
-      "profile/pupmod/_gitignore.${target_module_name}",
-      'profile/pupmod/_gitignore',
+      "${module_name}/pupmod/_gitignore.${target_module_name}",
+      "${module_name}/pupmod/_gitignore",
     ),
   }
 
   file{ $gitattributes_path:
     content => file(
-      "profile/pupmod/_gitattributes.${target_module_name}",
-      'profile/pupmod/_gitattributes',
+      "${module_name}/pupmod/_gitattributes.${target_module_name}",
+      "${module_name}/pupmod/_gitattributes",
     ),
   }
 }

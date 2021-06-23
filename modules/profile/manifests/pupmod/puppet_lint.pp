@@ -5,8 +5,8 @@ class profile::pupmod::puppet_lint(
 ){
   file{ $puppet_lint_rc_path:
     content => file(
-      "profile/pupmod/_puppet-lint.rc.${target_module_name}",
-      'profile/pupmod/_puppet-lint.rc',
+      "${module_name}/pupmod/_puppet-lint.rc.${target_module_name}",
+      "${module_name}/pupmod/_puppet-lint.rc",
     ),
   }
 }
