@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+## [Unreleased]
+
+### Fixed
+
+- (SIMP-9888) Corrected puppetlabs/stdlib for pupmods
+  - puppetlabs/stdlib: >= 6.6.0 <= 8.0
+
 ## [SIMP-9780] - 2021-06-15
 
 ### Removed

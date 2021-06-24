@@ -109,7 +109,7 @@ dep_sections = [
 ].select{|x| x }
 dep_sections.each do |dependencies|
   dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
-    x['version_requirement'] = '>= 6.18.0 < 8.0.0'
+    x['version_requirement'] = '>= 6.6.0 < 8.0.0'
   end
 
   dependencies.select{|x| x['name'] == 'puppetlabs/concat' }.map do |x|
@@ -125,7 +125,7 @@ if content.to_s == original_content_str
 else
   warn '  ++ content was changed!'
   repo_path = File.dirname file
-  bump_version(file)
+  #### bump_version(file) # Not needed so soon
   tmp_bundle_rake_execs(repo_path, ['pkg:check_version', 'pkg:compare_latest_tag'])
 end
 
