@@ -1,5 +1,0 @@
-puppetsync::repos_config:
-
-  https://github.com/simp/rubygem-simp-beaker-helpers:
-    branch: master
-
