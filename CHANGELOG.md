@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+<!--
 ## [Unreleased]
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+-->
+
+## [SIMP-10073] - 2021-06-28
 
 ### Added
 
@@ -283,4 +296,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-9408]: https://github.com/op-ct/puppetsync/compare/SIMP-9239...SIMP-9408
 [SIMP-9780]: https://github.com/op-ct/puppetsync/compare/SIMP-9408...SIMP-9780
 [SIMP-9888]: https://github.com/op-ct/puppetsync/compare/SIMP-9780...SIMP-9888
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-9888...HEAD
+[SIMP-10073]: https://github.com/op-ct/puppetsync/compare/SIMP-9888...SIMP-10073
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10073...HEAD

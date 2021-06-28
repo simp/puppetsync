@@ -61,7 +61,7 @@ puppetsync::plan_config:
       and may apply other updates to ensure conformity.
 
       [%JIRA_SUBTASK%] #close
-      [%JIRA_PARENT_ISSUE%] #comment Drop Puppet 5 in %COMPONENT%
+      [%JIRA_PARENT_ISSUE%] #comment Add GHA RPM release to %COMPONENT%
 
   github:
     pr_user: op-ct  # This should be the account that *submitted* the PRs
