@@ -39,9 +39,6 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-dhcp:
     branch: master
 
-  https://github.com/simp/pupmod-simp-ds389:
-    branch: master
-
   https://github.com/simp/pupmod-simp-fips:
     branch: master
 
@@ -156,8 +153,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_banners:
     branch: master
 
-  #https://github.com/simp/pupmod-simp-simp_bolt:
-  #  branch: master
+  https://github.com/simp/pupmod-simp-simp_ds389:
+    branch: master
 
   https://github.com/simp/pupmod-simp-simp_firewalld:
     branch: master
