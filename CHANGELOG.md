@@ -17,6 +17,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 -->
 
+## [SIMP-10264] - 2021-07-09
+
+### Added
+
+- New GHA `release_rpms` workflow:
+  - (SIMP-10155) Attaches GPG public key for RPMs' signing key
+  - `workflow_dispatch` event: can trigger manually or from other workflows
+    - (SIMP-10165) Can trigger cross-repo RPM releases
+  - Release RPMs (build, sign, upload, and attach to release) for basically
+    anything that `rake pkg:single` can build:
+    - (SIMP-10067) SIMP pupmods
+    - (SIMP-10165) non-SIMP pupmods
+    - (SIMP-10154) SIMP assets
+
+### Changed
+
+- Bumped `simp/github-action-build-and-sign-pkg-single-rpm` to v2
+- GHA `tag_release` workflow updated:
+  - RPM release logic moved to new `release_rpms` workflow
+  - Triggers the `release_rpms` workflow after creating a GitHub release
+
 ## [SIMP-10073] - 2021-06-28
 
 ### Added
@@ -297,4 +318,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-9780]: https://github.com/op-ct/puppetsync/compare/SIMP-9408...SIMP-9780
 [SIMP-9888]: https://github.com/op-ct/puppetsync/compare/SIMP-9780...SIMP-9888
 [SIMP-10073]: https://github.com/op-ct/puppetsync/compare/SIMP-9888...SIMP-10073
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10073...HEAD
+[SIMP-10264]: https://github.com/op-ct/puppetsync/compare/SIMP-10073...SIMP-10264
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10264...HEAD
