@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `tag_deploy_github-rpms-el7-el8` workflow, to trigger EL7 & EL8 RPM builds
+  for components that need them
+
 ### Fixed
 
 - Fixed issues with `release_rpms`:
@@ -17,8 +22,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 
 ### Changed
-
-### Added
 
 -->
 
