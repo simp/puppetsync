@@ -1,0 +1,3 @@
+---
+profile::github_actions::present_action_files: "%{alias('profile::github_actions::present_action_files__github_only')}"
+profile::github_actions::absent_action_files: "%{alias('profile::github_actions::absent_action_files__github_only')}"

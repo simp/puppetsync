@@ -1,9 +1,0 @@
----
-classes:
-  - 'role::unknown_with_ci'
-profile::github_actions::present_action_files:
-  # NOTE: PR-triggered GLCI actions are intentionally absent
-  - tag_deploy_github-rpms.yml  # Release on tag
-
-profile::github_actions::absent_action_files:
-  - tag_deploy_github-only  # Release on tag
