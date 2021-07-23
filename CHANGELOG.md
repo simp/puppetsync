@@ -9,25 +9,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Added RPM build + upload for non-pupmod components
-  - `tag_deploy_github-rpms.yml`workflow, to trigger component RPM builds
+- (SIMP-10154) Added RPM build + upload for non-pupmod components
+  - `tag_deploy_github-rpms.yml` workflow, to trigger component RPM builds
   - `tag_deploy_github-rpms-el7-el8` workflow, to trigger EL7 & EL8 RPM builds
     for components that need them
   - `validate_tokens_asset` workflow for non-module components
 - Added `simp-adapter` to `simp_misc` repolist
+  - Made sure `simp-doc` can release on tag, but NOT run `release_rpms`,
+    because it will fail to detect its version from a vanilla `pkg:single`
 
 ###Fixed
 
 - Fixed issues with `release_rpms`:
   - async execution problems
   - problem that excluded el7 `.src` RPMs
-
-<!--
-### Removed
-
-### Changed
-
--->
 
 ## [SIMP-10264] - 2021-07-09
 

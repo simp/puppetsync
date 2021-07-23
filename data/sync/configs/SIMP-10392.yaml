@@ -11,10 +11,10 @@ puppetsync::plan_config:
         stages:
           ### - install_gems         # Uncomment for first-time puppetsync run
           - checkout_git_feature_branch_in_each_repo
-###          - ensure_jira_subtask
+          - ensure_jira_subtask
           - apply_puppet_role
           - modernize_gitlab_files
-###          - lint_gitlab_ci
+          - lint_gitlab_ci
           ### - modernize_fixtures      # one-off
 ###          ### - modernize_metadata_json # one-off?
 ###          - git_commit_changes
@@ -54,7 +54,8 @@ puppetsync::plan_config:
     commit_message: |
       (%JIRA_PARENT_ISSUE%) GHA: Trigger `rpm_release` workflow
 
-      This patch ensures tag -> release -> rpm_release in `simp-` components.
+      This patch ensures that a GitHub release will trigger the `release_rpm`
+      GHA workflow.
 
       The patch enforces a standardized asset baseline using simp/puppetsync,
       and may apply other updates to ensure conformity.
