@@ -1,7 +1,7 @@
 puppetsync::repos_config:
 
   https://github.com/simp/gitlab-beaker-cleanup-driver:
-    branch: master
+    branch: main
 
   https://github.com/simp/releng-misc:
     branch: master
@@ -24,3 +24,5 @@ puppetsync::repos_config:
   https://github.com/simp/simp-utils:
     branch: master
 
+  https://github.com/simp/simp-adapter:
+    branch: master

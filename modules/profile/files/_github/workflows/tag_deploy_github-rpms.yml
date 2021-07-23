@@ -1,9 +1,9 @@
-# Build & Deploy Puppet module & GitHub release when a SemVer tag is pushed
+# Deploy GitHub release & when a SemVer tag is pushed, trigger RPM build
 # ------------------------------------------------------------------------------
 #
 #             NOTICE: **This file is maintained with puppetsync**
 #
-# This file is updated automatically as part of a puppet module baseline.
+# This file is updated automatically as part of a standardized asset baseline.
 #
 # The next baseline sync will overwrite any local changes to this file!
 #
@@ -13,7 +13,6 @@
 #
 #   GitHub Secret variable               Notes
 #   -------------------------------      ---------------------------------------
-#   PUPPETFORGE_API_TOKEN
 #   SIMP_CORE_REF_FOR_BUILDING_RPMS      simp-core ref (tag) to use to build
 #                                        RPMs with `rake pkg:single`
 #   SIMP_DEV_GPG_SIGNING_KEY             GPG signing key's secret key
@@ -28,43 +27,16 @@
 #   render well as markdown on the GitHub release pages
 #
 ---
-name: 'Tag: Release to GitHub & Puppet Forge'
+name: 'Tag: Release to GitHub'
 
 on:
   push:
     tags:
       - '[0-9]+\.[0-9]+\.[0-9]+'
 
-env:
-  PUPPET_VERSION: '~> 6'
-
 jobs:
-  releng-checks:
-    name: "RELENG checks"
-    if: github.repository_owner == 'simp'
-    runs-on: ubuntu-18.04
-    steps:
-      - name: "Assert '${{ github.ref }}' is a tag"
-        run: '[[ "$GITHUB_REF" =~ ^refs/tags/ ]] || { echo "::error ::GITHUB_REF is not a tag: ${GITHUB_REF}"; exit 1 ; }'
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
-          clean: true
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.5
-          bundler-cache: true
-      - run: bundle exec rake pkg:check_version
-      - run: bundle exec rake pkg:compare_latest_tag
-      - run: bundle exec rake pkg:create_tag_changelog
-      - run: bundle exec rake metadata_lint
-      - name: "Test that Puppet module can build"
-        run: "bundle exec pdk build --force"
-
-
   create-github-release:
     name: Deploy GitHub Release
-    needs: [ releng-checks ]
     if: github.repository_owner == 'simp'
     runs-on: ubuntu-18.04
     steps:
@@ -74,7 +46,6 @@ jobs:
           ref: ${{ github.ref }}
           clean: true
           fetch-depth: 0
-
       - name: Get tag & annotation info (${{github.ref}})
         id: tag-check
         run: |
@@ -138,32 +109,3 @@ jobs:
             }).then( (result) => {
               console.log( `== Submitted workflow dispatch: status ${result.status}` )
             })
-
-  deploy-to-puppet-forge:
-    name: Deploy PuppetForge Release
-    needs: [ create-github-release ]
-    if: github.repository_owner == 'simp'
-    runs-on: ubuntu-18.04
-    env:
-      PUPPETFORGE_API_TOKEN: ${{ secrets.PUPPETFORGE_API_TOKEN }}
-      FORGE_USER_AGENT: GitHubActions-ForgeReleng-Workflow/0.4.0 (Purpose/forge-ops-for-${{ github.event.repository.name }})
-      FORGE_API_URL: https://forgeapi.puppet.com/v3/releases
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
-          clean: true
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.5
-          bundler-cache: true
-      - name: Build Puppet module (PDK)
-        run: bundle exec pdk build --force
-      - name: Deploy to Puppet Forge
-        run: |
-          curl -X POST --silent --show-error --fail \
-            --user-agent "$FORGE_USER_AGENT" \
-            --header "Authorization: Bearer ${PUPPETFORGE_API_TOKEN}" \
-            --form "file=@$(find $PWD/pkg -name ''*.tar.gz'')" \
-            "$FORGE_API_URL"

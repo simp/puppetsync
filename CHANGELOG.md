@@ -9,10 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `tag_deploy_github-rpms.yml`workflow, to trigger component RPM builds
 - `tag_deploy_github-rpms-el7-el8` workflow, to trigger EL7 & EL8 RPM builds
   for components that need them
+- `validate_tokens_asset` workflow for non-module components
+- Added `simp-adapter` to `simp_misc` repolist
 
-### Fixed
+###Fixed
 
 - Fixed issues with `release_rpms`:
   - async execution problems

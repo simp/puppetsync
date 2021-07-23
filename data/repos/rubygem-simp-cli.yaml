@@ -6,6 +6,7 @@ profile::github_actions::present_action_files:
   - pr_glci_manual.yml                  # --> manual trigger for external contributors
   - pr_glci_cleanup.yml                 # --> clean up old GLCI branches
   - tag_deploy_rubygem__github-only.yml  # Release on tag
+  - release_rpms.yml
 
 profile::github_actions::absent_action_files:
   - tag_deploy_rubygem.yml  # Release on tag
