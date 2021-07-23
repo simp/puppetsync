@@ -5,16 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
-<!--
 ## [Unreleased]
-
-### Added
-
-### Changed
 
 ### Fixed
 
+- Fixed issues with `release_rpms`:
+  - async execution problems
+  - problem that excluded el7 `.src` RPMs
+
+<!--
 ### Removed
+
+### Changed
+
+### Added
+
 -->
 
 ## [SIMP-10264] - 2021-07-09
