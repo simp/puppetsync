@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- (SIMP-10154) Added RPM build + upload for non-pupmod components
+- (SIMP-10154) (SIMP-10392) Added RPM build + upload for non-pupmod components
   - `tag_deploy_github-rpms.yml` workflow, to trigger component RPM builds
   - `tag_deploy_github-rpms-el7-el8` workflow, to trigger EL7 & EL8 RPM builds
     for components that need them
@@ -18,7 +18,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Made sure `simp-doc` can release on tag, but NOT run `release_rpms`,
     because it will fail to detect its version from a vanilla `pkg:single`
 
-###Fixed
+### Change
+
+- (SIMP-10450) Updated GHA workflows from `ubuntu-16.06` to `ubuntu-latest`
+
+### Fixed
 
 - Fixed issues with `release_rpms`:
   - async execution problems
