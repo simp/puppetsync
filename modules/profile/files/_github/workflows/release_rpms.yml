@@ -13,7 +13,8 @@
 #   GitHub Secret variable               Notes
 #   -------------------------------      ---------------------------------------
 #   SIMP_CORE_REF_FOR_BUILDING_RPMS      simp-core ref (tag) to use to build
-#                                        RPMs with `rake pkg:single`
+#                                        RPMs with `rake pkg:single` against
+#                                        `build/rpms/dependencies.yaml`
 #   SIMP_DEV_GPG_SIGNING_KEY             GPG signing key's secret key
 #   SIMP_DEV_GPG_SIGNING_KEY_ID          User ID (name) of signing key
 #   SIMP_DEV_GPG_SIGNING_KEY_PASSPHRASE  Passphrase to use GPG signing key
@@ -76,16 +77,26 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: "Validate inputs"
+        id: validate-inputs
         run: |
           if ! [[ "$TARGET_REPO" =~ ^[a-z0-9][a-z0-9-]+/[a-z0-9][a-z0-9_-]+$ ]]; then
             printf '::error ::Target repository name has invalid format: %s\n' "$TARGET_REPO"
             exit 88
           fi
 
-          if ! [[ "$RELEASE_TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-(rc|alpha|beta|pre)?([0-9]+)?)?$ ]]; then
-            printf '::error ::Release Tag format is not SemVer or SemVer-ish RPM: %s\n' "$RELEASE_TAG"
+          if [[ "$RELEASE_TAG" =~ ^(simp-|v)?[0-9]+\.[0-9]+\.[0-9]+(-(rc|alpha|beta|pre)?([0-9]+)?)?$ ]]; then
+            if [ -n "${BASH_REMATCH[2]}" ]; then
+              echo "::set-output name=prebuild_suffix::${BASH_REMATCH[2]#-}"
+            fi
+
+            if [ -n "${BASH_REMATCH[4]}" ]; then
+              echo "::set-output name=prebuild_number::${BASH_REMATCH[4]#-}"
+            fi
+          else
+            printf '::error ::Release Tag format is not SemVer, X.Y.Z-R, X.Y.Z-<prerelease>: "%s"\n' "$RELEASE_TAG"
             exit 88
           fi
+
 
       - name: >
           Query info for ${{ env.TARGET_REPO }}
@@ -94,6 +105,7 @@ jobs:
         id: release-api
         env:
           AUTOCREATE_RELEASE: ${{ github.event.inputs.autocreate_release }}
+          PREBUILD_TAG: ${{ steps.validate-inputs.outputs.prebuild_suffix }}
         uses: actions/github-script@v4
         with:
           github-token: ${{ github.event.inputs.target_repo_token || secrets.GITHUB_TOKEN }}
@@ -103,7 +115,8 @@ jobs:
             const autocreate_release = (process.env.AUTOCREATE_RELEASE == 'yes')
             const owner_data = { owner: owner, repo: repo }
             const release_data = Object.assign( {tag: tag}, owner_data )
-            const create_release_data = Object.assign( {tag_name: tag}, owner_data )
+            const prerelease = process.env.PREBUILD_TAG ? true : false
+            const create_release_data = Object.assign( {tag_name: tag, prerelease: prerelease}, owner_data )
             const tag_data = Object.assign( {ref: `tags/${tag}`}, owner_data )
 
             function id_from_release(data) {
@@ -167,6 +180,23 @@ jobs:
           ref: ${{ env.RELEASE_TAG }}
           clean: true
           fetch-depth: 0
+
+      - name: 'Customize RPM Release tag via build/rpm_metadata/release (pre-release only)'
+        if: steps.validate-inputs.outputs.prebuild_suffix
+        env:
+          PREBUILD_TAG: ${{ steps.validate-inputs.outputs.prebuild_suffix }}
+          PREBUILD_NUMBER: ${{ steps.validate-inputs.outputs.prebuild_number }}
+        # Note: To accomodate the capabilities of EL7's version of RPM, the
+        # release number is formatted according to the Fedora Packaging
+        # Guidelines' "Traditional versioning" conventions:
+        #
+        #   - https://fedoraproject.org/en-US/packaging-guidelines/Versioning/
+        #   - https://fedoraproject.org/wiki/Package_Versioning_Examples
+        #
+        run: |
+          mkdir -p build/rpm_metadata
+          echo "0.${PREBUILD_NUMBER:-$GITHUB_RUN_NUMBER}.${PREBUILD_TAG}" > build/rpm_metadata/release
+          printf '::warning ::Added file build/rpm_metadata/release Release Tag with content "%s"\n' "$(cat build/rpm_metadata/release)"
 
       - name: 'Build & Sign RPMs for ${{ github.event.inputs.release_tag }} Release'
         uses: simp/github-action-build-and-sign-pkg-single-rpm@v2

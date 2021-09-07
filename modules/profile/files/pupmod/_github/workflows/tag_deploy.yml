@@ -33,7 +33,10 @@ name: 'Tag: Release to GitHub & Puppet Forge'
 on:
   push:
     tags:
+      # NOTE: These filter patterns aren't actually regexes:
+      #   https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
       - '[0-9]+\.[0-9]+\.[0-9]+'
+      - '[0-9]+\.[0-9]+\.[0-9]+\-[a-z]+[0-9]+'
 
 env:
   PUPPET_VERSION: '~> 6'
@@ -85,6 +88,16 @@ jobs:
           echo "::set-output name=tag::${tag}"
           echo "::set-output name=annotation_title::${annotation_title}"
 
+          if [[ "$tag" =~ ^(simp-|v)?[0-9]+\.[0-9]+\.[0-9]+(-(rc|alpha|beta|pre)?([0-9]+)?)?$ ]]; then
+            if [ -n "${BASH_REMATCH[2]}" ]; then
+              echo "::set-output name=prerelease::true"
+              annotation_title="Pre-release of ${tag}"
+            fi
+          else
+            printf '::error ::Release Tag format is not SemVer, X.Y.Z-R, X.Y.Z-<prerelease>: "%s"\n' "$RELEASE_TAG"
+            exit 88
+          fi
+
           # Prepare annotation body as a file for the next step
           #
           # * The GitHub Release render the text in this file as markdown
@@ -104,8 +117,8 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ steps.tag-check.outputs.annotation_title }}
           body_path: /tmp/annotation.body
+          prerelease: ${{ steps.tag-check.outputs.prerelease }}
           draft: false
-          prerelease: false
 
   build-and-attach-rpms:
     name: Trigger RPM release
@@ -114,6 +127,8 @@ jobs:
     runs-on: ubuntu-18.04
     env:
       TARGET_REPO: ${{ github.repository }}
+    outputs:
+      prerelease: ${{ steps.tag-check.outputs.prerelease == 'true' }}
     steps:
       - name: Get tag & annotation info (${{github.ref}})
         id: tag-check
@@ -142,7 +157,7 @@ jobs:
   deploy-to-puppet-forge:
     name: Deploy PuppetForge Release
     needs: [ create-github-release ]
-    if: github.repository_owner == 'simp'
+    if: ${{ (github.repository_owner == 'simp') && needs.build-and-attach-rpms.outputs.prerelease }}
     runs-on: ubuntu-18.04
     env:
       PUPPETFORGE_API_TOKEN: ${{ secrets.PUPPETFORGE_API_TOKEN }}
@@ -160,7 +175,7 @@ jobs:
           bundler-cache: true
       - name: Build Puppet module (PDK)
         run: bundle exec pdk build --force
-      - name: Deploy to Puppet Forge
+      - name: Deploy to Puppet Forge (skipped when prerelease)
         run: |
           curl -X POST --silent --show-error --fail \
             --user-agent "$FORGE_USER_AGENT" \
