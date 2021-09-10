@@ -17,6 +17,30 @@ desc <<~DESC
   (TODO: after breaking puppetsync into its own module, document roles & profiles)
 DESC
 
+namespace :data do
+  task :repolist, [:config,:repolist,:verbose] do |t,args|
+    args.with_defaults(:config => 'latest')
+    args.with_defaults(:repolist => 'latest')
+    args.with_defaults(:verbose => false)
+    cmd = %Q[#{BOLT_EXE} lookup --plan-hierarchy puppetsync::repos_config \
+      config="#{args.config}" \
+      repolist="#{args.repolist}" \
+      --log-level "#{args.verbose ? 'debug' : 'info'}" \
+      --format json
+    ].gsub(/ +/, ' ')
+    stdout = %x[#{cmd}]
+    require 'json'
+    data = JSON.parse(stdout)
+    require 'yaml'
+    config_file = "data/sync/configs/#{args.config}.yaml"
+    repolist_file = "data/sync/repolists/#{args.repolist}.yaml"
+    out = ''
+    out += "# config:   #{config_file}#{ File.symlink?(config_file) ? " -> #{File.readlink(config_file)}" : ''}\n"
+    out += "# repolist: #{repolist_file}#{ File.symlink?(repolist_file) ? " -> #{File.readlink(repolist_file)}" : ''}\n"
+    out += data.to_yaml
+    puts out
+  end
+end
 task :strings, [:verbose] do |t,args|
   args.with_defaults(:verbose => false)
   sh %Q[#{BOLT_PUPPET_EXE} strings generate \

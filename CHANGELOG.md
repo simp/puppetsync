@@ -17,6 +17,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added `simp-adapter` to `simp_misc` repolist
   - Made sure `simp-doc` can release on tag, but NOT run `release_rpms`,
     because it will fail to detect its version from a vanilla `pkg:single`
+- New `./Rakefile data:repolist` task to display repos/branches in repolist
+  - defaults to `config=latest` and `repolist=latest`
+  - displays target if either is a symlink
 
 ### Change
 
