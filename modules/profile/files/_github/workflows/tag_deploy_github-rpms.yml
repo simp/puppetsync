@@ -1,4 +1,4 @@
-# Deploy GitHub release & when a SemVer tag is pushed, trigger RPM build
+# When a SemVer tag is pushed, create GitHub release & trigger RPM build
 # ------------------------------------------------------------------------------
 #
 #             NOTICE: **This file is maintained with puppetsync**

@@ -1,11 +1,17 @@
-
+---
 puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-acpid:
     branch: master
 
-  https://github.com/simp/rubygem-simp-test:
-    branch: main
+  https://github.com/simp/rubygem-simp-rake-helpers:
+    branch: master
+
+  https://github.com/simp/rubygem-simp-cli:
+    branch: master
 
   https://github.com/simp/simp-utils:
     branch: master
+
+###  https://github.com/simp/rubygem-simp-test:
+###    branch: main
