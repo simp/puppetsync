@@ -1,6 +1,6 @@
 ---
 puppetsync::batches_config:
-  delay: 600
+  delay: 300
   repolists:
     - pupmods__batch_01
     - pupmods__batch_02

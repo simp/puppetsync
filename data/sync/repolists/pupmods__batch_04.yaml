@@ -72,8 +72,8 @@ puppetsync::repos_config:
    https://github.com/simp/pupmod-simp-issue:
      branch: master
 
-  https://github.com/simp/pupmod-simp-krb5:
-    branch: master
+   https://github.com/simp/pupmod-simp-krb5:
+     branch: master
 
 ###  https://github.com/simp/pupmod-simp-libreswan:
 ###    branch: master
