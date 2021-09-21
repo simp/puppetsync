@@ -1,0 +1,20 @@
+---
+puppetsync::batches_config:
+  delay: 600
+  repolists:
+    - pupmods__batch_01
+    - pupmods__batch_02
+    - pupmods__batch_03
+    - pupmods__batch_04
+    - pupmods__batch_05
+    - pupmods__batch_06
+    - pupmods__batch_07
+    - pupmods__batch_08
+    - pupmods__batch_09
+    - pupmods__batch_10
+    - pupmods__batch_11
+    - pupmods__batch_12
+    - pupmods__batch_13
+    - pupmods__batch_14
+    - rubygems
+    - simp_misc

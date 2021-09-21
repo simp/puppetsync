@@ -14,6 +14,7 @@ hierarchy:
 plan_hierarchy:
   - name: 'Basic plan hierarchy'
     paths:
+    - "sync/batches/%{batchlist}.yaml"
     - "sync/configs/%{config}.yaml"
     - "sync/repolists/%{repolist}.yaml"
     - "sync/common.yaml"

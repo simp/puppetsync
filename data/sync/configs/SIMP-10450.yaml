@@ -13,19 +13,19 @@ puppetsync::plan_config:
         stages:
           ### - install_gems         # Uncomment for first-time puppetsync run
           - checkout_git_feature_branch_in_each_repo
-###          - ensure_jira_subtask
+          - ensure_jira_subtask
           - apply_puppet_role
           - modernize_gitlab_files
           - lint_gitlab_ci
           ### - modernize_fixtures      # one-off
           ### - modernize_metadata_json # one-off?
           - git_commit_changes
-###          - ensure_github_fork
-###          - ensure_git_remote
-###          - git_push_to_remote
-###            # - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
-###            # - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
-###          - ensure_github_pr
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          ### - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
+          ### - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
+          - ensure_github_pr
 
       approve_github_prs:
         clone_git_repos: false         # No need to clone just to approve

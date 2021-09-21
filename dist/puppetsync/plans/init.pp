@@ -95,6 +95,7 @@
 plan puppetsync(
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
+  String[1]            $batchlist              = '---',
   String[1]            $config                 = 'latest',
   String[1]            $repolist               = 'latest',
   Hash                 $puppetsync_config      = lookup('puppetsync::plan_config'),
