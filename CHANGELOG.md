@@ -5,12 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
-
-<!--
 ## [Unreleased]
 
 ### Added
 
+- (SIMP-10451) Updated GHA workflows support tagged pre-releases
+- (SIMP-10574) Manage pkg-r10k
+
+<!--
 ### Changed
 
 ### Fixed
@@ -48,7 +50,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- (SIMP-10451) Updated GHA workflows support tagged pre-releases
 - New GHA `release_rpms` workflow:
   - (SIMP-10155) Attaches GPG public key for RPMs' signing key
   - `workflow_dispatch` event: can trigger manually or from other workflows

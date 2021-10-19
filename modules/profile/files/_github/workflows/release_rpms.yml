@@ -84,7 +84,7 @@ jobs:
             exit 88
           fi
 
-          if [[ "$RELEASE_TAG" =~ ^(simp-|v)?[0-9]+\.[0-9]+\.[0-9]+(-(rc|alpha|beta|pre)?([0-9]+)?)?$ ]]; then
+          if [[ "$RELEASE_TAG" =~ ^(simp-|v)?[0-9]+\.[0-9]+\.[0-9]+(-(rc|alpha|beta|pre|post)?([0-9]+)?)?$ ]]; then
             if [ -n "${BASH_REMATCH[2]}" ]; then
               echo "::set-output name=prebuild_suffix::${BASH_REMATCH[2]#-}"
             fi
