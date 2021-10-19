@@ -1,7 +1,21 @@
 # Adds facts to each repo target based on the contents of its (checked-out)
 # repository
 #
-# @return [TargetSpec] The same repos
+# ### Regarding the `project_type` fact
+# Each repo's *project_type* is determined in the following order of precedence
+# (first match wins:)
+#
+# 1. **`pupmod`** ― when there is a top-level `metadata.json` file that contains
+#    the required keys for Puppet module manifests, as documented at [0]
+# 2. **`pupmod_skeleton`** ― when `skeleton/metadata.json.erb` exists
+# 3. **`rubygem`** ― when `*.gemspec` exists
+# 3. **`simp_unknown`** ― when the repo name starts with `simp-`
+#
+#
+# [0]: https://puppet.com/docs/puppet/latest/modules_metadata.html#modules_metadata_json_keys
+#
+# @params repos Target objects for each locally checked-out git repo to consider
+# @return [TargetSpec] The same repos, now with facts
 function puppetsync::setup_repos_facts(
   TargetSpec $repos,
 ){
@@ -10,6 +24,7 @@ function puppetsync::setup_repos_facts(
 
     # pupmod
     # ------------------------------------------------------------------------
+
     $metadata_json = "${target.vars['repo_path']}/metadata.json"
     $module_metadata = file::exists($metadata_json) ? {
       true    => loadjson($metadata_json),
@@ -45,10 +60,18 @@ function puppetsync::setup_repos_facts(
       $target.add_facts( {'project_attributes' => ($target.facts['project_attributes'] << 'rubygem')} )
     }
 
-    # simp_unknown (no type yet, but repo name starts with 'simp-')
+    # simp_unknown (no type yet, but either:
+    #   * repo name starts with 'simp-'
+    #   * repo_url_path (e.g., the path after `github.com/`) starts with simp/
+    # )
     # ------------------------------------------------------------------------
-    if ($target.facts['project_type'].empty and $target.vars['mod_data']['repo_name'].match(/^simp-/)) {
-      unless $target.facts.dig('project_type'){ $target.add_facts({'project_type' => 'simp_unknown'}) }
+    if ($target.facts['project_type'].empty and (
+      $target.vars['mod_data']['repo_name'].match(/^simp-/) or
+      $target.vars['repo_url_path'].match(/^simp\//)
+    )){
+      unless $target.facts.dig('project_type'){
+        $target.add_facts({'project_type' => 'simp_unknown'})
+      }
     }
 
     # unknown
