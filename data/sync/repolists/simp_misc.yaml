@@ -26,3 +26,6 @@ puppetsync::repos_config:
 
   https://github.com/simp/simp-adapter:
     branch: master
+
+  https://github.com/simp/pkg-r10k:
+    branch: master

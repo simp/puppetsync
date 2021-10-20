@@ -5,20 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+
+<!--
 ## [Unreleased]
 
 ### Added
 
-- (SIMP-10451) Updated GHA workflows support tagged pre-releases
-- (SIMP-10574) Manage pkg-r10k
-
-<!--
 ### Changed
 
 ### Fixed
 
 ### Removed
 -->
+
+## [SIMP-10580] - 2021-10-20
+
+### Added
+
+- (SIMP-10574, SIMP-10580) Manage pkg-r10k
+- (SIMP-10451) Updated GHA workflows to support tagged pre-releases
+- Add `-post#` to pre-release tag name patterns in GHA
+
 
 ## [SIMP-10450] - 2021-09-21
 
@@ -349,4 +356,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-10073]: https://github.com/op-ct/puppetsync/compare/SIMP-9888...SIMP-10073
 [SIMP-10264]: https://github.com/op-ct/puppetsync/compare/SIMP-10073...SIMP-10264
 [SIMP-10450]: https://github.com/op-ct/puppetsync/compare/SIMP-10264...SIMP-10450
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10450...HEAD
+[SIMP-10580]: https://github.com/op-ct/puppetsync/compare/SIMP-10450...SIMP-10580
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10580...HEAD

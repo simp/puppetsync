@@ -13,5 +13,8 @@ puppetsync::repos_config:
   https://github.com/simp/simp-utils:
     branch: master
 
+  https://github.com/simp/pkg-r10k:
+    branch: master
+
 ###  https://github.com/simp/rubygem-simp-test:
 ###    branch: main
