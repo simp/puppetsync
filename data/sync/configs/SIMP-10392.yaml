@@ -16,14 +16,14 @@ puppetsync::plan_config:
           - modernize_gitlab_files
           - lint_gitlab_ci
           ### - modernize_fixtures      # one-off
-###          ### - modernize_metadata_json # one-off?
-###          - git_commit_changes
-###          - ensure_github_fork
-###          - ensure_git_remote
-###          - git_push_to_remote
-###            # - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
-###            # - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
-###          - ensure_github_pr
+          ### - modernize_metadata_json # one-off?
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+            # - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
+            # - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
+          - ensure_github_pr
 
       approve_github_prs:
         clone_git_repos: false         # No need to clone just to approve
@@ -40,7 +40,7 @@ puppetsync::plan_config:
           - merge_github_pr_for_each_repo
 
   jira:
-    parent_issue: SIMP-XXXXX
+    parent_issue: SIMP-10392
     project: SIMP
     jira_site: https://simp-project.atlassian.net
     subtask_title: 'Update simp- assets with RPM builds'

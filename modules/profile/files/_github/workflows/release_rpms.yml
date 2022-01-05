@@ -66,6 +66,10 @@ on:
         description: "Dry run (Test-build RPMs)"
         required: false
         default: 'no'
+      verbose:
+        description: 'Verbose RPM builds when "yes"'
+        required: false
+        default: 'no'
 
 env:
   TARGET_REPO: ${{ (github.event.inputs.target_repo != null && format('{0}/{1}', github.repository_owner, github.event.inputs.target_repo)) || github.repository }}
@@ -73,7 +77,11 @@ env:
 
 jobs:
   create-and-attach-rpms-to-github-release:
-    name: Build and attach RPMs to Release
+    name: >
+      Build and attach RPMs to Release:
+      ${{ (github.event.inputs.target_repo != null && format('{0}/{1}', github.repository_owner, github.event.inputs.target_repo)) || github.repository }}
+      ${{ github.event.inputs.release_tag }}
+      (build os: ${{ github.event.inputs.build_container_os }})
     runs-on: ubuntu-20.04
     steps:
       - name: "Validate inputs"
@@ -84,23 +92,25 @@ jobs:
             exit 88
           fi
 
-          if [[ "$RELEASE_TAG" =~ ^(simp-|v)?[0-9]+\.[0-9]+\.[0-9]+(-(rc|alpha|beta|pre|post)?([0-9]+)?)?$ ]]; then
-            if [ -n "${BASH_REMATCH[2]}" ]; then
-              echo "::set-output name=prebuild_suffix::${BASH_REMATCH[2]#-}"
+          if [[ "$RELEASE_TAG" =~ ^(simp-|v)?([0-9]+\.[0-9]+\.[0-9]+)(-(rc|alpha|beta|pre)?([0-9]+)?)?$ ]]; then
+            if [ -n "${BASH_REMATCH[5]}" ]; then
+              echo "::set-output name=prebuild_number::${BASH_REMATCH[5]#-}"
             fi
-
-            if [ -n "${BASH_REMATCH[4]}" ]; then
-              echo "::set-output name=prebuild_number::${BASH_REMATCH[4]#-}"
+            if [ -n "${BASH_REMATCH[3]}" ]; then
+              echo "::set-output name=prebuild_suffix::${BASH_REMATCH[3]#-}"
+            fi
+            if [ -n "${BASH_REMATCH[2]}" ]; then
+              echo "::set-output name=build_semver::${BASH_REMATCH[2]}"
             fi
           else
             printf '::error ::Release Tag format is not SemVer, X.Y.Z-R, X.Y.Z-<prerelease>: "%s"\n' "$RELEASE_TAG"
-            exit 88
+            echo exit 88
           fi
-
 
       - name: >
           Query info for ${{ env.TARGET_REPO }}
-          release ${{ github.event.inputs.release_tag }}
+          release ${{ github.event.inputs.release_tag }} ${{ steps.validate-inputs.outputs.prebuild_suffix }}
+          build os ${{ github.event.inputs.build_container_os }}
           (autocreate_release = '${{ github.event.inputs.autocreate_release }}')
         id: release-api
         env:
@@ -184,6 +194,7 @@ jobs:
       - name: 'Customize RPM Release tag via build/rpm_metadata/release (pre-release only)'
         if: steps.validate-inputs.outputs.prebuild_suffix
         env:
+          BUILD_SEMVER: ${{ steps.validate-inputs.outputs.build_semver }}
           PREBUILD_TAG: ${{ steps.validate-inputs.outputs.prebuild_suffix }}
           PREBUILD_NUMBER: ${{ steps.validate-inputs.outputs.prebuild_number }}
         # Note: To accomodate the capabilities of EL7's version of RPM, the
@@ -195,10 +206,20 @@ jobs:
         #
         run: |
           mkdir -p build/rpm_metadata
-          echo "0.${PREBUILD_NUMBER:-$GITHUB_RUN_NUMBER}.${PREBUILD_TAG}" > build/rpm_metadata/release
-          printf '::warning ::Added file build/rpm_metadata/release Release Tag with content "%s"\n' "$(cat build/rpm_metadata/release)"
+          # simp-doc uses a different file format for /release (:facepalm:)
+          if [[ "$TARGET_REPO" =~ ^simp\/simp-doc$ ]]; then
+            echo "version: $BUILD_SEMVER" > build/rpm_metadata/release
+            echo "release: 0.${PREBUILD_NUMBER:-$GITHUB_RUN_NUMBER}.${PREBUILD_TAG}" >> build/rpm_metadata/release
+            printf '::warning ::Added file build/rpm_metadata/release with content "%s"\n' "$(cat build/rpm_metadata/release)"
+          else
+            echo "0.${PREBUILD_NUMBER:-$GITHUB_RUN_NUMBER}.${PREBUILD_TAG}" > build/rpm_metadata/release
+            printf '::warning ::Added file build/rpm_metadata/release with content "%s"\n' "$(cat build/rpm_metadata/release)"
+          fi
 
-      - name: 'Build & Sign RPMs for ${{ github.event.inputs.release_tag }} Release'
+      - name: >
+          Build & Sign RPMs for
+          ${{ github.event.inputs.release_tag }}
+          Release (${{ github.event.inputs.build_container_os }})
         uses: simp/github-action-build-and-sign-pkg-single-rpm@v2
         id: build-and-sign-rpm
         with:
@@ -207,6 +228,7 @@ jobs:
           gpg_signing_key_passphrase: ${{ secrets.SIMP_DEV_GPG_SIGNING_KEY_PASSPHRASE }}
           simp_core_ref_for_building_rpms: ${{ secrets.SIMP_CORE_REF_FOR_BUILDING_RPMS }}
           simp_builder_docker_image: 'docker.io/simpproject/simp_build_${{ github.event.inputs.build_container_os }}:latest'
+          verbose: "${{ github.event.inputs.verbose }}"
 
       - name: "Wipe all previous assets from GitHub Release (when clean == 'yes')"
         if: ${{ github.event.inputs.clean == 'yes' && github.event.inputs.dry_run != 'yes' }}

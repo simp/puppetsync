@@ -4,8 +4,6 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-
-
 <!--
 ## [Unreleased]
 
@@ -17,6 +15,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 -->
+
+## [SIMP-10392] - 2022-01-05
+
+### Added
+
+- (SIMP-10392) Full GHA RPM release support for simp-doc
+- `verbose` option for GHA workflow `release_rpms.yml`
+  (passed on to simp/github-action-build-and-sign-pkg-single-rpm@v2
+- simp-doc repolist
+
+### Changed
+
+- GHA workflow `release_rpms.yml` release number logic now accommodates
+  simp-doc's special file format of rpm_metadata/release
+
 
 ## [SIMP-10580] - 2021-10-20
 
@@ -357,4 +370,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-10264]: https://github.com/op-ct/puppetsync/compare/SIMP-10073...SIMP-10264
 [SIMP-10450]: https://github.com/op-ct/puppetsync/compare/SIMP-10264...SIMP-10450
 [SIMP-10580]: https://github.com/op-ct/puppetsync/compare/SIMP-10450...SIMP-10580
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10580...HEAD
+[SIMP-10392]: https://github.com/op-ct/puppetsync/compare/SIMP-10580...SIMP-10392
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10392...HEAD
