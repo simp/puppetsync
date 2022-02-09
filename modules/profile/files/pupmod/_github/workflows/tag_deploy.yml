@@ -3,7 +3,7 @@
 #
 #             NOTICE: **This file is maintained with puppetsync**
 #
-# This file is updated automatically as part of a puppet module baseline.
+# This file is updated automatically as part of a standardized asset baseline.
 #
 # The next baseline sync will overwrite any local changes to this file!
 #
@@ -24,7 +24,7 @@
 #
 # NOTES:
 #
-# * The CHANGLOG text is altered to remove RPM-style date headers, which don't
+# * The CHANGELOG text is altered to remove RPM-style date headers, which don't
 #   render well as markdown on the GitHub release pages
 #
 ---
@@ -133,7 +133,7 @@ jobs:
       - name: Get tag & annotation info (${{github.ref}})
         id: tag-check
         run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
-      - name: Trigger RPM release workflow
+      - name: Trigger RPM release workflow (el7)
         uses: actions/github-script@v4
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
@@ -148,10 +148,36 @@ jobs:
               workflow_id: 'release_rpms.yml',
               ref: process.env.DEFAULT_BRANCH,
               inputs: {
-                release_tag: process.env.TARGET_TAG
+                release_tag: process.env.TARGET_TAG,
+                clean: 'no',
+                clobber: 'yes',
+                build_container_os: 'centos7'
               }
-            }).then( (result) => {
-              console.log( `== Submitted workflow dispatch: status ${result.status}` )
+            }).then((result) => {
+              console.log( `== Submitted workflow dispatch to build RPMs from el7: status ${result.status}` )
+            })
+      - name: Trigger RPM release workflow (el8)
+        uses: actions/github-script@v4
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          TARGET_TAG: ${{ steps.tag-check.outputs.tag }}
+        with:
+          github-token: ${{ secrets.SIMP_AUTO_GITHUB_TOKEN__REPO_SCOPE }}
+          script: |
+            const [owner, repo] = process.env.TARGET_REPO.split('/')
+            await github.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+              owner: owner,
+              repo: repo,
+              workflow_id: 'release_rpms.yml',
+              ref: process.env.DEFAULT_BRANCH,
+              inputs: {
+                release_tag: process.env.TARGET_TAG,
+                clean: 'no',
+                clobber: 'yes',
+                build_container_os: 'centos8'
+              }
+            }).then((result) => {
+              console.log( `== Submitted workflow dispatch to build RPMs from el8: status ${result.status}` )
             })
 
   deploy-to-puppet-forge:

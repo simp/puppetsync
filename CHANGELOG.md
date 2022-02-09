@@ -4,15 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-<!--
 ## [Unreleased]
 
 ### Added
+
+- GHA pupmod releases now build & sign RPMs for both EL8 _and_ EL7
 
 ### Changed
 
 ### Fixed
 
+- GHA `tag_deploy*.yml` workflows now use the proper `'yes'` and `'no'`
+  arguments for `clean:` and `clobber:` when dispatching the workflow
+  `release_rpms.yml`
+
+<!--
 ### Removed
 -->
 
