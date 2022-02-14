@@ -25,6 +25,7 @@ namespace :data do
     cmd = %Q[#{BOLT_EXE} lookup --plan-hierarchy puppetsync::repos_config \
       config="#{args.config}" \
       repolist="#{args.repolist}" \
+      batchlist="" \
       --log-level "#{args.verbose ? 'debug' : 'info'}" \
       --format json
     ].gsub(/ +/, ' ')
