@@ -8,7 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- GHA pupmod releases now build & sign RPMs for both EL8 _and_ EL7
+- These GHA releases now build & sign RPMs for both EL8 _and_ EL7 (formerly,
+  just EL8):
+
+  - pupmods
+  - repo pkg-r10k
 
 ### Changed
 
