@@ -27,6 +27,7 @@
 # * If triggered by another workflow, it will be necessary to provide a GitHub
 #   access token via the the `target_repo_token` parameter
 #
+#
 ---
 name: 'RELENG: Build + attach RPMs to GitHub Release'
 
@@ -108,7 +109,7 @@ jobs:
             fi
           else
             printf '::error ::Release Tag format is not SemVer, X.Y.Z-R, X.Y.Z-<prerelease>: "%s"\n' "$RELEASE_TAG"
-            echo exit 88
+            exit 88
           fi
 
       - name: >
@@ -210,7 +211,7 @@ jobs:
         #
         run: |
           mkdir -p build/rpm_metadata
-          # simp-doc uses a unique data format in /release (:facepalm:)
+          # Special case for simp-doc's unique data format in /release
           if [[ "$TARGET_REPO" =~ ^simp\/simp-doc$ ]]; then
             echo "version: $BUILD_SEMVER" > build/rpm_metadata/release
             echo "release: 0.${PREBUILD_NUMBER:-$GITHUB_RUN_NUMBER}.${PREBUILD_TAG}" >> build/rpm_metadata/release

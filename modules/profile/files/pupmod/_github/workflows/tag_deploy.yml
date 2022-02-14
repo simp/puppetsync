@@ -28,7 +28,7 @@
 #   render well as markdown on the GitHub release pages
 #
 ---
-name: 'Tag: Release to GitHub & Puppet Forge'
+name: 'Tag: Release to GitHub w/RPMs + Puppet Forge'
 
 on:
   push:
@@ -45,7 +45,7 @@ jobs:
   releng-checks:
     name: "RELENG checks"
     if: github.repository_owner == 'simp'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: "Assert '${{ github.ref }}' is a tag"
         run: '[[ "$GITHUB_REF" =~ ^refs/tags/ ]] || { echo "::error ::GITHUB_REF is not a tag: ${GITHUB_REF}"; exit 1 ; }'
@@ -69,7 +69,9 @@ jobs:
     name: Deploy GitHub Release
     needs: [ releng-checks ]
     if: github.repository_owner == 'simp'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    outputs:
+      prerelease: ${{ steps.tag-check.outputs.prerelease }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -85,18 +87,20 @@ jobs:
           annotation="$(git for-each-ref "$GITHUB_REF" --format='%(contents)' --count=1)"
           annotation_title="$(echo "$annotation" | head -1)"
 
-          echo "::set-output name=tag::${tag}"
-          echo "::set-output name=annotation_title::${annotation_title}"
 
           if [[ "$tag" =~ ^(simp-|v)?[0-9]+\.[0-9]+\.[0-9]+(-(rc|alpha|beta|pre|post)?([0-9]+)?)?$ ]]; then
             if [ -n "${BASH_REMATCH[2]}" ]; then
-              echo "::set-output name=prerelease::true"
+              prerelease=yes
               annotation_title="Pre-release of ${tag}"
             fi
           else
             printf '::error ::Release Tag format is not SemVer, X.Y.Z-R, X.Y.Z-<prerelease>: "%s"\n' "$RELEASE_TAG"
             exit 88
           fi
+
+          echo "::set-output name=tag::${tag}"
+          echo "::set-output name=prerelease::${prerelease}"
+          echo "::set-output name=annotation_title::${annotation_title}"
 
           # Prepare annotation body as a file for the next step
           #
@@ -117,23 +121,26 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ steps.tag-check.outputs.annotation_title }}
           body_path: /tmp/annotation.body
-          prerelease: ${{ steps.tag-check.outputs.prerelease }}
+          prerelease: ${{ steps.tag-check.outputs.prerelease  == 'yes'}}
           draft: false
 
   build-and-attach-rpms:
     name: Trigger RPM release
     needs: [ create-github-release ]
     if: github.repository_owner == 'simp'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       TARGET_REPO: ${{ github.repository }}
-    outputs:
-      prerelease: ${{ steps.tag-check.outputs.prerelease == 'true' }}
+    strategy:
+      matrix:
+        os:
+          - centos7
+          - centos8
     steps:
       - name: Get tag & annotation info (${{github.ref}})
         id: tag-check
         run: echo "::set-output name=tag::${GITHUB_REF/refs\/tags\//}"
-      - name: Trigger RPM release workflow (el7)
+      - name: Trigger RPM release workflow (${{ matrix.os }})
         uses: actions/github-script@v4
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
@@ -151,40 +158,17 @@ jobs:
                 release_tag: process.env.TARGET_TAG,
                 clean: 'no',
                 clobber: 'yes',
-                build_container_os: 'centos7'
+                build_container_os: '${{ matrix.os }}'
               }
             }).then((result) => {
-              console.log( `== Submitted workflow dispatch to build RPMs from el7: status ${result.status}` )
-            })
-      - name: Trigger RPM release workflow (el8)
-        uses: actions/github-script@v4
-        env:
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          TARGET_TAG: ${{ steps.tag-check.outputs.tag }}
-        with:
-          github-token: ${{ secrets.SIMP_AUTO_GITHUB_TOKEN__REPO_SCOPE }}
-          script: |
-            const [owner, repo] = process.env.TARGET_REPO.split('/')
-            await github.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
-              owner: owner,
-              repo: repo,
-              workflow_id: 'release_rpms.yml',
-              ref: process.env.DEFAULT_BRANCH,
-              inputs: {
-                release_tag: process.env.TARGET_TAG,
-                clean: 'no',
-                clobber: 'yes',
-                build_container_os: 'centos8'
-              }
-            }).then((result) => {
-              console.log( `== Submitted workflow dispatch to build RPMs from el8: status ${result.status}` )
+              console.log( `== Submitted workflow dispatch to build RPMs from ${{ matrix.os }}: status ${result.status}` )
             })
 
   deploy-to-puppet-forge:
     name: Deploy PuppetForge Release
     needs: [ create-github-release ]
-    if: ${{ (github.repository_owner == 'simp') && needs.build-and-attach-rpms.outputs.prerelease }}
-    runs-on: ubuntu-18.04
+    if: (github.repository_owner == 'simp') && (needs.create-github-release.outputs.prerelease != 'yes')
+    runs-on: ubuntu-latest
     env:
       PUPPETFORGE_API_TOKEN: ${{ secrets.PUPPETFORGE_API_TOKEN }}
       FORGE_USER_AGENT: GitHubActions-ForgeReleng-Workflow/0.4.0 (Purpose/forge-ops-for-${{ github.event.repository.name }})
