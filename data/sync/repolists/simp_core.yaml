@@ -1,0 +1,4 @@
+puppetsync::repos_config:
+
+  https://github.com/simp/simp-core:
+    branch: master
