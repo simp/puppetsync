@@ -6,25 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added
+## Added
 
 - These GHA releases now build & sign RPMs for both EL8 _and_ EL7 (formerly,
-  just EL8):
+  they just built EL8):
 
   - pupmods
   - repo pkg-r10k
-
-### Changed
 
 ### Fixed
 
 - GHA `tag_deploy*.yml` workflows now use the proper `'yes'` and `'no'`
   arguments for `clean:` and `clobber:` when dispatching the workflow
   `release_rpms.yml`
-
-<!--
-### Removed
--->
 
 ## [SIMP-10392] - 2022-01-05
 
