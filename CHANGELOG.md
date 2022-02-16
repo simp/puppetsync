@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+<!--
 ## [Unreleased]
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+-->
+
+## [SIMP-10633] - 2022-02-16
 
 ## Added
 
@@ -19,6 +32,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - GHA `tag_deploy*.yml` workflows now use the proper `'yes'` and `'no'`
   arguments for `clean:` and `clobber:` when dispatching the workflow
   `release_rpms.yml`
+- GHA RPM build actions now fail on malformed tag name
+- Fixed pre-release decision bug in `deploy-to-puppetforge` stage
+
+### Changed
+
+- Collapsed separate EL7 and EL8 build-and-attach RPM stages into a
+  single GHA stage with a matrix
+- Updated GHA workflow images from `ubuntu-18.04` to `ubuntu-latest`
+- Normalized GHA build workflows across all project types
+
 
 ## [SIMP-10392] - 2022-01-05
 
@@ -375,4 +398,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-10450]: https://github.com/op-ct/puppetsync/compare/SIMP-10264...SIMP-10450
 [SIMP-10580]: https://github.com/op-ct/puppetsync/compare/SIMP-10450...SIMP-10580
 [SIMP-10392]: https://github.com/op-ct/puppetsync/compare/SIMP-10580...SIMP-10392
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10392...HEAD
+[SIMP-10633]: https://github.com/op-ct/puppetsync/compare/SIMP-10392...SIMP-10633
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10633...HEAD
