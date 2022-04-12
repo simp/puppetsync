@@ -8,6 +8,7 @@ class profile::pupmod::git_files(
     content => file(
       "${module_name}/pupmod/_gitignore.${target_module_name}",
       "${module_name}/pupmod/_gitignore",
+      "${module_name}/_gitignore",
     ),
   }
 
@@ -15,6 +16,7 @@ class profile::pupmod::git_files(
     content => file(
       "${module_name}/pupmod/_gitattributes.${target_module_name}",
       "${module_name}/pupmod/_gitattributes",
+      "${module_name}/_gitattributes",
     ),
   }
 }
