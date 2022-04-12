@@ -11,13 +11,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Tightened hiera fixture rules in Puppet modules' `.gitignore`
 
-<!--
 ### Changed
+
+- Moved `.gitattributes` from pupmods' files to all projects
+
 
 ### Fixed
 
-### Removed
--->
+- Re-added rubygem release output vars (needed to publish releases to
+  rubygems.org)
+
 
 ## [SIMP-10633] - 2022-02-16
 
