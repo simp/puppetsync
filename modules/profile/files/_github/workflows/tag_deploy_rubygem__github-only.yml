@@ -43,6 +43,10 @@ jobs:
     name: "RELENG checks"
     if: github.repository_owner == 'simp'
     runs-on: ubuntu-latest
+    outputs:
+      build_command: ${{ steps.commands.outputs.build_command }}
+      release_command: ${{ steps.commands.outputs.release_command }}
+      pkg_dir: ${{ steps.commands.outputs.pkg_dir }}
     steps:
       - name: "Assert '${{ github.ref }}' is a tag"
         run: '[[ "$GITHUB_REF" =~ ^refs/tags/ ]] || { echo "::error ::GITHUB_REF is not a tag: ${GITHUB_REF}"; exit 1 ; }'
@@ -50,17 +54,28 @@ jobs:
         with:
           ref: ${{ github.ref }}
           clean: true
-      - name: Determing build and release commands
+      - name: Determine build and release commands
         id: commands
         run: |
           # By default, this is the standard task from "bundler/gem_tasks"
           # To override it, add the new command to LOCAL_WORKFLOW_CONFIG_FILE
           GEM_BUILD_COMMAND='bundle exec rake build'
+          GEM_RELEASE_COMMAND='bundle exec rake build release:rubygem_push'
+          GEM_PKG_DIR='pkg'
+          if jq -r '. | keys' "$LOCAL_WORKFLOW_CONFIG_FILE" 2>/dev/null | \
+              grep -w '"gem_pkg_dir"' &> /dev/null; then
+            GEM_PKG_DIR="$(jq -r .gem_pkg_dir "$LOCAL_WORKFLOW_CONFIG_FILE" )"
+          fi
           if jq -r '. | keys' "$LOCAL_WORKFLOW_CONFIG_FILE" 2>/dev/null | \
               grep -w '"gem_build_command"' &> /dev/null; then
-            GEM_BUILD_COMMAND="$(jq .gem_build_command "$LOCAL_WORKFLOW_CONFIG_FILE" )"
+            GEM_BUILD_COMMAND="$(jq -r .gem_build_command "$LOCAL_WORKFLOW_CONFIG_FILE" )"
+          fi
+          if jq -r '. | keys' "$LOCAL_WORKFLOW_CONFIG_FILE" 2>/dev/null | \
+              grep -w '"gem_release_command"' &> /dev/null; then
+            GEM_RELEASE_COMMAND="$(jq -r .gem_release_command "$LOCAL_WORKFLOW_CONFIG_FILE" )"
           fi
           echo "::set-output name=build_command::${GEM_BUILD_COMMAND}"
+          echo "::set-output name=pkg_dir::${GEM_PKG_DIR}"
           echo "::set-output name=release_command::${GEM_RELEASE_COMMAND}"
       - uses: ruby/setup-ruby@v1
         with:
@@ -71,7 +86,13 @@ jobs:
       - name: "Assert '${{ github.ref }}' matches the package version"
         run: |
           tag="${GITHUB_REF/refs\/tags\//}"
-          [ -f pkg/*-${tag}.gem ] || { echo "::error ::tag '${tag}' does not match package $(ls -1 pkg/*.gem)"; exit 1 ; }
+          [ -d  "${{ steps.commands.outputs.pkg_dir }}" ] || \
+             { echo "::error ::No directory found at ${{ steps.commands.outputs.pkg_dir }}/" ; exit 3 ; }
+          ls -1 "${{ steps.commands.outputs.pkg_dir }}"/*.gem || \
+             {  echo "::error ::No gem file found at ${{ steps.commands.outputs.pkg_dir }}/*.gem" ; exit 2 ; }
+          [ -f "${{ steps.commands.outputs.pkg_dir }}"/*-${tag}.gem ] || \
+             { echo "::error ::tag '${tag}' does not match package $(ls -1 ${{ steps.commands.outputs.pkg_dir }}/*.gem)"; exit 1 ; }
+
 
   create-github-release:
     name: Deploy GitHub Release
@@ -87,6 +108,7 @@ jobs:
           ref: ${{ github.ref }}
           clean: true
           fetch-depth: 0
+
       - name: Get tag & annotation info (${{github.ref}})
         id: tag-check
         run: |
