@@ -17,6 +17,10 @@ class profile::github_actions(
   Array[String] $absent_action_files = [],
 ){
   $project_type = $facts.dig('project_type').lest || {'unknown'}
+  $project_type2 = $project_type == 'pupmod_skeleton' ? {
+    true    => 'pupmod',
+    default => "NO_PROJECT_TYPE_FOR_${project_type}",
+  }
 
   file{ [$target_github_actions_dir, dirname($target_github_actions_dir)]: ensure => directory }
 
@@ -30,6 +34,7 @@ class profile::github_actions(
       content => file(
         "${module_name}/${project_type}/_github/workflows/${action}.${target_repo_name}.yml",
         "${module_name}/${project_type}/_github/workflows/${action}.yml",
+        "${module_name}/${project_type2}/_github/workflows/${action}.yml",
         "${module_name}/_github/workflows/${action}.${target_repo_name}.yml",
         "${module_name}/_github/workflows/${action}.yml"
       ),
