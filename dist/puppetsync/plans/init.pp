@@ -114,7 +114,7 @@ plan puppetsync(
     'github_api_delay_seconds' => 5,
    } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{}} + $options
   $repos = puppetsync::setup_project_repos( $puppetsync_config, $repos_config, $project_dir, $opts )
-  $feature_branch    = getvar('puppetsync_config.jira.parent_issue')
+  $feature_branch    = getvar('puppetsync_config.git.feature_branch')
 
   # ----------------------------------------------------------------------------
   # - [x] Install repos from Puppetfile.repos

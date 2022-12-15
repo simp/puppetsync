@@ -28,13 +28,13 @@ def bump_version(file)
   warn "\n\n++ processed '#{file}'"
 
   if new_version
+    next if file =~ /\.erb$/
     changelog_file = File.join(dir,'CHANGELOG')
     changelog = File.read(changelog_file)
     require 'date'
     new_lines = []
     new_lines << DateTime.now.strftime("* %a %b %d %Y Chris Tessmer <chris.tessmer@onyxpoint.com> - #{new_version}")
-    new_lines << '- Removed support for Puppet 5'
-    new_lines << '- Ensured support for Puppet 7 in requirements and stdlib'
+    new_lines << '- Update from camptocamp/systemd to puppet/systemd'
     changelog = new_lines.join("\n") + "\n\n" + changelog
     File.open(changelog_file,'w'){|f| f.puts changelog }
   end
@@ -53,6 +53,7 @@ def tmp_bundle_rake_execs(repo_path, tasks)
     require 'bundler'
     require 'rake'
     Bundler.with_unbundled_env do
+      sh "/opt/puppetlabs/bolt/bin/bundle config path .vendor/bundle &> /dev/null"
       sh "/opt/puppetlabs/bolt/bin/bundle install &> /dev/null"
       tasks.each do |task|
         puts
@@ -108,12 +109,12 @@ dep_sections = [
   (content['simp']||{})['optional_dependencies']
 ].select{|x| x }
 dep_sections.each do |dependencies|
-  dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
-    x['version_requirement'] = '>= 6.6.0 < 8.0.0'
+  dependencies.select{|x| x['name'] == 'camptocamp/systemd' }.map do |x|
+    x['name'] = 'puppet/systemd'
+    x['version_requirement'] = '>= 3.0.0 < 4.0.0'
   end
-
-  dependencies.select{|x| x['name'] == 'puppetlabs/concat' }.map do |x|
-    x['version_requirement'] = '>= 6.4.0 < 8.0.0'
+  dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
+    x['version_requirement'] = '>= 6.6.0 < 8.0.0'  # FIXME: is >= 6.6.0 necessary?
   end
 end
 
@@ -125,7 +126,7 @@ if content.to_s == original_content_str
 else
   warn '  ++ content was changed!'
   repo_path = File.dirname file
-  #### bump_version(file) # Not needed so soon
+  bump_version(file) # Not needed so soon
   tmp_bundle_rake_execs(repo_path, ['pkg:check_version', 'pkg:compare_latest_tag'])
 end
 

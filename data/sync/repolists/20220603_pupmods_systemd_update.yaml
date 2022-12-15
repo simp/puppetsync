@@ -1,0 +1,31 @@
+puppetsync::repos_config:
+
+  https://github.com/simp/pupmod-simp-aide:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-ds389:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-gdm:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-haveged:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-nfs:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-pupmod:
+    branch: master
+
+      #  https://github.com/simp/pupmod-simp-rsyslog:
+      #    branch: master
+
+  https://github.com/simp/pupmod-simp-selinux:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-sssd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-useradd:
+    branch: master
