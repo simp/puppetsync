@@ -17,7 +17,40 @@ desc <<~DESC
   (TODO: after breaking puppetsync into its own module, document roles & profiles)
 DESC
 
+def file_info_string(file)
+  out = file.to_s
+  if File.symlink?(file)
+    require 'pathname'
+    p = Pathname.new(file)
+    link_path = p.realpath.relative_path_from(Rake.application.original_dir)
+    out = "#{out} -> #{link_path}"
+  end
+  out
+end
+
+def config_file(name)
+  "data/sync/configs/#{name}.yaml"
+end
+
+def repolist_file(name)
+  "data/sync/repolists/#{name}.yaml"
+end
+
+
 namespace :data do
+  task :files, [:config,:repolist,:verbose] do |t,args|
+    args.with_defaults(:config => 'latest')
+    args.with_defaults(:repolist => 'latest')
+    args.with_defaults(:verbose => false)
+    config_file = config_file(args.config)
+    repolist_file = repolist_file(args.repolist)
+
+    out = ''
+    out += "# config:   #{file_info_string(config_file)}\n"
+    out += "# repolist: #{file_info_string(repolist_file)}\n"
+    puts out
+  end
+
   task :repolist, [:config,:repolist,:verbose] do |t,args|
     args.with_defaults(:config => 'latest')
     args.with_defaults(:repolist => 'latest')
@@ -36,10 +69,13 @@ namespace :data do
     config_file = "data/sync/configs/#{args.config}.yaml"
     repolist_file = "data/sync/repolists/#{args.repolist}.yaml"
     out = ''
-    out += "# config:   #{config_file}#{ File.symlink?(config_file) ? " -> #{File.readlink(config_file)}" : ''}\n"
-    out += "# repolist: #{repolist_file}#{ File.symlink?(repolist_file) ? " -> #{File.readlink(repolist_file)}" : ''}\n"
+    out += "# config:   #{file_info_string(config_file)}\n"
+    out += "# repolist: #{file_info_string(repolist_file)}\n"
     out += data.to_yaml
     puts out
+  end
+
+  namespace :config do
   end
 end
 task :strings, [:verbose] do |t,args|
