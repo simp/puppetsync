@@ -1,0 +1,26 @@
+puppetsync::repos_config:
+
+  ###  https://github.com/simp/rubygem-simp-beaker-helpers:
+  ###  branch: master
+
+  https://github.com/simp/rubygem-simp-rake-helpers:
+    branch: master
+
+#### Don't publish to rubygems.org:
+###
+###  https://github.com/simp/rubygem-simp-cli:
+###    branch: master
+
+  https://github.com/simp/rubygem-simp-rspec-puppet-facts:
+    branch: master
+
+#### These repos do not require formal releases (yet):
+###
+###  https://github.com/simp/rubygem-simp-build-helpers:
+###    branch: master
+###
+###  https://github.com/simp/rubygem-simp-spec-helpers:
+###    branch: master
+###
+###  https://github.com/simp/rubygem-simp-processgraph:
+###    branch: master
