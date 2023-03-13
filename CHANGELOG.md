@@ -9,10 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Configuration for `add_gce` push
 - Tightened hiera fixture rules in Puppet modules' `.gitignore`
 
 ### Changed
 
+- De-jirafied approve and merge plans (TODO: git message template)
 - Moved `.gitattributes` from pupmods' files to all projects
 
 
