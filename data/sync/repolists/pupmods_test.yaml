@@ -1,4 +1,4 @@
 puppetsync::repos_config:
 
-  https://github.com/simp/pupmod-simp-acpid:
+  https://github.com/simp/pupmod-simp-aide:
     branch: master
