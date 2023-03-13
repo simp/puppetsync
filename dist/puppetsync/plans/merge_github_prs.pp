@@ -53,7 +53,7 @@ plan puppetsync::merge_github_prs(
     }
   )
 
-  $feature_branch = getvar('puppetsync_config.jira.parent_issue')
+  $feature_branch = getvar('puppetsync_config.git.feature_branch')
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------

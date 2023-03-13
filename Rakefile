@@ -11,19 +11,25 @@ CLEAN.include( Dir['????????-????-????-????-????????????'].reject{|x| x.strip !~
 CLEAN.include( [GEM_HOME, 'tmpdir', 'gem.deps.rb.lock'] )
 CLOBBER << '_repos'
 
-desc <<~DESC
-  Generate REFERENCE.md for puppetsync
-
-  (TODO: after breaking puppetsync into its own module, document roles & profiles)
-DESC
+@target_name_max_length = 40
 
 def file_info_string(file)
   out = file.to_s
   if File.symlink?(file)
     require 'pathname'
     p = Pathname.new(file)
-    link_path = p.realpath.relative_path_from(Rake.application.original_dir)
-    out = "#{out} -> #{link_path}"
+    target_missing = p.exist? ? false : true
+    if File.symlink?(file)
+      if target_missing
+        link_path = p.readlink
+      else
+        link_path = p.realpath.relative_path_from(Rake.application.original_dir)
+      end
+      out = "#{out.rjust(@target_name_max_length+1)} -> #{link_path}"
+    else
+      out = "#{out.rjust(@target_name_max_length+1)}    !!! FILE !!!"
+    end
+    out += "  !!! MISSING !!!" if target_missing
   end
   out
 end
@@ -37,18 +43,28 @@ def repolist_file(name)
 end
 
 
+def display_config_paths(config_file:, repolist_file:)
+  @target_name_max_length = [config_file, repolist_file].map(&:size).max
+
+  out = ''
+  out += "# config:   #{file_info_string(config_file)}\n"
+  out += "# repolist: #{file_info_string(repolist_file)}\n"
+  puts out
+
+  exit 1 if out =~ /MISSING/
+end
+
+
 namespace :data do
+  desc "Display puppetsync's latest config paths"
   task :files, [:config,:repolist,:verbose] do |t,args|
     args.with_defaults(:config => 'latest')
     args.with_defaults(:repolist => 'latest')
     args.with_defaults(:verbose => false)
-    config_file = config_file(args.config)
-    repolist_file = repolist_file(args.repolist)
-
-    out = ''
-    out += "# config:   #{file_info_string(config_file)}\n"
-    out += "# repolist: #{file_info_string(repolist_file)}\n"
-    puts out
+    display_config_paths(
+      config_file: config_file(args.config),
+      repolist_file: repolist_file(args.repolist)
+    )
   end
 
   task :repolist, [:config,:repolist,:verbose] do |t,args|
@@ -68,16 +84,21 @@ namespace :data do
     require 'yaml'
     config_file = "data/sync/configs/#{args.config}.yaml"
     repolist_file = "data/sync/repolists/#{args.repolist}.yaml"
-    out = ''
-    out += "# config:   #{file_info_string(config_file)}\n"
-    out += "# repolist: #{file_info_string(repolist_file)}\n"
-    out += data.to_yaml
-    puts out
+    display_config_paths(
+      config_file: config_file(args.config),
+      repolist_file: repolist_file(args.repolist)
+    )
   end
 
   namespace :config do
   end
 end
+
+desc <<~DESC
+Generate latest config REFERENCE.md for puppetsync
+
+  (TODO: after breaking puppetsync into its own module, document role & profile classes)
+DESC
 task :strings, [:verbose] do |t,args|
   args.with_defaults(:verbose => false)
   sh %Q[#{BOLT_PUPPET_EXE} strings generate \

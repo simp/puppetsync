@@ -1,0 +1,51 @@
+---
+puppetsync::plan_config:
+  # Changes were made by hand
+  puppetsync:
+    permitted_project_types:
+      - rubygem
+      - pupmod
+      - simp_unknown
+    plans:
+      sync:
+        #clone_git_repos: false    # set to `false` when applying manual updates on a second run
+        #clear_before_clone: false # set to `false` when applying manual updates on a second run
+        github_api_delay_seconds: 10
+        stages:
+          - checkout_git_feature_branch_in_each_repo
+
+      approve_github_prs:
+        clone_git_repos: false         # No need to clone just to approve
+        filter_permitted_repos: false  # No need to filter (which requires clone)
+        stages:
+          #- install_gems
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        clone_git_repos: false         # No need to clone just to merge
+        filter_permitted_repos: false  # No need to filter (which requires clone)
+        stages:
+          - install_gems
+          - merge_github_pr_for_each_repo
+
+            # jira:
+            #   parent_issue: update-deps-to-new-systemd-module
+            #   project: SIMP
+            #   jira_site: https://simp-project.atlassian.net
+            #   subtask_title: 'Standardize GHA assets for %COMPONENT%'
+            #   # optional:
+            #   subtask_story_points: 0
+            #   subtask_assignee: true
+
+  git:
+    feature_branch: add_gce
+      #feature_branch: modernize-gha-workflows-to-avoid-deprecations
+    # 0---------1---------2---------3---------4---------5---------6---------7|
+    # (SIMP-XXXXX) 12345678                                    |+|
+    commit_message: |
+      Add GCE image details to nodesets
+
+  github:
+    pr_user: AndyAdrian-OP  # This should be the account that *submitted* the PRs
+                            # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
