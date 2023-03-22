@@ -1,0 +1,59 @@
+---
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+#      - rubygem
+      - pupmod
+#     - simp_unknown
+    plans:
+      sync:
+        #clone_git_repos: false    # set to `false` when applying manual updates on a second run
+        #clear_before_clone: false # set to `false` when applying manual updates on a second run
+        github_api_delay_seconds: 10
+        stages:
+          ### - install_gems         # Uncomment for first-time puppetsync run
+          - checkout_git_feature_branch_in_each_repo
+          - apply_puppet_role
+          - modernize_gitlab_files
+          - lint_gitlab_ci
+          ### - modernize_fixtures      # one-off
+          ### - modernize_metadata_json # one-off?
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
+          - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
+          - ensure_github_pr
+
+      approve_github_prs:
+        clone_git_repos: false         # No need to clone just to approve
+        filter_permitted_repos: false  # No need to filter (which requires clone)
+        stages:
+          - install_gems
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        clone_git_repos: false         # No need to clone just to merge
+        filter_permitted_repos: false  # No need to filter (which requires clone)
+        stages:
+          - install_gems
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: add-gcp-to-glci
+    # 0---------1---------2---------3---------4---------5---------6---------7|
+    # (SIMP-XXXXX) 12345678                                    |+|
+    commit_message: |
+      Add GCP support to GLCI
+
+      This patch updates GHA workflows to use GCP as a hypervisor when
+      BEAKER_HYPERVISOR is `google`
+
+      The patch enforces a standardized asset baseline using simp/puppetsync,
+      and may also apply other updates to ensure conformity.
+
+  github:
+    pr_user: op-ct  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
