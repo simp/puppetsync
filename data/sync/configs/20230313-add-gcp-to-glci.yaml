@@ -54,6 +54,6 @@ puppetsync::plan_config:
       and may also apply other updates to ensure conformity.
 
   github:
-    pr_user: op-ct  # This should be the account that *submitted* the PRs
+    pr_user: rgardner4012  # This should be the account that *submitted* the PRs
                     # (Used by idempotency checks when approving/merging PRs)
     approval_message: ':+1: :ghost:'

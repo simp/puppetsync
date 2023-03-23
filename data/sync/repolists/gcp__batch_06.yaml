@@ -1,0 +1,39 @@
+puppetsync::repos_config:
+
+  https://github.com/simp/pupmod-simp-simp_nfs:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_openldap:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_pki_service:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_rsyslog:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_snmpd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simpkv:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simplib:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-ssh:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-sssd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-stunnel:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-sudo:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-sudosh:
+    branch: master
+
+
