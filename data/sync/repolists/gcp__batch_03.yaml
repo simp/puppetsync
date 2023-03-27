@@ -1,0 +1,42 @@
+puppetsync::repos_config:
+
+  https://github.com/simp/pupmod-simp-issue:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-journald:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-krb5:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-libreswan:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-libvirt:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-logrotate:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-mate:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-mockup:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-mozilla:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-named:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-network:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-nfs:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-ntpd:
+    branch: master
+
+

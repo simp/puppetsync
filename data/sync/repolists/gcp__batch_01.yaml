@@ -1,0 +1,39 @@
+puppetsync::repos_config:
+
+  https://github.com/simp/pkg-r10k:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-acpid:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-aide:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-at:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-auditd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-autofs:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-clamav:
+    branch: master
+
+      #  https://github.com/simp/pupmod-simp-common:
+      #branch: master
+
+  https://github.com/simp/pupmod-simp-compliance_markup:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-cron:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-crypto_policy:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-dconf:
+    branch: master
+
+

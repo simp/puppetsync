@@ -112,7 +112,7 @@ class GitHubPRForker
   end
 
   def merge_pr(pr)
-    raise 'No PR exists to approve' unless pr
+    raise 'No PR exists to merge' unless pr
     raise "PR already approved: '#{pr.html_url}'" if @client.pull_merged?(pr.base.repo.full_name, pr.number)
     @client.merge_pull_request(
       pr.base.repo.full_name,

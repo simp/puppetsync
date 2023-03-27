@@ -1,0 +1,38 @@
+puppetsync::repos_config:
+
+  https://github.com/simp/pupmod-simp-oath:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-oddjob:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-openscap:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-pam:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-pki:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-polkit:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-postfix:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-pupmod:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-resolv:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-rkhunter:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-rsync:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-rsyslog:
+    branch: master
+

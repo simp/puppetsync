@@ -1,0 +1,50 @@
+puppetsync::repos_config:
+
+  https://github.com/simp/pupmod-simp-svckill:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-swap:
+    branch: master
+
+      #  https://github.com/simp/pupmod-simp-sysctl:
+      #branch: master
+
+  https://github.com/simp/pupmod-simp-tftpboot:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-tlog:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-tpm2:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-useradd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-vsftpd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-x2go:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-xinetd:
+    branch: master
+
+  https://github.com/simp/rubygem-simp-beaker-helpers:
+    branch: master
+
+  https://github.com/simp/rubygem-simp-cli:
+    branch: master
+
+  https://github.com/simp/rubygem-simp-rspec-puppet-facts:
+    branch: master
+
+  https://github.com/simp/simp-adapter:
+    branch: master
+
+      #  https://github.com/simp/simp-core:
+      #branch: master
+
+  https://github.com/simp/simp-utils:
+    branch: master
+
