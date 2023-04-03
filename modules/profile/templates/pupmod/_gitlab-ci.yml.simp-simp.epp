@@ -235,25 +235,25 @@ variables:
 # Puppet Versions
 #-----------------------------------------------------------------------
 
-.pup_6_x: &pup_6_x
-  image: 'ruby:2.5'
-  variables:
-    PUPPET_VERSION: '~> 6.0'
-    BEAKER_PUPPET_COLLECTION: 'puppet6'
-    MATRIX_RUBY_VERSION: '2.5'
-
-.pup_6_pe: &pup_6_pe
-  image: 'ruby:2.5'
-  variables:
-    PUPPET_VERSION: '6.18.0'
-    BEAKER_PUPPET_COLLECTION: 'puppet6'
-    MATRIX_RUBY_VERSION: '2.5'
-
 .pup_7_x: &pup_7_x
   image: 'ruby:2.7'
   variables:
     PUPPET_VERSION: '~> 7.0'
     BEAKER_PUPPET_COLLECTION: 'puppet7'
+    MATRIX_RUBY_VERSION: '2.7'
+
+.pup_7_pe: &pup_7_pe
+  image: 'ruby:2.7'
+  variables:
+    PUPPET_VERSION: '7.21.0'
+    BEAKER_PUPPET_COLLECTION: 'puppet7'
+    MATRIX_RUBY_VERSION: '2.7'
+
+.pup_8_x: &pup_8_x
+  image: 'ruby:2.7'
+  variables:
+    PUPPET_VERSION: '~> 8.0'
+    BEAKER_PUPPET_COLLECTION: 'puppet8'
     MATRIX_RUBY_VERSION: '2.7'
     RUBYOPT: '-W0'
 
@@ -323,7 +323,7 @@ variables:
 #=======================================================================
 
 releng_checks:
-  <<: *pup_6_x
+  <<: *pup_7_x
   <<: *setup_bundler_env
   stage: 'validation'
   tags: ['docker']
@@ -346,37 +346,38 @@ releng_checks:
 #       different Puppet versions won't accomplish anything.
 
 pup-lint:
-  <<: *pup_6_x
+  <<: *pup_7_x
   <<: *lint_tests
 
 # Unit Tests
 #-----------------------------------------------------------------------
 
-pup6.x-unit:
-  <<: *pup_6_x
-  <<: *unit_tests
-  <<: *with_SIMP_SPEC_MATRIX_LEVEL_2
-
-pup6.x-unit_slow:
-  <<: *pup_6_x
-  <<: *slow_unit_tests
-  <<: *with_SIMP_SPEC_MATRIX_LEVEL_2
-
-pup6.pe-unit:
-  <<: *pup_6_pe
-  <<: *unit_tests
-
-pup6.pe-unit_slow:
-  <<: *pup_6_pe
-  <<: *slow_unit_tests
-
 pup7.x-unit:
   <<: *pup_7_x
   <<: *unit_tests
+  <<: *with_SIMP_SPEC_MATRIX_LEVEL_2
 
 pup7.x-unit_slow:
   <<: *pup_7_x
   <<: *slow_unit_tests
+  <<: *with_SIMP_SPEC_MATRIX_LEVEL_2
+
+pup7.pe-unit:
+  <<: *pup_7_pe
+  <<: *unit_tests
+
+pup7.pe-unit_slow:
+  <<: *pup_7_pe
+  <<: *slow_unit_tests
+
+# Commented until we are ready for puppet 8
+#pup8.x-unit:
+#  <<: *pup_8_x
+#  <<: *unit_tests
+#
+#pup8.x-unit_slow:
+#  <<: *pup_8_x
+#  <<: *slow_unit_tests
 
 # ------------------------------------------------------------------------------
 #             NOTICE: **This file is maintained with puppetsync**

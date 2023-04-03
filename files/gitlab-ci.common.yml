@@ -23,7 +23,7 @@ stages:
   - 'compliance'
   - 'deployment'
 
-image: 'ruby:2.4'
+image: 'ruby:2.7'
 
 variables:
   PUPPET_VERSION:    'UNDEFINED' # <- Matrixed jobs MUST override this (or fail)
@@ -69,39 +69,13 @@ variables:
 # Puppet Versions
 #-----------------------------------------------------------------------
 
-.pup_4: &pup_4
-  image: 'ruby:2.1'
-  variables:
-    PUPPET_VERSION: '~> 4.0'
-    MATRIX_RUBY_VERSION: '2.1'
-
-.pup_4_10: &pup_4_10
-  image: 'ruby:2.1'
-  variables:
-    PUPPET_VERSION: '~> 4.10.4'
-    MATRIX_RUBY_VERSION: '2.1'
-
-.pup_5: &pup_5
-  image: 'ruby:2.4'
-  variables:
-    PUPPET_VERSION: '~> 5.0'
-    BEAKER_PUPPET_COLLECTION: 'puppet5'
-    MATRIX_RUBY_VERSION: '2.4'
-
-.pup_5_5_7: &pup_5_5_7
-  image: 'ruby:2.4'
-  variables:
-    PUPPET_VERSION: '5.5.7'
-    BEAKER_PUPPET_COLLECTION: 'puppet5'
-    MATRIX_RUBY_VERSION: '2.4'
-
-.pup_6: &pup_6
+.pup_7: &pup_7
   allow_failure: true
-  image: 'ruby:2.5'
+  image: 'ruby:2.7'
   variables:
-    PUPPET_VERSION: '~> 6.0'
-    BEAKER_PUPPET_COLLECTION: 'puppet6'
-    MATRIX_RUBY_VERSION: '2.5'
+    PUPPET_VERSION: '~> 7.0'
+    BEAKER_PUPPET_COLLECTION: 'puppet7'
+    MATRIX_RUBY_VERSION: '2.7'
 
 
 # Testing Environments
@@ -138,7 +112,7 @@ variables:
 #=======================================================================
 
 sanity_checks:
-  <<: *pup_5
+  <<: *pup_7
   <<: *setup_bundler_env
   stage: 'sanity'
   tags: ['docker']
@@ -155,34 +129,14 @@ sanity_checks:
 # Linting
 #-----------------------------------------------------------------------
 
-pup4-lint:
-  <<: *pup_4
-  <<: *lint_tests
-
-pup5-lint:
-  <<: *pup_5
-  <<: *lint_tests
-
-pup6-lint:
-  <<: *pup_6
+pup7-lint:
+  <<: *pup_7
   <<: *lint_tests
 
 # Unit Tests
 #-----------------------------------------------------------------------
 
-pup5-unit:
-  <<: *pup_5
-  <<: *unit_tests
-
-pup5.5.7-unit:
-  <<: *pup_5_5_7
-  <<: *unit_tests
-
-pup4.10-unit:
-  <<: *pup_4_10
-  <<: *unit_tests
-
-pup6-unit:
-  <<: *pup_6
+pup7-unit:
+  <<: *pup_7
   <<: *unit_tests
 

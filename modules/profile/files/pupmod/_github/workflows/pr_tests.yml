@@ -27,7 +27,7 @@ on:
     types: [opened, reopened, synchronize]
 
 env:
-  PUPPET_VERSION: '~> 6'
+  PUPPET_VERSION: '~> 7'
 
 jobs:
   puppet-syntax:
@@ -109,9 +109,6 @@ jobs:
     strategy:
       matrix:
         puppet:
-          - label: 'Puppet 6.22 [SIMP 6.6/PE 2019.8]'
-            puppet_version: '~> 6.22.1'
-            ruby_version: '2.5'
           - label: 'Puppet 7.x'
             puppet_version: '~> 7.0'
             ruby_version: '2.7'
