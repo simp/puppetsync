@@ -245,13 +245,13 @@ plan puppetsync(
       $ok_repos,
       '_catch_errors'  => true,
     ) |$repo| {
-      $file_path = $repo.facts['project_type'] ? {
-        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/metadata.json.erb",
-        default           => "${repo.vars['repo_path']}/metadata.json",
+      $dir_path = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/",
+        default           => "${repo.vars['repo_path']}",
       }
 
       Hash.new({
-        'file' => $file_path,
+        'file' => "${dir_path}/.gitlab-ci.yml",
       })
     }
   }
