@@ -24,7 +24,7 @@
 # * The CHANGELOG text is altered to remove RPM-style date headers, which don't
 #   render well as markdown on the GitHub release pages
 ---
-name: 'Tag: Release to GitHub + rubygems.org'
+name: 'Tag: Release to GitHub'
 
 on:
   push:
@@ -79,7 +79,7 @@ jobs:
           echo "::set-output name=release_command::${GEM_RELEASE_COMMAND}"
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.5
+          ruby-version: 2.7
           bundler-cache: true
       - name: Test build the package
         run: "${{ steps.commands.outputs.build_command }}"

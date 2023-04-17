@@ -8,6 +8,7 @@ profile::github_actions::present_action_files:
   - tag_deploy_rubygem__github-rpms.yml # Builds noarch RPMs, doesn't publish to RubyForge
   - release_rpms.yml
   - validate_tokens_asset.yml
+  - add_new_issue_to_triage_project.yml
 
 profile::github_actions::absent_action_files:
   - tag_deploy_rubygem.yml
