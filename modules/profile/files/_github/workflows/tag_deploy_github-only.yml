@@ -55,9 +55,9 @@ jobs:
             exit 88
           fi
 
-          echo "::set-output name=tag::${tag}"
-          echo "::set-output name=prerelease::${prerelease}"
-          echo "::set-output name=annotation_title::${annotation_title}"
+          echo "tag=$tag" | tee -a "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" | tee -a "$GITHUB_OUTPUT"
+          echo "annotation_title=$annotation_title" | tee -a "$GITHUB_OUTPUT"
 
           # Prepare annotation body as a file for the next step
           #
