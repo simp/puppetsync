@@ -7,6 +7,7 @@ profile::github_actions::present_action_files:
   - pr_glci_manual.yml      # --> manual trigger for external contributors
   - pr_glci_cleanup.yml     # --> clean up old GLCI branches
   - tag_deploy_rubygem.yml  # Release on tag
+  - add_new_issue_to_triage_project.yml
   #  - validate_tokens.yml  # Diagnostic workflow to check API tokens work
   #
   # INTENTIONALLY OMITTED:

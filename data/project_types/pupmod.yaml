@@ -15,3 +15,4 @@ profile::github_actions::present_action_files:
   - tag_deploy.yml       # Release on tag, deploy pupmod to forge, RPMs to GH
   - release_rpms.yml     # Build, sign, upload RPMs to a release from any repo
   - validate_tokens.yml  # Diagnostic workflow to check API tokens work
+  - add_new_issue_to_triage_project.yml

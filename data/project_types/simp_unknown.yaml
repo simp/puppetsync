@@ -12,6 +12,7 @@ profile::github_actions::present_action_files__rpms:
   - release_rpms.yml
   - tag_deploy_github-rpms.yml
   - validate_tokens_asset.yml
+  - add_new_issue_to_triage_project.yml
 
 profile::github_actions::absent_action_files__rpms:
   - tag_deploy_github-only.yml
@@ -25,6 +26,8 @@ profile::github_actions::present_action_files__rpms_el7_el8:
   - tag_deploy_github-rpms-el7-el8.yml
   - release_rpms.yml
   - validate_tokens_asset.yml
+  - add_new_issue_to_triage_project.yml
+
 profile::github_actions::absent_action_files__rpms_el7_el8:
   - tag_deploy_github-only.yml
   - tag_deploy_github-rpms.yml
@@ -36,6 +39,8 @@ profile::github_actions::present_action_files__github_only:
   - pr_glci_cleanup.yml     # --> clean up old GLCI branches
   - tag_deploy_github-only.yml  # Release on tag
   - validate_tokens_asset.yml
+  - add_new_issue_to_triage_project.yml
+
 profile::github_actions::absent_action_files__github_only:
   - tag_deploy_github-rpms-el7-el8.yml
   - tag_deploy_github-rpms.yml

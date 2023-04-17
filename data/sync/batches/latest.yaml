@@ -2,26 +2,26 @@
 puppetsync::batches_config:
   delay: 30
   repolists:
-    - gcp__batch_01
-    - gcp__batch_02
-    - gcp__batch_03
-    - gcp__batch_04
-    - gcp__batch_05
-    - gcp__batch_06
-    - gcp__batch_07
+    #- gcp__batch_01
+    #- gcp__batch_02
+    #- gcp__batch_03
+    #- gcp__batch_04
+    #- gcp__batch_05
+    #- gcp__batch_06
+    #- gcp__batch_07
     #- simp_misc
     #- rubygems
-    #- pupmods__batch_01
-    #- pupmods__batch_02
-    #    - pupmods__batch_03
-    #- pupmods__batch_04
-    #- pupmods__batch_05
-    #- pupmods__batch_06
-    #- pupmods__batch_07
-    #- pupmods__batch_08
-    #- pupmods__batch_09
-    #- pupmods__batch_10
-    #- pupmods__batch_11
-    #- pupmods__batch_12
-    #- pupmods__batch_13
-    #- pupmods__batch_14
+    - pupmods__batch_01
+    - pupmods__batch_02
+    - pupmods__batch_03
+    - pupmods__batch_04
+    - pupmods__batch_05
+    - pupmods__batch_06
+    - pupmods__batch_07
+    - pupmods__batch_08
+    - pupmods__batch_09
+    - pupmods__batch_10
+    - pupmods__batch_11
+    - pupmods__batch_12
+    - pupmods__batch_13
+    - pupmods__batch_14

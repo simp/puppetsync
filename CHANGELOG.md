@@ -5,7 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+
 ## [Unreleased]
+
+### Added
+
+- New GHA workflow, `add_new_issue_to_triage_project.yml`
+
+### Changed
+
+- Update GHA ruby tag deploy workflows to use `$GITHUB_OUTPUT`, Ruby 2.7
+
+### Fixed
+
+### Removed
+
+## [issue_3] - 2023-03-27
 
 ### Added
 
@@ -406,4 +421,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-10580]: https://github.com/op-ct/puppetsync/compare/SIMP-10450...SIMP-10580
 [SIMP-10392]: https://github.com/op-ct/puppetsync/compare/SIMP-10580...SIMP-10392
 [SIMP-10633]: https://github.com/op-ct/puppetsync/compare/SIMP-10392...SIMP-10633
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/SIMP-10633...HEAD
+[issue_3]: https://github.com/op-ct/puppetsync/compare/SIMP-10633...issue_3
+[Unreleased]: https://github.com/op-ct/puppetsync/compare/issue_3...HEAD
