@@ -2,7 +2,18 @@
 require 'fileutils'
 require 'json'
 
-ARGV[0] ? file = ARGV[0] : file = "./.gitlab-ci.yml"
+# ARGF hack to allow use run the task directly as a ruby script while testing
+if ARGF.filename == '-'
+  stdin = ''
+  warn "ARGF.file.lineno: '#{ARGF.file.lineno}'"
+  stdin = ARGF.file.read
+  require 'json'
+  warn "== stdin: '#{stdin}'"
+  params = JSON.parse(stdin)
+  file = params['file']
+else
+  file = ARGF.filename
+end
 
 #Returns the spot in the file that is no longer managed by puppet
 def get_index(input_file, str)
