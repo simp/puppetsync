@@ -68,7 +68,7 @@ raise('No repo_paths given') if params.to_h['repo_paths'].to_a.empty?
 files.each do |path|
   warn "\n\n#{path}"
   gitlab_ci_lint(
-    'https://gitlab.com/api/v4/ci/lint',
+    'https://gitlab.com/api/v4/projects/2898947/ci/lint', # Using pupmod-simp-simp for CI lint API; could be anything
     path,
     gitlab_token,
   )
