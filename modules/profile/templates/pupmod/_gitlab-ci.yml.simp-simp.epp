@@ -250,11 +250,11 @@ variables:
     MATRIX_RUBY_VERSION: '2.7'
 
 .pup_8_x: &pup_8_x
-  image: 'ruby:2.7'
+  image: 'ruby:3.2'
   variables:
     PUPPET_VERSION: '~> 8.0'
     BEAKER_PUPPET_COLLECTION: 'puppet8'
-    MATRIX_RUBY_VERSION: '2.7'
+    MATRIX_RUBY_VERSION: '3.2'
     RUBYOPT: '-W0'
 
 
@@ -370,14 +370,13 @@ pup7.pe-unit_slow:
   <<: *pup_7_pe
   <<: *slow_unit_tests
 
-# Commented until we are ready for puppet 8
-#pup8.x-unit:
-#  <<: *pup_8_x
-#  <<: *unit_tests
-#
-#pup8.x-unit_slow:
-#  <<: *pup_8_x
-#  <<: *slow_unit_tests
+pup8.x-unit:
+  <<: *pup_8_x
+  <<: *unit_tests
+
+pup8.x-unit_slow:
+  <<: *pup_8_x
+  <<: *slow_unit_tests
 
 # ------------------------------------------------------------------------------
 #             NOTICE: **This file is maintained with puppetsync**

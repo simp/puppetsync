@@ -15,6 +15,7 @@ def get_index(input_file, str)
     end
   end
   warn("No index match")
+  start_idx = 0
 end
 
 #Roll puppet6 -> 7, 7 -> 8
@@ -31,19 +32,4 @@ ci_file.each_with_index do | line,idx |
   end
 end
 
-#Comments out oel sections
-comment = false
-ci_file.each_with_index do | line,idx |
-if idx >= start_index
-    if line =~ /(.*oel.*)/
-      comment = true
-    end
-    if line =~ /(^\n)/
-      comment = false
-    end
-    if comment == true
-      line.prepend('#')
-    end
-  end
-end
 File.open(file, "w") { |out| out.puts ci_file } 
