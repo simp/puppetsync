@@ -28,18 +28,21 @@ def get_index(input_file, str)
   start_idx = 0
 end
 
-#Roll puppet6 -> 7, 7 -> 8
 warn "file: '#{file}'"
 start_index = get_index(file, "^# Repo-specific content")
 ci_file = File.readlines("#{file}")
+
+#Comments out oel sections
+comment = false
 ci_file.each_with_index do | line,idx |
-  if idx >= start_index
-    puts "searching line:#{idx} #{line}"
-    line.sub!("pup7", "pup8")
-    line.sub!("pup_7", "pup_8")
-    line.sub!('pup6', 'pup7')
-    line.sub!('pup_6', 'pup_7')
+  if line =~ /(^pup8.*)/
+    comment = true
+  end
+  if line =~ /(^\n)/
+    comment = false
+  end
+  if comment == true
+    line.prepend('#')
   end
 end
-
 File.open(file, "w") { |out| out.puts ci_file } 

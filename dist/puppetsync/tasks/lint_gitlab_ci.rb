@@ -22,7 +22,8 @@ def err_msg_about_response(response, gitlab_ci_url, gitlab_ci_yml_path)
   unless response.success?
     return "ERROR: Could not use CI linter at #{gitlab_ci_url} (#{response.status} #{response.reason_phrase}):\n#{JSON.parse(response.body).to_yaml}\n\n"
   end
-  if JSON.parse(response.body).fetch('status', '') != 'valid'
+  #if JSON.parse(response.body).fetch('status', '') != 'valid'
+  if JSON.parse(response.body).fetch('valid', false) != true
     msg =  "ERROR: #{File.basename(gitlab_ci_yml_path)} is not valid!\n\n"
     data = JSON.parse response.body
     data['errors'].each { |error| msg += "  * #{error}" }
