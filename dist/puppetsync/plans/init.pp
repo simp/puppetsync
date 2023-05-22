@@ -234,6 +234,48 @@ plan puppetsync(
       })
     }
   }
+  
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'remove_puppet6',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::remove_puppet6',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      $dir_path = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/",
+        default           => "${repo.vars['repo_path']}",
+      }
+
+      Hash.new({
+        'file' => "${dir_path}/.gitlab-ci.yml",
+      })
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'comment_puppet8_spec_tests',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::comment_puppet8_spec_tests',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      $dir_path = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/",
+        default           => "${repo.vars['repo_path']}",
+      }
+
+      Hash.new({
+        'file' => "${dir_path}/.gitlab-ci.yml",
+      })
+    }
+  }
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
