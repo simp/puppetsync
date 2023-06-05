@@ -8,6 +8,10 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/pupmod-simp-rsync:
     branch: master
+  https://github.com/simp/pupmod-simp-iptables:
+    branch: master
+
+ # needs updated versions ofi at least: iptables
   https://github.com/simp/pupmod-simp-nfs:
     branch: master
   https://github.com/simp/pupmod-simp-pam:
