@@ -181,16 +181,16 @@ plan puppetsync(
     )
   }
 
-  $repos.puppetsync::pipeline_stage(
-    # --------------------------------------------------------------------------
-    'ensure_jira_subtask',
-    # --------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    puppetsync::ensure_jira_subtask_for_each_repo(
-      $ok_repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path
-    )
-  }
+###  $repos.puppetsync::pipeline_stage(
+###    # --------------------------------------------------------------------------
+###    'ensure_jira_subtask',
+###    # --------------------------------------------------------------------------
+###    $opts
+###  ) |$ok_repos, $stage_name| {
+###    puppetsync::ensure_jira_subtask_for_each_repo(
+###      $ok_repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path
+###    )
+###  }
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -234,7 +234,7 @@ plan puppetsync(
       })
     }
   }
-  
+
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
     'remove_puppet6',

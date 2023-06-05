@@ -1,4 +1,16 @@
 puppetsync::repos_config:
 
-  https://github.com/simp/pupmod-simp-aide:
+  https://github.com/simp/pupmod-simp-acpid:
+    branch: master
+  https://github.com/simp/pupmod-simp-mate:
+    branch: master
+  https://github.com/simp/pupmod-simp-simp:
+    branch: master
+  https://github.com/simp/pupmod-simp-rsync:
+    branch: master
+  https://github.com/simp/pupmod-simp-nfs:
+    branch: master
+  https://github.com/simp/pupmod-simp-pam:
+    branch: master
+  https://github.com/simp/pupmod-simp-nfs:
     branch: master
