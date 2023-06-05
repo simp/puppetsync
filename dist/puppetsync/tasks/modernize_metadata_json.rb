@@ -112,6 +112,10 @@ end
 
 
 def transform_operatingsystem_support(content)
+  unless content.keys.include? 'operatingsystem_support'
+    warn "SKIPPING: NO operatingsystem_support key exists in metadata.json for #{content['name']}"
+    return
+  end
   items = content['operatingsystem_support'].select{|x| x['operatingsystem'] == 'Rocky' }
   content['operatingsystem_support'] << { 'operatingsystem' => 'Rocky' } if items.empty?
 
@@ -175,7 +179,6 @@ end
 # NOTE: Handle heavier, gitlab/domain-aware lint checks in other tasks
 warn "\n== Running a test json load #{file} to validate its syntax (current dir: #{Dir.pwd}"
 require 'json'
-sleep 0.5
 JSON.parse File.read(file)
 warn "  ++ Test load (JSON syntax)  on #{file} succeeded!"
 
