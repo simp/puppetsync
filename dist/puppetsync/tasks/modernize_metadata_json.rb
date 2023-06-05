@@ -45,7 +45,7 @@ def bump_version(file)
     new_lines << DateTime.now.strftime("* %a %b %d %Y Chris Tessmer <chris.tessmer@onyxpoint.com> - #{new_version}")
     new_lines << '- Add RockyLinux 8 support'
     changelog = new_lines.join("\n") + "\n\n" + changelog
-    File.open(changelog_file,'w'){|f| f.puts changelog }
+    File.open(changelog_file,'w'){|f| f.puts changelog; f.flush }
   end
 end
 
@@ -158,20 +158,24 @@ transform_operatingsystem_support(content) unless content['name'] == 'simp-simpl
 # Write content back to original file
 File.open(file, 'w') { |f| f.puts JSON.pretty_generate(content) }
 
+
 if content.to_s == original_content_str
   warn '  == content unchanged'
 else
   warn '  ++ content was changed!'
-  repo_path = File.dirname file
   bump_version(file) # Not needed so soon
-  tmp_bundle_rake_execs(repo_path, ['metadata', 'pkg:check_version', 'pkg:compare_latest_tag'])
+  unless ENV['SKIP_RAKE_TASKS'] == 'yes'
+    repo_path = File.dirname file
+    tmp_bundle_rake_execs(repo_path, ['metadata_lint', 'pkg:check_version', 'pkg:compare_latest_tag'])
+  end
 end
 
 
 # Sanity check: Validate that the file is still valid JSON
 # NOTE: Handle heavier, gitlab/domain-aware lint checks in other tasks
-warn "\n== Running a test json load #{file} to validate its syntax"
+warn "\n== Running a test json load #{file} to validate its syntax (current dir: #{Dir.pwd}"
 require 'json'
+sleep 0.5
 JSON.parse File.read(file)
 warn "  ++ Test load (JSON syntax)  on #{file} succeeded!"
 
