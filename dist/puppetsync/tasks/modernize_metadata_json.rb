@@ -100,12 +100,15 @@ def transform_module_dependencies(content)
   ].select{|x| x }
 
   dep_sections.each do |dependencies|
-    dependencies.select{|x| x['name'] == 'camptocamp/systemd' }.map do |x|
+    # puppet/systemd 4.0.2 addd Rocky Linux 8, 5.x drops puppet 6 support
+    dependencies.select{|x| x['name'] == 'puppet/systemd' || x['name'] == 'camptocamp/systemd' }.map do |x|
       x['name'] = 'puppet/systemd'
-      x['version_requirement'] = '>= 3.0.0 < 4.0.0'
+      x['version_requirement'] = '>= 4.0.2 < 6.0.0'
     end
+    # stdlib 8 adds Rocky 8, 8.4.0 (beware ensure_packages flip: https://github.com/puppetlabs/puppetlabs-stdlib/pull/1196)
+    # Can't go up to stdlib 9.x yet because "they removed the compat functions (Mike R)"
     dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
-      x['version_requirement'] = '>= 6.6.0 < 8.0.0'  # FIXME: is >= 6.6.0 necessary?
+      x['version_requirement'] = '>= 8.0.0 < 9.0.0'
     end
   end
 end
@@ -145,10 +148,16 @@ warn "file: '#{file}'"
 raise('No metadata.json path given') unless file
 content = JSON.parse File.read(file)
 
+unless ENV['UPDATE_NON_SIMP_MODULES'] == 'yes'
+  if content['name'] !~ %r{\Asimp[-/]}
+    warn("\n\n\n== WARNING: SKIPPING update of non-simp module (#{content['name']}) (force with `UPDATE_NON_SIMP_MODULES=yes`)\n\n\n")
+    exit 0
+  end
+end
+
 # Transform content
 warn "\n== Modernizing metadata.json content"
 original_content_str = content.to_s
-
 
 
 # These methods mutate `content` and its contents by reference
@@ -158,9 +167,11 @@ original_content_str = content.to_s
 
 # simplib doesn't restrict any operatingsystem by version
 transform_operatingsystem_support(content) unless content['name'] == 'simp-simplib'
+transform_module_dependencies(content)
 
 # Write content back to original file
 File.open(file, 'w') { |f| f.puts JSON.pretty_generate(content) }
+
 
 
 if content.to_s == original_content_str
@@ -179,6 +190,7 @@ end
 # NOTE: Handle heavier, gitlab/domain-aware lint checks in other tasks
 warn "\n== Running a test json load #{file} to validate its syntax (current dir: #{Dir.pwd}"
 require 'json'
+sleep(2)
 JSON.parse File.read(file)
 warn "  ++ Test load (JSON syntax)  on #{file} succeeded!"
 
