@@ -1,0 +1,11 @@
+{
+  "description": "Run spec tests on a converted rocky8 module",
+  "input_method": "environment",
+  "parameters": {
+    "path": {
+      "description": "Path to project folder (ex: '/path/to/gems')",
+      "type": "String[1]"
+    }
+  }
+}
+

@@ -181,16 +181,6 @@ plan puppetsync(
     )
   }
 
-###  $repos.puppetsync::pipeline_stage(
-###    # --------------------------------------------------------------------------
-###    'ensure_jira_subtask',
-###    # --------------------------------------------------------------------------
-###    $opts
-###  ) |$ok_repos, $stage_name| {
-###    puppetsync::ensure_jira_subtask_for_each_repo(
-###      $ok_repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path
-###    )
-###  }
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -351,6 +341,22 @@ plan puppetsync(
       }
       Hash.new({
         'filename' => $file_path,
+      })
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'run_spec_tests',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::run_spec_tests',
+      $ok_repos,
+      '_catch_errors'  => false,
+    ) |$repo| {
+      Hash.new({
+        'path' => "${repo.vars['repo_path']}"
       })
     }
   }

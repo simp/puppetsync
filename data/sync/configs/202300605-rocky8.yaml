@@ -15,18 +15,17 @@ puppetsync::plan_config:
           - checkout_git_feature_branch_in_each_repo
 ###          - apply_puppet_role       # TODO
 ###          - modernize_gitlab_files  # TODO
-            ### - add_rocky8  	# one-off
-#           ### - comment_puppet8_spec_tests	# one-off
 ###          - lint_gitlab_ci  TODO
 ###          - modernize_fixtures      # one-off
           - modernize_metadata_json # one-off?
-###          - git_commit_changes
-###          - ensure_github_fork
-###          - ensure_git_remote
-###          - git_push_to_remote
+          - run_spec_tests
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
           #- ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
           #- git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
-###          - ensure_github_pr
+          - ensure_github_pr
 
       approve_github_prs:
         clone_git_repos: false         # No need to clone just to approve
@@ -47,14 +46,14 @@ puppetsync::plan_config:
     # 0---------1---------2---------3---------4---------5---------6---------7|
     # (SIMP-XXXXX) 12345678                                    |+|
     commit_message: |
-      Addd RockyLinux 8 support
+      Add RockyLinux 8 support
 
-      This patch adds RockyLinux 8; details TBD
+      This patch adds support for RockyLinux 8
 
       The patch enforces a standardized asset baseline using simp/puppetsync,
       and may also apply other updates to ensure conformity.
 
   github:
-    pr_user: rgardner4012  # This should be the account that *submitted* the PRs
+    pr_user: op-ct  # This should be the account that *submitted* the PRs
                     # (Used by idempotency checks when approving/merging PRs)
     approval_message: ':+1: :ghost:'
