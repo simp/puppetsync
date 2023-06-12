@@ -103,7 +103,7 @@ plan puppetsync(
   Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
   String[1]            $jira_username          = system::env('JIRA_USER'),
-  Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
+  Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN').lest || { 'UNKNOWN' } ),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Sensitive[String[1]] $gitlab_token           = Sensitive(system::env('GITLAB_API_TOKEN')),
   Hash                 $options                = {},
@@ -333,7 +333,7 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     run_task_with('puppetsync::modernize_metadata_json',
       $ok_repos,
-      '_catch_errors'  => false,
+      '_catch_errors'  => true,
     ) |$repo| {
       $file_path = $repo.facts['project_type'] ? {
         'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/metadata.json.erb",
@@ -353,7 +353,7 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     run_task_with('puppetsync::run_spec_tests',
       $ok_repos,
-      '_catch_errors'  => false,
+      '_catch_errors'  => true,
     ) |$repo| {
       Hash.new({
         'path' => "${repo.vars['repo_path']}"
