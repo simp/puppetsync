@@ -1,17 +1,14 @@
 puppetsync::repos_config:
 
-  https://github.com/simp/pupmod-simp-acpid:
-    branch: master
-  https://github.com/simp/pupmod-simp-mate:
-    branch: master
-  https://github.com/simp/pupmod-simp-simp:
-    branch: master
-  https://github.com/simp/pupmod-simp-rsync:
+  https://github.com/simp/pupmod-simp-simplib:
     branch: master
   https://github.com/simp/pupmod-simp-iptables:
     branch: master
 
- # needs updated versions ofi at least: iptables
+  https://github.com/simp/pupmod-simp-acpid:
+    branch: master
+
+ # needs updated versions of at least: iptables
   https://github.com/simp/pupmod-simp-nfs:
     branch: master
   https://github.com/simp/pupmod-simp-pam:
