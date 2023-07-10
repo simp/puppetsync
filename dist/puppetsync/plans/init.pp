@@ -39,7 +39,7 @@
 #
 # @param repolist
 #   Specifies the list of repos to clone, modify, and PR.
-#   The name maps to a Hiera .yaml file under `data/sync/repolist/`
+#   The name maps to a Hiera .yaml file under `data/sync/repolists/`
 #   (Default: 'default')
 #
 # @param config
