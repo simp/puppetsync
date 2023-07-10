@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Rubygem GHA workflow bug that prevented tagged releases/pre-releases
+
 ### Removed
 
 ## [issue_3] - 2023-03-27
