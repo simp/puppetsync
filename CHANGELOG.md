@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
+- Removed `puppet-lint-empty_string-check` from pupmod Gemfiles so they can
+  install simp-rake-helpers 5.20.0
+
 ## [issue_3] - 2023-03-27
 
 ### Added
