@@ -166,7 +166,7 @@ original_content_str = content.to_s
 ## transform_module_dependencies(content)
 
 # simplib doesn't restrict any operatingsystem by version
-transform_operatingsystem_support(content) unless content['name'] == 'simp-simplib'
+transform_operatingsystem_support(content) unless ( content['name'] == 'simp-simplib' || content['name'] == 'simp-tpm' )
 transform_module_dependencies(content)
 
 # Write content back to original file
