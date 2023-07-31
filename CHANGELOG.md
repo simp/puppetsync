@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - New GHA workflow, `add_new_issue_to_triage_project.yml`
+- New task, `generate_reference_md`
+  - Generates up-to-date `REFERENCE.md`
+  - If changed: stages and commits to git IMMEDIATELY
 
 ### Changed
 

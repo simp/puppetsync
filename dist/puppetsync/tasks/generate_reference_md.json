@@ -1,0 +1,16 @@
+{
+  "description": "Generate REFERENCE.md for pupmod",
+  "input_method": "stdin",
+  "parameters": {
+    "filename": {
+      "description": "Absolute path to modue's metadata.json file",
+      "type": "Stdlib::Absolutepath"
+    },
+    "auto_commit": {
+      "description": "Add REFERENCE.md git and commit it",
+      "type": "Boolean",
+      "default": false
+    }
+  }
+}
+
