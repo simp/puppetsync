@@ -1,0 +1,25 @@
+{
+  "description": "Create + push annotated tag to release a Puppet module",
+  "input_method": "stdin",
+  "parameters": {
+    "filename": {
+      "description": "Absolute path to modue's metadata.json file",
+      "type": "Stdlib::Absolutepath"
+    },
+    "upstream_remote": {
+      "description": "Name of git remote to push release tag",
+      "type": "String[1]",
+      "default": "origin"
+    },
+    "overwrite_existing_tags": {
+      "description": "Overwrite any existing tags before tag + push",
+      "type": "Boolean",
+      "default": false
+    },
+    "dry_run": {
+      "description": "Tag release locally, but do not push to remote",
+      "type": "Boolean",
+      "default": false
+    }
+  }
+}

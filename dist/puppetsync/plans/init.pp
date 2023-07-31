@@ -102,8 +102,6 @@ plan puppetsync(
   Hash                 $repos_config           = lookup('puppetsync::repos_config'),
   Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
-  String[1]            $jira_username          = system::env('JIRA_USER'),
-  Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN').lest || { 'UNKNOWN' } ),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Sensitive[String[1]] $gitlab_token           = Sensitive(system::env('GITLAB_API_TOKEN')),
   Hash                 $options                = {},
@@ -361,8 +359,25 @@ plan puppetsync(
     }
   }
 
-  # To inspect Puppet catalog resource events:
-  #   $repos[0].vars["puppetsync_stage_results"]["apply_puppet_role"]['data']['value']['report']["resource_statuses"]["File[/var/simpdev/ctessmer/src/puppetsync/_repos/acpid/.gitlab-ci.yml]"]["events"]
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'generate_reference_md',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    run_task_with(
+      'puppetsync::generate_reference_md',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      {
+        'filename'    => "${repo.vars['repo_path']}/metadata.json",
+        'auto_commit' => true,
+      }
+    }
+  }
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -382,6 +397,7 @@ plan puppetsync(
       }
     }
   }
+
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -528,6 +544,27 @@ plan puppetsync(
       }
       ctrl::sleep($opts['github_api_delay_seconds'])
       $results.first
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'release_pupmod',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    run_task_with(
+      'puppetsync::release_pupmod',
+      $ok_repos,
+      '_catch_errors'  => false,
+    ) |$repo| {
+      {
+        'filename'                => "${repo.vars['repo_path']}/metadata.json",
+        'upstream_remote'         => 'origin',
+        'overwrite_existing_tags' => 'false',
+        'dry_run'                 => 'true' # FIXME change to true before release
+      }
     }
   }
 

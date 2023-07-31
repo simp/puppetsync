@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - New task, `generate_reference_md`
   - Generates up-to-date `REFERENCE.md`
   - If changed: stages and commits to git IMMEDIATELY
+- New task and plan, `release_pupmods`
+ - Clone, tag, and push GitHub release for each repo in the repolist
 
 ### Changed
 
