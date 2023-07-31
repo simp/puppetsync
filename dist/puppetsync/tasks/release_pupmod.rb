@@ -86,7 +86,11 @@ unless ENV['UPDATE_NON_SIMP_MODULES'] == 'yes'
 
     # strip extra newlines
     annotated_tag = File.read(task_output_files['pkg:create_tag_changelog']).strip
+
     annotated_tag_file = '_annotated_tag.txt'
+    # get rid of RPM date + email + version changelog line(s)
+    annotated_tag = annotated_tag.lines.reject{ |x| x =~ %r{^\* (\w{3}) (\w{3}) (\d{2}) (\d{4}) .*@} }.join
+
     File.open(annotated_tag_file,'w'){|f| f.puts annotated_tag }
 
     if task_output_files
