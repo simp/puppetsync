@@ -97,12 +97,10 @@ unless ENV['UPDATE_NON_SIMP_MODULES'] == 'yes'
       task_output_files.values.each{|f| FileUtils.rm_f(f) }
     end
 
-    sh "git tag -D '#{pupmod_metadata['version']}'" if overwrite_existing_tags
-    sh "git tag -a '#{pupmod_metadata['version']}' -F '#{annotated_tag_file}'"
-    # FIXME:
-    fail "INTENTIONAL FAILURE:", "sh", "git push #{upstream_remote} #{pupmod_metadata['version']}"
+    sh ">&2 git tag -D '#{pupmod_metadata['version']}'" if overwrite_existing_tags
+    sh ">&2 git tag -a '#{pupmod_metadata['version']}' -F '#{annotated_tag_file}'"
+    sh ">&2 git push '#{upstream_remote}'  '#{pupmod_metadata['version']}'"
     exit 0
 
   end
 end
-warn "\n\nFINIS: #{__FILE__}"
