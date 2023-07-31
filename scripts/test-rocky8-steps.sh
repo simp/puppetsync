@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 [ -d "${PT_path:-xxxxxx}" ] && cd "${PT_path}"
 
@@ -14,4 +15,5 @@ rm -rf spec/fixtures/modules/pupmod-* || :
   test -f "$i/metadata.json" && SKIP_RAKE_TASKS=yes "$RUBY_EXE" ../../dist/puppetsync/tasks/modernize_metadata_json.rb "$i/metadata.json" || :
 done
 
-SPEC_OPTS="${SPEC_OPTS:---no-fail-fast}" "$BUNDLE_EXE" exec rake spec_standalone |& tee ../"$( jq .name metadata.json ).rspec.log" && rm -f Gemfile.lock
+[[ ${SKIP_TESTS:-no} == yes ]] && exit 0 || :
+SPEC_OPTS="${SPEC_OPTS:---no-fail-fast}" "$BUNDLE_EXE" exec rake spec_standalone 2>&1 | tee ../"$( jq -r .name metadata.json ).rspec.log" && rm -f Gemfile.lock
