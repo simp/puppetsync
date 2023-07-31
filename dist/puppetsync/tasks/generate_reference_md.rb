@@ -77,7 +77,7 @@ unless ENV['UPDATE_NON_SIMP_MODULES'] == 'yes'
     Dir.chdir(repo_path) do |dir|
       fail "ERROR: no file at REFERENCE.md" unless File.exist?('REFERENCE.md')
       sh "git add REFERENCE.md"
-      sh ">&2 git commit -m 'Update REFERENCE.md'"
+      sh ">&2 git commit -m 'Update REFERENCE.md' || :"
     end
     exit 0
   end
