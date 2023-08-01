@@ -7,19 +7,20 @@ puppetsync::plan_config:
 #      - simp_unknown
     plans:
       sync:
-#        clone_git_repos: false    # set to `false` when applying manual updates on a second run
-#        clear_before_clone: false # set to `false` when applying manual updates on a second run
+        # clone_git_repos: false    # set to `false` when applying manual updates on a second run
+        # clear_before_clone: false # set to `false` when applying manual updates on a second run
         github_api_delay_seconds: 30
         stages:
 #          - install_gems         # Uncomment for first-time puppetsync run
           - checkout_git_feature_branch_in_each_repo
-###          - apply_puppet_role       # TODO
+          - apply_puppet_role       # TODO
 ###          - modernize_gitlab_files  # TODO
 ###          - lint_gitlab_ci  TODO
 ###          - modernize_fixtures      # one-off
           - modernize_metadata_json # one-off?
           - run_spec_tests
           - git_commit_changes
+          - generate_reference_md
           - ensure_github_fork
           - ensure_git_remote
           - git_push_to_remote
@@ -42,11 +43,11 @@ puppetsync::plan_config:
           - merge_github_pr_for_each_repo
 
   git:
-    feature_branch: add-rocky8-support
+    feature_branch: finish-rocky8-support
     # 0---------1---------2---------3---------4---------5---------6---------7|
     # (SIMP-XXXXX) 12345678                                    |+|
     commit_message: |
-      Add RockyLinux 8 support
+      Finalize RockyLinux 8 support
 
       This patch adds support for RockyLinux 8
 
@@ -54,6 +55,6 @@ puppetsync::plan_config:
       and may also apply other updates to ensure conformity.
 
   github:
-    pr_user: op-ct  # This should be the account that *submitted* the PRs
+    pr_user: michael-riddle  # This should be the account that *submitted* the PRs
                     # (Used by idempotency checks when approving/merging PRs)
     approval_message: ':+1: :ghost:'
