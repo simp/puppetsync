@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - If changed: stages and commits to git IMMEDIATELY
 - New task and plan, `release_pupmods`
  - Clone, tag, and push GitHub release for each repo in the repolist
+- New GHA PR tests workflow override for pupmod simp/simp
+  - Parallelizes spec tests so they don't take three hours to run
 
 ### Changed
 
@@ -23,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- Rubygem GHA workflow bug that prevented tagged releases/pre-releases
+- Rubygem GHA workflow bug that prevented tagged releases/pre-releases (x2)
 
 ### Removed
 

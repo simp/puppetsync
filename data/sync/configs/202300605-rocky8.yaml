@@ -2,8 +2,8 @@
 puppetsync::plan_config:
   puppetsync:
     permitted_project_types:
-#      - rubygem
       - pupmod
+#      - rubygem
 #      - simp_unknown
     plans:
       sync:
@@ -24,9 +24,10 @@ puppetsync::plan_config:
           - ensure_github_fork
           - ensure_git_remote
           - git_push_to_remote
-          #- ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
-          #- git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
+###          #- ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
+###          #- git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
           - ensure_github_pr
+###          - release_pupmod
 
       approve_github_prs:
         clone_git_repos: false         # No need to clone just to approve
@@ -49,10 +50,10 @@ puppetsync::plan_config:
     commit_message: |
       Finalize RockyLinux 8 support
 
-      This patch adds support for RockyLinux 8
+      The patch enforces a standardized asset baseline using
+      simp/puppetsync, and may also apply other updates to
+      ensure conformity.
 
-      The patch enforces a standardized asset baseline using simp/puppetsync,
-      and may also apply other updates to ensure conformity.
 
   github:
     pr_user: michael-riddle  # This should be the account that *submitted* the PRs
