@@ -13,3 +13,6 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/pupmod-simp-pam:
     branch: master
+
+  https://github.com/simp/pupmod-simp-simp_firewalld:
+    branch: master

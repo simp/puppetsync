@@ -325,6 +325,22 @@ plan puppetsync(
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
+    'os_data',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::os_data',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      Hash.new({
+        'path' => "${repo.vars['repo_path']}"
+      })
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
     'modernize_metadata_json',
     # ---------------------------------------------------------------------------
     $opts
