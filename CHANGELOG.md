@@ -11,6 +11,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - New GHA workflow, `add_new_issue_to_triage_project.yml`
+- New task, `generate_reference_md`
+  - Generates up-to-date `REFERENCE.md`
+  - If changed: stages and commits to git IMMEDIATELY
+- New task and plan, `release_pupmods`
+ - Clone, tag, and push GitHub release for each repo in the repolist
+- New GHA PR tests workflow override for pupmod simp/simp
+  - Parallelizes spec tests so they don't take three hours to run
 
 ### Changed
 
@@ -18,7 +25,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Rubygem GHA workflow bug that prevented tagged releases/pre-releases (x2)
+
 ### Removed
+
+- Removed `puppet-lint-empty_string-check` from pupmod Gemfiles so they can
+  install simp-rake-helpers 5.20.0
 
 ## [issue_3] - 2023-03-27
 

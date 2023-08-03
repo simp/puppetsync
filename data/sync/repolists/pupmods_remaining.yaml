@@ -141,9 +141,6 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-selinux:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp:
-    branch: master
-
   https://github.com/simp/pupmod-simp-simpkv:
     branch: master
 

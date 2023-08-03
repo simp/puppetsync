@@ -1,0 +1,1 @@
+../../../scripts/test-rocky8-steps.sh

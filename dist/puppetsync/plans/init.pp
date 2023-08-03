@@ -39,7 +39,7 @@
 #
 # @param repolist
 #   Specifies the list of repos to clone, modify, and PR.
-#   The name maps to a Hiera .yaml file under `data/sync/repolist/`
+#   The name maps to a Hiera .yaml file under `data/sync/repolists/`
 #   (Default: 'default')
 #
 # @param config
@@ -102,8 +102,6 @@ plan puppetsync(
   Hash                 $repos_config           = lookup('puppetsync::repos_config'),
   Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
-  String[1]            $jira_username          = system::env('JIRA_USER'),
-  Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Sensitive[String[1]] $gitlab_token           = Sensitive(system::env('GITLAB_API_TOKEN')),
   Hash                 $options                = {},
@@ -181,16 +179,6 @@ plan puppetsync(
     )
   }
 
-  $repos.puppetsync::pipeline_stage(
-    # --------------------------------------------------------------------------
-    'ensure_jira_subtask',
-    # --------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    puppetsync::ensure_jira_subtask_for_each_repo(
-      $ok_repos, $puppetsync_config, $jira_username, $jira_token, $extra_gem_path
-    )
-  }
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -234,7 +222,7 @@ plan puppetsync(
       })
     }
   }
-  
+
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
     'remove_puppet6',
@@ -343,7 +331,7 @@ plan puppetsync(
   ) |$ok_repos, $stage_name| {
     run_task_with('puppetsync::modernize_metadata_json',
       $ok_repos,
-      '_catch_errors'  => false,
+      '_catch_errors'  => true,
     ) |$repo| {
       $file_path = $repo.facts['project_type'] ? {
         'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/metadata.json.erb",
@@ -355,8 +343,41 @@ plan puppetsync(
     }
   }
 
-  # To inspect Puppet catalog resource events:
-  #   $repos[0].vars["puppetsync_stage_results"]["apply_puppet_role"]['data']['value']['report']["resource_statuses"]["File[/var/simpdev/ctessmer/src/puppetsync/_repos/acpid/.gitlab-ci.yml]"]["events"]
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'run_spec_tests',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::run_spec_tests',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      Hash.new({
+        'path' => "${repo.vars['repo_path']}"
+      })
+    }
+  }
+
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'generate_reference_md',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    run_task_with(
+      'puppetsync::generate_reference_md',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      {
+        'filename'    => "${repo.vars['repo_path']}/metadata.json",
+        'auto_commit' => true,
+      }
+    }
+  }
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -376,6 +397,7 @@ plan puppetsync(
       }
     }
   }
+
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -522,6 +544,27 @@ plan puppetsync(
       }
       ctrl::sleep($opts['github_api_delay_seconds'])
       $results.first
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'release_pupmod',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    run_task_with(
+      'puppetsync::release_pupmod',
+      $ok_repos,
+      '_catch_errors'  => false,
+    ) |$repo| {
+      {
+        'filename'                => "${repo.vars['repo_path']}/metadata.json",
+        'upstream_remote'         => 'origin',
+        'overwrite_existing_tags' => 'false',
+        'dry_run'                 => 'true' # FIXME change to true before release
+      }
     }
   }
 
