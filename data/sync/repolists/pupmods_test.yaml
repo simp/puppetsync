@@ -1,7 +1,7 @@
 puppetsync::repos_config:
 
-  https://github.com/simp/pupmod-simp-simplib:
-    branch: master
+  # https://github.com/simp/pupmod-simp-simplib:
+  #   branch: master
   https://github.com/simp/pupmod-simp-iptables:
     branch: master
 
@@ -12,6 +12,4 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-nfs:
     branch: master
   https://github.com/simp/pupmod-simp-pam:
-    branch: master
-  https://github.com/simp/pupmod-simp-nfs:
     branch: master

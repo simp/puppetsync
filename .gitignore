@@ -16,3 +16,4 @@ bolt-debug.log
 gem.deps.rb.lock
 .plan_cache.json
 .task_cache.json
+Puppetfile

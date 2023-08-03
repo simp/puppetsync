@@ -42,8 +42,8 @@ def bump_version(file)
     changelog = File.read(changelog_file)
     require 'date'
     new_lines = []
-    new_lines << DateTime.now.strftime("* %a %b %d %Y Chris Tessmer <chris.tessmer@onyxpoint.com> - #{new_version}")
-    new_lines << '- Add RockyLinux 8 support'
+    new_lines << DateTime.now.strftime("* %a %b %d %Y Steven Pritchard <steve@sicura.us> - #{new_version}")
+    new_lines << '- Add AlmaLinux 8 support'
     changelog = new_lines.join("\n") + "\n\n" + changelog
     File.open(changelog_file,'w'){|f| f.puts changelog; f.flush }
   end
@@ -119,13 +119,17 @@ def transform_operatingsystem_support(content)
     warn "SKIPPING: NO operatingsystem_support key exists in metadata.json for #{content['name']}"
     return
   end
-  items = content['operatingsystem_support'].select{|x| x['operatingsystem'] == 'Rocky' }
-  content['operatingsystem_support'] << { 'operatingsystem' => 'Rocky' } if items.empty?
+  ['Rocky', 'AlmaLinux', 'CentOS', 'RedHat', 'OracleLinux'].each do |supported_os|
+    ['8'].each do |supported_version|
+      items = content['operatingsystem_support'].select{|x| x['operatingsystem'] == supported_os }
+      content['operatingsystem_support'] << { 'operatingsystem' => supported_os } if items.empty?
 
-  content['operatingsystem_support'].select{|x| x['operatingsystem'] == 'Rocky' }.map do |x|
-    x['operatingsystemrelease'] ||= []
-    unless x['operatingsystemrelease'].include? '8'
-      x['operatingsystemrelease'] << '8'
+      content['operatingsystem_support'].select{|x| x['operatingsystem'] == supported_os }.map do |x|
+        x['operatingsystemrelease'] ||= []
+        unless x['operatingsystemrelease'].include? supported_version
+          x['operatingsystemrelease'] << supported_version
+        end
+      end
     end
   end
 end
