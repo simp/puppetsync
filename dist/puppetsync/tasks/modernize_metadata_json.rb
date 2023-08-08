@@ -119,6 +119,19 @@ def transform_operatingsystem_support(content)
     warn "SKIPPING: NO operatingsystem_support key exists in metadata.json for #{content['name']}"
     return
   end
+
+  case content['name'].delete_prefix('simp-')
+  # Not supported on EL8
+  when 'tpm', 'upstart', 'chkrootkit', 'sudosh'
+    return
+  # Not tested on EL8 (yet)
+  when 'hirs_provisioner', 'simp_ipa', 'simp_pki_service'
+    return
+  # No specific OS support listed
+  when 'simp_banners', 'simplib'
+    return
+  end
+
   ['Rocky', 'AlmaLinux', 'CentOS', 'RedHat', 'OracleLinux'].each do |supported_os|
     ['8'].each do |supported_version|
       items = content['operatingsystem_support'].select{|x| x['operatingsystem'] == supported_os }
@@ -170,7 +183,7 @@ original_content_str = content.to_s
 ## transform_module_dependencies(content)
 
 # simplib doesn't restrict any operatingsystem by version
-transform_operatingsystem_support(content) unless ( content['name'] == 'simp-simplib' || content['name'] == 'simp-tpm' )
+transform_operatingsystem_support(content)
 transform_module_dependencies(content)
 
 # Write content back to original file
