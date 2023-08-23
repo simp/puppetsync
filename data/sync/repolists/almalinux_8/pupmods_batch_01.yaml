@@ -42,8 +42,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-ds389:
     branch: master
 
-  https://github.com/simp/pupmod-simp-fips:
-    branch: master
+  # Depends on crypto_policy
+  # https://github.com/simp/pupmod-simp-fips:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-freeradius:
   #   branch: master
@@ -126,8 +127,9 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-pupmod:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-resolv:
-    branch: master
+  # Dependency on named
+  # https://github.com/simp/pupmod-simp-resolv:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-rkhunter:
     branch: master
@@ -183,17 +185,20 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simp_pki_service:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-simp_rsyslog:
-    branch: master
+  # Dependency on auditd
+  # https://github.com/simp/pupmod-simp-simp_rsyslog:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-simp_snmpd:
-    branch: master
+  # Dependency on rsync
+  # https://github.com/simp/pupmod-simp-simp_snmpd:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-ssh:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-sssd:
-    branch: master
+  # Dependency on auditd
+  # https://github.com/simp/pupmod-simp-sssd:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-stunnel:
   #   branch: master
@@ -234,8 +239,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-useradd:
     branch: master
 
-  https://github.com/simp/pupmod-simp-vnc:
-    branch: master
+  # Dependency on gdm
+  # https://github.com/simp/pupmod-simp-vnc:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-vsftpd:
   #   branch: master
