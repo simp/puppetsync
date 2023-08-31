@@ -3,8 +3,8 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-acpid:
   #   branch: master
 
-  # https://github.com/simp/pupmod-simp-aide:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-aide:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-at:
   #   branch: master
@@ -30,12 +30,14 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-crypto_policy:
   #   branch: master
 
+  # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-dconf:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-deferred_resources:
   #   branch: master
 
+  # Need to add stdlib 9 support first
   # https://github.com/simp/pupmod-simp-dhcp:
   #   branch: master
 
@@ -45,6 +47,7 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-fips:
     branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-freeradius:
   #   branch: master
 
@@ -54,6 +57,7 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-gnome:
   #   branch: master
 
+  # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-haveged:
   #   branch: master
 
@@ -66,21 +70,25 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-incron:
   #   branch: master
 
+  # Hard-coded OS name in functions/use_firewalld.pp
   # https://github.com/simp/pupmod-simp-iptables:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-issue:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-krb5:
   #   branch: master
 
+  # Hard-coded OS name in manifests/nss/init_db.pp
   # https://github.com/simp/pupmod-simp-libreswan:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-libvirt:
   #   branch: master
 
+  # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-logrotate:
   #   branch: master
 
@@ -90,15 +98,18 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-mozilla:
   #   branch: master
 
+  # Need to add stdlib 9 support first
   # https://github.com/simp/pupmod-simp-named:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-network:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-nfs:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-ntpd:
   #   branch: master
 
@@ -108,8 +119,8 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-oddjob:
   #   branch: master
 
-  # https://github.com/simp/pupmod-simp-openscap:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-openscap:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-pam:
   #   branch: master
@@ -120,21 +131,25 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-polkit:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-postfix:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-pupmod:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-resolv:
-    branch: master
+  # Dependency on named
+  # https://github.com/simp/pupmod-simp-resolv:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-rkhunter:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-rsync:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-rsyslog:
   #   branch: master
 
@@ -150,18 +165,20 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simplib:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-simp_apache:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-simp_banners:
   #   branch: master
 
-  # https://github.com/simp/pupmod-simp-simp_ds389:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-simp_ds389:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-simp_firewalld:
   #   branch: master
 
+  # See https://github.com/simp/pupmod-simp-simp_gitlab/issues/75
   # https://github.com/simp/pupmod-simp-simp_gitlab:
   #   branch: master
 
@@ -171,9 +188,11 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simp_ipa:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-simp_nfs:
   #   branch: master
 
+  # rspec failure requires additional investigation
   # https://github.com/simp/pupmod-simp-simp_openldap:
   #   branch: master
 
@@ -186,18 +205,22 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_rsyslog:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp_snmpd:
-    branch: master
+  # Dependency on rsync
+  # https://github.com/simp/pupmod-simp-simp_snmpd:
+  #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-ssh:
   #   branch: master
 
   https://github.com/simp/pupmod-simp-sssd:
     branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-stunnel:
   #   branch: master
 
+  # Hard-coded OS name in template
   # https://github.com/simp/pupmod-simp-sudo:
   #   branch: master
 
@@ -210,9 +233,11 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-swap:
   #   branch: master
 
+  # Needs additional fixes for EL8
   # https://github.com/simp/pupmod-simp-tcpwrappers:
   #   branch: master
 
+  # Requires additional changes to rspec tests
   # https://github.com/simp/pupmod-simp-tftpboot:
   #   branch: master
 
@@ -237,11 +262,13 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-vnc:
     branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-vsftpd:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-x2go:
   #   branch: master
 
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-xinetd:
   #   branch: master
