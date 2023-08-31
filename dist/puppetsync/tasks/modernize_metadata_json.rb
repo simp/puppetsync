@@ -108,7 +108,7 @@ def transform_module_dependencies(content)
     # stdlib 8 adds Rocky 8, 8.4.0 (beware ensure_packages flip: https://github.com/puppetlabs/puppetlabs-stdlib/pull/1196)
     # Can't go up to stdlib 9.x yet because "they removed the compat functions (Mike R)"
     dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
-      x['version_requirement'] = '>= 8.0.0 < 9.0.0'
+      x['version_requirement'] = '>= 8.0.0 < 9.0.0' unless x['version_requirement'] == '>= 8.0.0 < 10.0.0'
     end
   end
 end

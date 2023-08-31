@@ -37,7 +37,7 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-deferred_resources:
   #   branch: master
 
-  # Need to add stdlib 9 support first
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-dhcp:
   #   branch: master
 
@@ -98,7 +98,7 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-mozilla:
   #   branch: master
 
-  # Need to add stdlib 9 support first
+  # Dependency on iptables
   # https://github.com/simp/pupmod-simp-named:
   #   branch: master
 

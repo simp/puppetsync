@@ -9,6 +9,7 @@ params = JSON.parse(stdin)
 Dir.chdir(params['path'])
 
 Dir.glob('data/**/os/OracleLinux*.yaml').each do |oracle_data|
+  next if %r{-[0-7]\.yaml$}.match?(oracle_data)
   rocky_data = oracle_data.sub('OracleLinux', 'Rocky')
   next if File.exist?(rocky_data)
   FileUtils.cp(oracle_data, rocky_data)
