@@ -4,8 +4,8 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-acpid:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-aide:
-    branch: master
+  # https://github.com/simp/pupmod-simp-aide:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-at:
   #   branch: master
@@ -39,19 +39,17 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-deferred_resources:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-dhcp:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-dhcp:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-ds389:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-fips:
-    branch: master
-
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-freeradius:
+  # https://github.com/simp/pupmod-simp-fips:
   #   branch: master
+
+  https://github.com/simp/pupmod-simp-freeradius:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-gdm:
   #   branch: master
@@ -73,18 +71,17 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-incron:
   #   branch: master
 
-  # Hard-coded OS name in functions/use_firewalld.pp
+  # Updated manually
   # https://github.com/simp/pupmod-simp-iptables:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-issue:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-krb5:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-krb5:
+    branch: master
 
-  # Hard-coded OS name in manifests/nss/init_db.pp
+  # Updated manually
   # https://github.com/simp/pupmod-simp-libreswan:
   #   branch: master
 
@@ -101,20 +98,17 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-mozilla:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-named:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-named:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-network:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-nfs:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-nfs:
+    branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-ntpd:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-ntpd:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-oath:
   #   branch: master
@@ -122,8 +116,8 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-oddjob:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-openscap:
-    branch: master
+  # https://github.com/simp/pupmod-simp-openscap:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-pam:
   #   branch: master
@@ -134,9 +128,8 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-polkit:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-postfix:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-postfix:
+    branch: master
 
   # Updated manually
   # https://github.com/simp/pupmod-simp-pupmod:
@@ -149,13 +142,11 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-rkhunter:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-rsync:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-rsync:
+    branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-rsyslog:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-rsyslog:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-selinux:
   #   branch: master
@@ -166,19 +157,19 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simpkv:
   #   branch: master
 
+  # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-simplib:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-simp_apache:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-simp_apache:
+    branch: master
 
   # Skipped intentionally
   # https://github.com/simp/pupmod-simp-simp_banners:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-simp_ds389:
-    branch: master
+  # https://github.com/simp/pupmod-simp-simp_ds389:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-simp_firewalld:
   #   branch: master
@@ -194,9 +185,8 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simp_ipa:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-simp_nfs:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-simp_nfs:
+    branch: master
 
   # Updated manually
   # https://github.com/simp/pupmod-simp-simp_openldap:
@@ -209,23 +199,21 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simp_pki_service:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-simp_rsyslog:
-    branch: master
+  # https://github.com/simp/pupmod-simp-simp_rsyslog:
+  #   branch: master
 
   # Dependency on rsync
   # https://github.com/simp/pupmod-simp-simp_snmpd:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-ssh:
-  #   branch: master
-
-  https://github.com/simp/pupmod-simp-sssd:
+  https://github.com/simp/pupmod-simp-ssh:
     branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-stunnel:
+  # https://github.com/simp/pupmod-simp-sssd:
   #   branch: master
+
+  https://github.com/simp/pupmod-simp-stunnel:
+    branch: master
 
   # Hard-coded OS name in template
   # https://github.com/simp/pupmod-simp-sudo:
@@ -269,16 +257,14 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-useradd:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-vnc:
-    branch: master
-
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-vsftpd:
+  # https://github.com/simp/pupmod-simp-vnc:
   #   branch: master
+
+  https://github.com/simp/pupmod-simp-vsftpd:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-x2go:
   #   branch: master
 
-  # Dependency on iptables
-  # https://github.com/simp/pupmod-simp-xinetd:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-xinetd:
+    branch: master

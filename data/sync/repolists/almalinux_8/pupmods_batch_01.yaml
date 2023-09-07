@@ -1,3 +1,4 @@
+---
 puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-acpid:
@@ -15,6 +16,7 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-autofs:
     branch: master
 
+  # Skipped intentionally
   # https://github.com/simp/pupmod-simp-chkrootkit:
   #   branch: master
 
@@ -30,6 +32,7 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-crypto_policy:
     branch: master
 
+  # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-dconf:
   #   branch: master
 
@@ -55,9 +58,11 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-gnome:
     branch: master
 
+  # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-haveged:
   #   branch: master
 
+  # Skipped intentionally
   # https://github.com/simp/pupmod-simp-hirs_provisioner:
   #   branch: master
 
@@ -82,6 +87,7 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-libvirt:
     branch: master
 
+  # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-logrotate:
   #   branch: master
 
@@ -124,6 +130,7 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-postfix:
   #   branch: master
 
+  # Updated manually
   # https://github.com/simp/pupmod-simp-pupmod:
   #   branch: master
 
@@ -155,6 +162,7 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simp_apache:
   #   branch: master
 
+  # Skipped intentionally
   # https://github.com/simp/pupmod-simp-simp_banners:
   #   branch: master
 
@@ -170,18 +178,21 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_grub:
     branch: master
 
+  # Skipped intentionally
   # https://github.com/simp/pupmod-simp-simp_ipa:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-simp_nfs:
   #   branch: master
 
+  # Updated manually
   # https://github.com/simp/pupmod-simp-simp_openldap:
   #   branch: master
 
   https://github.com/simp/pupmod-simp-simp_options:
     branch: master
 
+  # Skipped intentionally
   # https://github.com/simp/pupmod-simp-simp_pki_service:
   #   branch: master
 
@@ -206,6 +217,7 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-sudo:
   #   branch: master
 
+  # Skipped intentionally
   # https://github.com/simp/pupmod-simp-sudosh:
   #   branch: master
 
@@ -224,6 +236,7 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-tlog:
     branch: master
 
+  # Skipped intentionally
   # https://github.com/simp/pupmod-simp-tpm:
   #   branch: master
 
@@ -233,6 +246,7 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-tuned:
     branch: master
 
+  # Skipped intentionally
   # https://github.com/simp/pupmod-simp-upstart:
   #   branch: master
 
