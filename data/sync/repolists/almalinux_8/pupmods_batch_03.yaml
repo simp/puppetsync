@@ -98,8 +98,9 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-mozilla:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-named:
-    branch: master
+  # Hard-coded OS name in manifests/service.pp
+  # https://github.com/simp/pupmod-simp-named:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-network:
   #   branch: master
@@ -142,8 +143,9 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-rkhunter:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-rsync:
-    branch: master
+  # Hard-coded OS name in manifests/selinux.pp
+  # https://github.com/simp/pupmod-simp-rsync:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-rsyslog:
     branch: master
@@ -212,8 +214,9 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-sssd:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-stunnel:
-    branch: master
+  # rspec failure requires additional investigation
+  # https://github.com/simp/pupmod-simp-stunnel:
+  #   branch: master
 
   # Hard-coded OS name in template
   # https://github.com/simp/pupmod-simp-sudo:
