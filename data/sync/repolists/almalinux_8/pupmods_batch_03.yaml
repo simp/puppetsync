@@ -190,7 +190,7 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_nfs:
     branch: master
 
-  # Updated manually
+  # rspec failure - https://github.com/simp/pupmod-simp-simp_openldap/issues/123
   # https://github.com/simp/pupmod-simp-simp_openldap:
   #   branch: master
 

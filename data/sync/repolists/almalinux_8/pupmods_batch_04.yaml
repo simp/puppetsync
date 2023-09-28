@@ -1,62 +1,61 @@
 ---
 puppetsync::repos_config:
 
-  https://github.com/simp/pupmod-simp-acpid:
-    branch: master
+  # https://github.com/simp/pupmod-simp-acpid:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-aide:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-at:
-    branch: master
+  # https://github.com/simp/pupmod-simp-at:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-auditd:
-    branch: master
+  # https://github.com/simp/pupmod-simp-auditd:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-autofs:
-    branch: master
+  # https://github.com/simp/pupmod-simp-autofs:
+  #   branch: master
 
   # Skipped intentionally
   # https://github.com/simp/pupmod-simp-chkrootkit:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-clamav:
-    branch: master
+  # https://github.com/simp/pupmod-simp-clamav:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-compliance_markup:
-    branch: master
+  # https://github.com/simp/pupmod-simp-compliance_markup:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-cron:
-    branch: master
+  # https://github.com/simp/pupmod-simp-cron:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-crypto_policy:
-    branch: master
+  # https://github.com/simp/pupmod-simp-crypto_policy:
+  #   branch: master
 
   # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-dconf:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-deferred_resources:
-    branch: master
+  # https://github.com/simp/pupmod-simp-deferred_resources:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-dhcp:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-ds389:
-    branch: master
+  # https://github.com/simp/pupmod-simp-ds389:
+  #   branch: master
 
-  # Depends on crypto_policy
   # https://github.com/simp/pupmod-simp-fips:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-freeradius:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-gdm:
-    branch: master
+  # https://github.com/simp/pupmod-simp-gdm:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-gnome:
-    branch: master
+  # https://github.com/simp/pupmod-simp-gnome:
+  #   branch: master
 
   # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-haveged:
@@ -66,42 +65,45 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-hirs_provisioner:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-ima:
-    branch: master
+  # https://github.com/simp/pupmod-simp-ima:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-incron:
-    branch: master
+  # https://github.com/simp/pupmod-simp-incron:
+  #   branch: master
 
+  # Updated manually
   # https://github.com/simp/pupmod-simp-iptables:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-issue:
-    branch: master
+  # https://github.com/simp/pupmod-simp-issue:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-krb5:
   #   branch: master
 
+  # Updated manually
   # https://github.com/simp/pupmod-simp-libreswan:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-libvirt:
-    branch: master
+  # https://github.com/simp/pupmod-simp-libvirt:
+  #   branch: master
 
   # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-logrotate:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-mate:
-    branch: master
+  # https://github.com/simp/pupmod-simp-mate:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-mozilla:
-    branch: master
+  # https://github.com/simp/pupmod-simp-mozilla:
+  #   branch: master
 
+  # Hard-coded OS name in manifests/service.pp
   # https://github.com/simp/pupmod-simp-named:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-network:
-    branch: master
+  # https://github.com/simp/pupmod-simp-network:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-nfs:
   #   branch: master
@@ -109,23 +111,23 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-ntpd:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-oath:
-    branch: master
+  # https://github.com/simp/pupmod-simp-oath:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-oddjob:
-    branch: master
+  # https://github.com/simp/pupmod-simp-oddjob:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-openscap:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-pam:
-    branch: master
+  # https://github.com/simp/pupmod-simp-pam:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-pki:
-    branch: master
+  # https://github.com/simp/pupmod-simp-pki:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-polkit:
-    branch: master
+  # https://github.com/simp/pupmod-simp-polkit:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-postfix:
   #   branch: master
@@ -134,28 +136,29 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-pupmod:
   #   branch: master
 
-  # Dependency on named
-  # https://github.com/simp/pupmod-simp-resolv:
-  #   branch: master
-
-  https://github.com/simp/pupmod-simp-rkhunter:
+  https://github.com/simp/pupmod-simp-resolv:
     branch: master
 
+  # https://github.com/simp/pupmod-simp-rkhunter:
+  #   branch: master
+
+  # Updated manually
   # https://github.com/simp/pupmod-simp-rsync:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-rsyslog:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-selinux:
-    branch: master
+  # https://github.com/simp/pupmod-simp-selinux:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-simp:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-simpkv:
-    branch: master
+  # https://github.com/simp/pupmod-simp-simpkv:
+  #   branch: master
 
+  # AlmaLinux support added previously
   # https://github.com/simp/pupmod-simp-simplib:
   #   branch: master
 
@@ -169,14 +172,14 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simp_ds389:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-simp_firewalld:
-    branch: master
-
-  # https://github.com/simp/pupmod-simp-simp_gitlab:
+  # https://github.com/simp/pupmod-simp-simp_firewalld:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-simp_grub:
+  https://github.com/simp/pupmod-simp-simp_gitlab:
     branch: master
+
+  # https://github.com/simp/pupmod-simp-simp_grub:
+  #   branch: master
 
   # Skipped intentionally
   # https://github.com/simp/pupmod-simp-simp_ipa:
@@ -185,35 +188,33 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simp_nfs:
   #   branch: master
 
-  # rspec failure - https://github.com/simp/pupmod-simp-simp_openldap/issues/123
-  # https://github.com/simp/pupmod-simp-simp_openldap:
-  #   branch: master
-
-  https://github.com/simp/pupmod-simp-simp_options:
+  https://github.com/simp/pupmod-simp-simp_openldap:
     branch: master
+
+  # https://github.com/simp/pupmod-simp-simp_options:
+  #   branch: master
 
   # Skipped intentionally
   # https://github.com/simp/pupmod-simp-simp_pki_service:
   #   branch: master
 
-  # Dependency on auditd
   # https://github.com/simp/pupmod-simp-simp_rsyslog:
   #   branch: master
 
-  # Dependency on rsync
-  # https://github.com/simp/pupmod-simp-simp_snmpd:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-simp_snmpd:
+    branch: master
 
   # https://github.com/simp/pupmod-simp-ssh:
   #   branch: master
 
-  # Dependency on auditd
   # https://github.com/simp/pupmod-simp-sssd:
   #   branch: master
 
+  # Hard-coded OS names in templates
   # https://github.com/simp/pupmod-simp-stunnel:
   #   branch: master
 
+  # Updated manually
   # https://github.com/simp/pupmod-simp-sudo:
   #   branch: master
 
@@ -221,47 +222,48 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-sudosh:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-svckill:
-    branch: master
+  # https://github.com/simp/pupmod-simp-svckill:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-swap:
-    branch: master
+  # https://github.com/simp/pupmod-simp-swap:
+  #   branch: master
 
+  # Needs additional fixes for EL8
   # https://github.com/simp/pupmod-simp-tcpwrappers:
   #   branch: master
 
+  # Updated manually
   # https://github.com/simp/pupmod-simp-tftpboot:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-tlog:
-    branch: master
+  # https://github.com/simp/pupmod-simp-tlog:
+  #   branch: master
 
   # Skipped intentionally
   # https://github.com/simp/pupmod-simp-tpm:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-tpm2:
-    branch: master
+  # https://github.com/simp/pupmod-simp-tpm2:
+  #   branch: master
 
-  https://github.com/simp/pupmod-simp-tuned:
-    branch: master
+  # https://github.com/simp/pupmod-simp-tuned:
+  #   branch: master
 
   # Skipped intentionally
   # https://github.com/simp/pupmod-simp-upstart:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-useradd:
-    branch: master
+  # https://github.com/simp/pupmod-simp-useradd:
+  #   branch: master
 
-  # Dependency on gdm
   # https://github.com/simp/pupmod-simp-vnc:
   #   branch: master
 
   # https://github.com/simp/pupmod-simp-vsftpd:
   #   branch: master
 
-  https://github.com/simp/pupmod-simp-x2go:
-    branch: master
+  # https://github.com/simp/pupmod-simp-x2go:
+  #   branch: master
 
   # https://github.com/simp/pupmod-simp-xinetd:
   #   branch: master
