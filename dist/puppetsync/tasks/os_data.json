@@ -1,0 +1,10 @@
+{
+  "description": "Add OS Data",
+  "input_method": "stdin",
+  "parameters": {
+    "path": {
+      "description": "Path to project folder (ex: '/path/to/gems')",
+      "type": "Stdlib::Absolutepath"
+    }
+  }
+}

@@ -42,8 +42,8 @@ def bump_version(file)
     changelog = File.read(changelog_file)
     require 'date'
     new_lines = []
-    new_lines << DateTime.now.strftime("* %a %b %d %Y Chris Tessmer <chris.tessmer@onyxpoint.com> - #{new_version}")
-    new_lines << '- Add RockyLinux 8 support'
+    new_lines << DateTime.now.strftime("* %a %b %d %Y Steven Pritchard <steve@sicura.us> - #{new_version}")
+    new_lines << '- Add AlmaLinux 8 support'
     changelog = new_lines.join("\n") + "\n\n" + changelog
     File.open(changelog_file,'w'){|f| f.puts changelog; f.flush }
   end
@@ -108,7 +108,7 @@ def transform_module_dependencies(content)
     # stdlib 8 adds Rocky 8, 8.4.0 (beware ensure_packages flip: https://github.com/puppetlabs/puppetlabs-stdlib/pull/1196)
     # Can't go up to stdlib 9.x yet because "they removed the compat functions (Mike R)"
     dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
-      x['version_requirement'] = '>= 8.0.0 < 9.0.0'
+      x['version_requirement'] = '>= 8.0.0 < 9.0.0' unless x['version_requirement'] == '>= 8.0.0 < 10.0.0'
     end
   end
 end
@@ -119,13 +119,30 @@ def transform_operatingsystem_support(content)
     warn "SKIPPING: NO operatingsystem_support key exists in metadata.json for #{content['name']}"
     return
   end
-  items = content['operatingsystem_support'].select{|x| x['operatingsystem'] == 'Rocky' }
-  content['operatingsystem_support'] << { 'operatingsystem' => 'Rocky' } if items.empty?
 
-  content['operatingsystem_support'].select{|x| x['operatingsystem'] == 'Rocky' }.map do |x|
-    x['operatingsystemrelease'] ||= []
-    unless x['operatingsystemrelease'].include? '8'
-      x['operatingsystemrelease'] << '8'
+  case content['name'].delete_prefix('simp-')
+  # Not supported on EL8
+  when 'tpm', 'upstart', 'chkrootkit', 'sudosh'
+    return
+  # Not tested on EL8 (yet)
+  when 'hirs_provisioner', 'simp_ipa', 'simp_pki_service'
+    return
+  # No specific OS support listed
+  when 'simp_banners', 'simplib'
+    return
+  end
+
+  ['Rocky', 'AlmaLinux', 'CentOS', 'RedHat', 'OracleLinux'].each do |supported_os|
+    ['8'].each do |supported_version|
+      items = content['operatingsystem_support'].select{|x| x['operatingsystem'] == supported_os }
+      content['operatingsystem_support'] << { 'operatingsystem' => supported_os } if items.empty?
+
+      content['operatingsystem_support'].select{|x| x['operatingsystem'] == supported_os }.map do |x|
+        x['operatingsystemrelease'] ||= []
+        unless x['operatingsystemrelease'].include? supported_version
+          x['operatingsystemrelease'] << supported_version
+        end
+      end
     end
   end
 end
@@ -166,7 +183,7 @@ original_content_str = content.to_s
 ## transform_module_dependencies(content)
 
 # simplib doesn't restrict any operatingsystem by version
-transform_operatingsystem_support(content) unless ( content['name'] == 'simp-simplib' || content['name'] == 'simp-tpm' )
+transform_operatingsystem_support(content)
 transform_module_dependencies(content)
 
 # Write content back to original file
