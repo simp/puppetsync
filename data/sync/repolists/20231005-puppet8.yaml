@@ -229,9 +229,6 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-tuned:
     branch: master
 
-  https://github.com/simp/pupmod-simp-upstart:
-    branch: master
-
   https://github.com/simp/pupmod-simp-useradd:
     branch: master
 
