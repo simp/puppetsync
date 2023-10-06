@@ -166,8 +166,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_gitlab:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp_grub:
-    branch: master
+  # rspec failure
+  # https://github.com/simp/pupmod-simp-simp_grub:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-simp_ipa:
     branch: master
@@ -229,8 +230,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-tuned:
     branch: master
 
-  https://github.com/simp/pupmod-simp-useradd:
-    branch: master
+  # rspec failure
+  # https://github.com/simp/pupmod-simp-useradd:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-vnc:
     branch: master
