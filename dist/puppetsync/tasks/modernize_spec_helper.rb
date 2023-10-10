@@ -6,6 +6,10 @@ def deprecate_manifest_dir(content)
   content.gsub!(%r{^.*(\w+)\.(manifest_dir)\b.*$}, '\& if \1.respond_to?(:\2)')
 end
 
+def deprecate_trusted_server_facts(content)
+  content.gsub!(%r{^.*(\w+)\.(trusted_server_facts)\b.*$}, '\& if \1.respond_to?(:\2)')
+end
+
 # ARGF hack to allow use run the task directly as a ruby script while testing
 if ARGF.filename == '-'
   stdin = ''
@@ -29,6 +33,7 @@ original_content_str = content.dup
 # These methods mutate `content` and its contents by reference
 # ------------------------------------------------------------------------------
 deprecate_manifest_dir(content)
+deprecate_trusted_server_facts(content)
 
 # Write content back to original file
 File.open(file, 'w') { |f| f.puts content }
