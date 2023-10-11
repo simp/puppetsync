@@ -124,8 +124,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-postfix:
     branch: master
 
-  https://github.com/simp/pupmod-simp-pupmod:
-    branch: master
+  # rspec failure
+  # https://github.com/simp/pupmod-simp-pupmod:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-resolv:
     branch: master
