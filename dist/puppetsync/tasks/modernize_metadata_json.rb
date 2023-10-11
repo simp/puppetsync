@@ -112,7 +112,7 @@ def transform_module_dependencies(content)
       x['version_requirement'] = '>= 8.0.0 < 10.0.0'
     end
     # augeasproviders modules moved to Vox Pupuli
-    dependencies.select{|x| x['name'].split(%r{-/}).first == "herculesteam" }.each do |x|
+    dependencies.select{|x| x['name'].split(%r{[-/]}).first == "herculesteam" }.each do |x|
       x['name'].sub!('herculesteam', 'puppet')
     end
 
