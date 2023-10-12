@@ -1,0 +1,10 @@
+{
+  "description": "Modernize spec/spec_helper.rb",
+  "input_method": "stdin",
+  "parameters": {
+    "filename": {
+      "description": "Absolute path to spec_helper.rb",
+      "type": "Stdlib::Absolutepath"
+    }
+  }
+}

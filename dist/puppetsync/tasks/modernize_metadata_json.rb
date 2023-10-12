@@ -8,7 +8,6 @@ require 'tmpdir'
 
 require 'fileutils'
 
-
 def bump_version(file)
   # Read content from metadata.json file
   warn "file: '#{file}'"
@@ -43,12 +42,16 @@ def bump_version(file)
     require 'date'
     new_lines = []
     new_lines << DateTime.now.strftime("* %a %b %d %Y Steven Pritchard <steve@sicura.us> - #{new_version}")
-    new_lines << '- Add AlmaLinux 8 support'
+    new_lines << '- [puppetsync] Updates for Puppet 8'
+    new_lines << '  - These updates may include the following:'
+    new_lines << '    - Update Gemfile'
+    new_lines << '    - Add support for Puppet 8'
+    new_lines << '    - Drop support for Puppet 6'
+    new_lines << '    - Update module dependencies'
     changelog = new_lines.join("\n") + "\n\n" + changelog
     File.open(changelog_file,'w'){|f| f.puts changelog; f.flush }
   end
 end
-
 
 def tmp_bundle_rake_execs(repo_path, tasks)
   Dir.mktmpdir('tmp_bundle_rake_execs') do |tmp_dir|
@@ -88,10 +91,9 @@ def transform_puppet_version_requirements(content)
     #  m = Regexp.last_match
     #  "#{m[:low_op} #{m[:low_ver]} >= 6.22.1 < 8.0.0"
     #end
-    x['version_requirement'] = '>= 6.22.1 < 8.0.0'
+    x['version_requirement'] = '>= 7.0.0 < 9.0.0'
   end
 end
-
 
 def transform_module_dependencies(content)
   dep_sections = [
@@ -101,18 +103,30 @@ def transform_module_dependencies(content)
 
   dep_sections.each do |dependencies|
     # puppet/systemd 4.0.2 addd Rocky Linux 8, 5.x drops puppet 6 support
-    dependencies.select{|x| x['name'] == 'puppet/systemd' || x['name'] == 'camptocamp/systemd' }.map do |x|
+    dependencies.select{|x| x['name'].sub('-', '/') == 'puppet/systemd' || x['name'].sub('-', '/') == 'camptocamp/systemd' }.each do |x|
       x['name'] = 'puppet/systemd'
-      x['version_requirement'] = '>= 4.0.2 < 6.0.0'
+      x['version_requirement'] = '>= 4.0.2 < 7.0.0'
     end
     # stdlib 8 adds Rocky 8, 8.4.0 (beware ensure_packages flip: https://github.com/puppetlabs/puppetlabs-stdlib/pull/1196)
-    # Can't go up to stdlib 9.x yet because "they removed the compat functions (Mike R)"
-    dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.map do |x|
-      x['version_requirement'] = '>= 8.0.0 < 9.0.0' unless x['version_requirement'] == '>= 8.0.0 < 10.0.0'
+    dependencies.select{|x| x['name'] == 'puppetlabs/stdlib' }.each do |x|
+      x['version_requirement'] = '>= 8.0.0 < 10.0.0'
+    end
+    # augeasproviders modules moved to Vox Pupuli
+    dependencies.select{|x| x['name'].split(%r{[-/]}).first == "herculesteam" }.each do |x|
+      x['name'].sub!('herculesteam', 'puppet')
+    end
+
+    # Update dependency versions
+    dependencies.select{|x| x.key?('name') && x.key?('version_requirement') }.each do |x|
+      version_requirements = JSON.parse(File.read(File.join(__dir__, "..", "dist", "puppetsync", "data", "version_requirements.json")))
+
+      name = x['name'].sub('-', '/')
+      next unless version_requirements.key?(name)
+
+      x['version_requirement'] = version_requirements[name]
     end
   end
 end
-
 
 def transform_operatingsystem_support(content)
   unless content.keys.include? 'operatingsystem_support'
@@ -132,7 +146,12 @@ def transform_operatingsystem_support(content)
     return
   end
 
-  ['Rocky', 'AlmaLinux', 'CentOS', 'RedHat', 'OracleLinux'].each do |supported_os|
+  el = ['Rocky', 'AlmaLinux', 'CentOS', 'RedHat', 'OracleLinux']
+
+  # We only want to manipulate the supported OS list if it includes RHEL 8.
+  return unless content['operatingsystem_support'].any?{|x| x['operatingsystem'] == 'RedHat' && x['operatingsystemrelease']&.include?('8') }
+
+  el.each do |supported_os|
     ['8'].each do |supported_version|
       items = content['operatingsystem_support'].select{|x| x['operatingsystem'] == supported_os }
       content['operatingsystem_support'] << { 'operatingsystem' => supported_os } if items.empty?
@@ -146,7 +165,6 @@ def transform_operatingsystem_support(content)
     end
   end
 end
-
 
 # ARGF hack to allow use run the task directly as a ruby script while testing
 if ARGF.filename == '-'
@@ -176,20 +194,14 @@ end
 warn "\n== Modernizing metadata.json content"
 original_content_str = content.to_s
 
-
 # These methods mutate `content` and its contents by reference
 # ------------------------------------------------------------------------------
-## transform_puppet_version_requirements(content)
-## transform_module_dependencies(content)
-
-# simplib doesn't restrict any operatingsystem by version
+transform_puppet_version_requirements(content)
 transform_operatingsystem_support(content)
 transform_module_dependencies(content)
 
 # Write content back to original file
 File.open(file, 'w') { |f| f.puts JSON.pretty_generate(content) }
-
-
 
 if content.to_s == original_content_str
   warn '  == content unchanged'
@@ -201,7 +213,6 @@ else
     tmp_bundle_rake_execs(repo_path, ['metadata_lint', 'pkg:check_version', 'pkg:compare_latest_tag'])
   end
 end
-
 
 # Sanity check: Validate that the file is still valid JSON
 # NOTE: Handle heavier, gitlab/domain-aware lint checks in other tasks
