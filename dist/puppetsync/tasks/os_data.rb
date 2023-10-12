@@ -21,3 +21,12 @@ Dir.glob('data/**/os/Rocky*.yaml').each do |rocky_data|
   FileUtils.cp(rocky_data, alma_data)
 end
 
+# Add EL9 data anywhere we have EL8 data
+el = ['Rocky', 'AlmaLinux', 'CentOS', 'RedHat', 'OracleLinux']
+el.each do |supported_os|
+  Dir.glob("data/**/os/#{el}-8.yaml").each do |el8_data|
+    el9_data = el8_data.sub('8', '9')
+    next if File.exist?(el9_data)
+    FileUtils.cp(el8_data, el9_data)
+  end
+end
