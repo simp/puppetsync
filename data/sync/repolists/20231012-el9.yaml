@@ -16,8 +16,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-autofs:
     branch: master
 
-  https://github.com/simp/pupmod-simp-chkrootkit:
-    branch: master
+  # No EL8 support
+  # https://github.com/simp/pupmod-simp-chkrootkit:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-clamav:
     branch: master
@@ -58,8 +59,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-haveged:
     branch: master
 
-  https://github.com/simp/pupmod-simp-hirs_provisioner:
-    branch: master
+  # No EL8 support
+  # https://github.com/simp/pupmod-simp-hirs_provisioner:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-ima:
     branch: master
@@ -154,8 +156,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_apache:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp_banners:
-    branch: master
+  # No version-specific OS support
+  # https://github.com/simp/pupmod-simp-simp_banners:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-simp_ds389:
     branch: master
@@ -169,8 +172,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_grub:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp_ipa:
-    branch: master
+  # Not tested on > EL7
+  # https://github.com/simp/pupmod-simp-simp_ipa:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-simp_nfs:
     branch: master
@@ -181,8 +185,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_options:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp_pki_service:
-    branch: master
+  # Not tested on > EL7
+  # https://github.com/simp/pupmod-simp-simp_pki_service:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-simp_rsyslog:
     branch: master
@@ -202,8 +207,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-sudo:
     branch: master
 
-  https://github.com/simp/pupmod-simp-sudosh:
-    branch: master
+  # No EL8 support
+  # https://github.com/simp/pupmod-simp-sudosh:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-svckill:
     branch: master
@@ -211,8 +217,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-swap:
     branch: master
 
-  https://github.com/simp/pupmod-simp-tcpwrappers:
-    branch: master
+  # No EL8 support
+  # https://github.com/simp/pupmod-simp-tcpwrappers:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-tftpboot:
     branch: master
@@ -220,8 +227,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-tlog:
     branch: master
 
-  https://github.com/simp/pupmod-simp-tpm:
-    branch: master
+  # No EL8 support
+  # https://github.com/simp/pupmod-simp-tpm:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-tpm2:
     branch: master
