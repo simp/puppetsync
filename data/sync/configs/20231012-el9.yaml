@@ -46,17 +46,11 @@ puppetsync::plan_config:
           - merge_github_pr_for_each_repo
 
   git:
-    feature_branch: 20231005-puppet8
+    feature_branch: 20231012-el9
     # 0---------1---------2---------3---------4---------5---------6---------7|
     # (SIMP-XXXXX) 12345678                                    |+|
     commit_message: |
-      [puppetsync] Updates for Puppet 8
-
-      These updates may include the following:
-      * Update Gemfile
-      * Add support for Puppet 8
-      * Drop support for Puppet 6
-      * Update module dependencies
+      [puppetsync] Add EL9 support
 
 ###      The patch enforces a standardized asset baseline using
 ###      simp/puppetsync, and may also apply other updates to
