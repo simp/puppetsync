@@ -42,12 +42,7 @@ def bump_version(file)
     require 'date'
     new_lines = []
     new_lines << DateTime.now.strftime("* %a %b %d %Y Steven Pritchard <steve@sicura.us> - #{new_version}")
-    new_lines << '- [puppetsync] Updates for Puppet 8'
-    new_lines << '  - These updates may include the following:'
-    new_lines << '    - Update Gemfile'
-    new_lines << '    - Add support for Puppet 8'
-    new_lines << '    - Drop support for Puppet 6'
-    new_lines << '    - Update module dependencies'
+    new_lines << '- [puppetsync] Add EL9 support'
     changelog = new_lines.join("\n") + "\n\n" + changelog
     File.open(changelog_file,'w'){|f| f.puts changelog; f.flush }
   end
@@ -152,7 +147,7 @@ def transform_operatingsystem_support(content)
   return unless content['operatingsystem_support'].any?{|x| x['operatingsystem'] == 'RedHat' && x['operatingsystemrelease']&.include?('8') }
 
   el.each do |supported_os|
-    ['8'].each do |supported_version|
+    ['8', '9'].each do |supported_version|
       items = content['operatingsystem_support'].select{|x| x['operatingsystem'] == supported_os }
       content['operatingsystem_support'] << { 'operatingsystem' => supported_os } if items.empty?
 
