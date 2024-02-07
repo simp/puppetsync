@@ -50,9 +50,9 @@ puppetsync::plan_config:
     commit_message: |
       [puppetsync] Update metadata upper bounds for puppet-nsswitch, puppet-gitlab, puppet-snmp, simp-pam, and simp-useradd
 
-###      The patch enforces a standardized asset baseline using
-###      simp/puppetsync, and may also apply other updates to
-###      ensure conformity.
+      The patch enforces a standardized asset baseline using
+      simp/puppetsync, and may also apply other updates to
+      ensure conformity.
 
 
   github:
