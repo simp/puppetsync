@@ -110,6 +110,10 @@ def transform_module_dependencies(content)
     dependencies.select{|x| x['name'].split(%r{[-/]}).first == "herculesteam" }.each do |x|
       x['name'].sub!('herculesteam', 'puppet')
     end
+    # nsswitch modules moved to puppet from trlinkin
+    dependencies.select{|x| x['name'].split(%r{[-/]}).first == "trlinkin" }.each do |x|
+      x['name'].sub!('trlinkin', 'puppet')
+    end
 
     # Update dependency versions
     dependencies.select{|x| x.key?('name') && x.key?('version_requirement') }.each do |x|
