@@ -1,0 +1,61 @@
+---
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+#      - rubygem
+#      - simp_unknown
+    plans:
+      sync:
+        # clone_git_repos: false    # set to `false` when applying manual updates on a second run
+        # clear_before_clone: false # set to `false` when applying manual updates on a second run
+        github_api_delay_seconds: 30
+        stages:
+          - install_gems         # Uncomment for first-time puppetsync run
+          - checkout_git_feature_branch_in_each_repo
+          - apply_puppet_role
+###          - modernize_gitlab_files  # TODO
+###          - lint_gitlab_ci  TODO
+###          - modernize_fixtures      # one-off
+###          - os_data
+          - modernize_metadata_json
+###          - modernize_spec_helper
+###          - run_spec_tests
+          - git_commit_changes
+###          - generate_reference_md
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+###          - release_pupmod
+
+      approve_github_prs:
+        clone_git_repos: false         # No need to clone just to approve
+        filter_permitted_repos: false  # No need to filter (which requires clone)
+        stages:
+          - install_gems
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        clone_git_repos: false         # No need to clone just to merge
+        filter_permitted_repos: false  # No need to filter (which requires clone)
+        stages:
+          - install_gems
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: issue_20
+    # 0---------1---------2---------3---------4---------5---------6---------7|
+    # (SIMP-XXXXX) 12345678                                    |+|
+    commit_message: |
+      [puppetsync] Update metadata upper bounds for puppet-nsswitch, puppet-gitlab, puppet-snmp, simp-pam, and simp-useradd
+
+      The patch enforces a standardized asset baseline using
+      simp/puppetsync, and may also apply other updates to
+      ensure conformity.
+
+
+  github:
+    pr_user: michael-riddle  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'

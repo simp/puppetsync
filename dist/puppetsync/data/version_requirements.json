@@ -4,9 +4,9 @@
   "puppet/augeasproviders_sysctl": ">= 2.4.0 < 4.0.0",
   "puppet/chrony": ">= 1.0.0 < 4.0.0",
   "puppet/firewalld": ">= 4.2.3 < 6.0.0",
-  "puppet/gitlab": ">= 6.0.1 < 9.0.0",
+  "puppet/gitlab": ">= 6.0.1 < 10.0.0",
   "puppet/kmod": ">= 2.1.0 < 5.0.0",
-  "puppet/snmp": ">= 5.1.0 < 7.0.0",
+  "puppet/snmp": ">= 5.1.0 < 8.0.0",
   "puppet/systemd": ">= 4.0.2 < 7.0.0",
   "puppet/yum": ">= 2.0.0 < 8.0.0",
   "puppetlabs/concat": ">= 6.4.0 < 10.0.0",
@@ -44,7 +44,7 @@
   "simp/nfs": ">= 7.0.0 < 8.0.0",
   "simp/ntpd": ">= 6.0.0 < 7.0.0",
   "simp/oddjob": ">= 2.0.0 < 3.0.0",
-  "simp/pam": ">= 6.8.3 < 7.0.0",
+  "simp/pam": ">= 6.8.3 < 8.0.0",
   "simp/pki": ">= 6.2.0 < 7.0.0",
   "simp/polkit": ">= 6.1.0 < 7.0.0",
   "simp/postfix": ">= 5.5.0 < 6.0.0",
@@ -73,8 +73,8 @@
   "simp/tftpboot": ">= 6.3.0 < 7.0.0",
   "simp/tlog": ">= 0.1.0 < 1.0.0",
   "simp/tuned": ">= 0.1.0 < 1.0.0",
-  "simp/useradd": ">= 0.2.2 < 1.0.0",
+  "simp/useradd": ">= 0.2.2 < 2.0.0",
   "simp/vox_selinux": ">= 3.1.0 < 4.0.0",
   "simp/xinetd": ">= 4.0.0 < 5.0.0",
-  "trlinkin/nsswitch": ">= 2.0.0 < 3.0.0"
+  "puppet/nsswitch": ">= 2.0.0 < 4.0.0"
 }
