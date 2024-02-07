@@ -111,7 +111,7 @@ def transform_module_dependencies(content)
       x['name'].sub!('herculesteam', 'puppet')
     end
     # nsswitch modules moved to puppet from trlinkin
-    dependencies.select{|x| x['name'].split(%r{[-/]}).first == "trlinkin" }.each do |x|
+    dependencies.select{|x| x['name'].sub('-', '/') == 'trlinkin/nsswitch' }.each do |x|
       x['name'].sub!('trlinkin', 'puppet')
     end
 
