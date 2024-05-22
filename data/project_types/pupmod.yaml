@@ -7,11 +7,13 @@ profile::obsoletes::files:
   - 'spec/fixtures/manifests/site.pp' # Not required since Puppet 3.x
   - '.pmtignore'                      # Now using .pdkignore
 
-profile::github_actions::present_action_files:
-  - pr_tests.yml         # PR-triggered Pupmod checks + test matrix
+profile::github_actions::absent_action_files:
   - pr_glci.yml          # PR-triggered GLCI actions
   - pr_glci_manual.yml   # --> manual trigger for external contributors
   - pr_glci_cleanup.yml  # --> clean up old GLCI branches
+
+profile::github_actions::present_action_files:
+  - pr_tests.yml         # PR-triggered Pupmod checks + test matrix
   - tag_deploy.yml       # Release on tag, deploy pupmod to forge, RPMs to GH
   - release_rpms.yml     # Build, sign, upload RPMs to a release from any repo
   - validate_tokens.yml  # Diagnostic workflow to check API tokens work
