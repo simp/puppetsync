@@ -61,11 +61,13 @@ function puppetsync::setup_repos_facts(
     }
 
     # simp_unknown (no type yet, but either:
+    #   * repo name is `pkg-r10k`
     #   * repo name starts with 'simp-'
     #   * repo_url_path (e.g., the path after `github.com/`) starts with simp/
     # )
     # ------------------------------------------------------------------------
     if ($target.facts['project_type'].empty and (
+      $target.vars['mod_data']['repo_name'] == 'pkg-r10k' or
       $target.vars['mod_data']['repo_name'].match(/^simp-/) or
       $target.vars['repo_url_path'].match(/^simp\//)
     )){

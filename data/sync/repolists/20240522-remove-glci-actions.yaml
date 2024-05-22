@@ -42,8 +42,6 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/pupmod-simp-fips:
     branch: master
-  https://github.com/simp/pupmod-simp-foreman:
-    branch: master
   https://github.com/simp/pupmod-simp-freeradius:
     branch: master
   https://github.com/simp/pupmod-simp-gnome:
@@ -178,8 +176,6 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/rubygem-simp-test:
     branch: main
-  https://github.com/simp/pupmod-simp-upstart:
-    branch: master
   https://github.com/simp/simp-doc:
     branch: master
   https://github.com/simp/simp-environment-skeleton:
