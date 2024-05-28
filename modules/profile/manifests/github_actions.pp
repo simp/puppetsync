@@ -10,11 +10,10 @@
 class profile::github_actions(
   Stdlib::Absolutepath $target_github_actions_dir = "${::repo_path}/.github/workflows",
   Optional[String[1]]  $target_repo_name = $facts.dig('module_metadata','name'),
-  Array[String] $present_action_files = [
-    # PR-triggered GLCI actions (+ a manual trigger for external contributors)
+  Array[String] $present_action_files = [],
+  Array[String] $absent_action_files = [
     'pr_glci.yml', 'pr_glci_cleanup.yml', 'pr_glci_manual.yml',
   ],
-  Array[String] $absent_action_files = [],
 ){
   $project_type = $facts.dig('project_type').lest || {'unknown'}
   $project_type2 = $project_type == 'pupmod_skeleton' ? {
