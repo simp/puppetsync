@@ -360,26 +360,6 @@ plan puppetsync(
   }
 
   $repos.puppetsync::pipeline_stage(
-    # ---------------------------------------------------------------------------
-    'modernize_spec_helper',
-    # ---------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    run_task_with('puppetsync::modernize_spec_helper',
-      $ok_repos,
-      '_catch_errors'  => true,
-    ) |$repo| {
-      $file_path = $repo.facts['project_type'] ? {
-        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/spec/spec_helper.rb",
-        default           => "${repo.vars['repo_path']}/spec/spec_helper.rb",
-      }
-      Hash.new({
-        'filename' => $file_path,
-      })
-    }
-  }
-
-  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'run_spec_tests',
     # --------------------------------------------------------------------------

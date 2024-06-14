@@ -19,7 +19,6 @@ puppetsync::plan_config:
 ###          - modernize_fixtures      # one-off
 ###          - os_data
 ###          - modernize_metadata_json
-###          - modernize_spec_helper
 ###          - run_spec_tests
           - git_commit_changes
 ###          - generate_reference_md
@@ -52,7 +51,9 @@ puppetsync::plan_config:
 
       Puppet 8 failures should not be ignored.
 
-      Also use the correct Ruby version for Puppet 8 tests.
+      Also
+      * Use the correct Ruby version for Puppet 8 tests
+      * Manage spec/spec_helper.rb in Puppet modules
 
 
   github:
