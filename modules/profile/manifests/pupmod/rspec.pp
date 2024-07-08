@@ -17,9 +17,8 @@ class profile::pupmod::rspec (
   }
 
   file { $spec_helper_path:
-    content => file(
-      "${module_name}/pupmod/spec/spec_helper.${target_module_name}.rb",
-      "${module_name}/pupmod/spec/spec_helper.rb",
+    content => epp(
+      "${module_name}/pupmod/spec/spec_helper.rb.epp",
     ),
   }
 }

@@ -38,6 +38,24 @@ function puppetsync::setup_repos_facts(
       $target.add_facts( {'project_attributes' => ($target.facts['project_attributes'] << 'pupmod')} )
     }
 
+    $fixtures = "${target.vars['repo_path']}/.fixtures.yml"
+    $module_fixtures = file::exists($fixtures) ? {
+      true    => loadyaml($fixtures),
+      default => {},
+    }
+    $target.add_facts({ 'module_fixtures' => $module_fixtures })
+
+    if (
+      file::exists("${target.vars['repo_path']}/.fixtures.yml") and (
+        $module_fixtures.dig('fixtures', 'repositories', 'compliance_markup') or
+        $module_fixtures.dig('fixtures', 'forge_modules', 'compliance_markup')
+      )
+    ) {
+      $target.add_facts({ 'sce_enabled' => true })
+    } else {
+      $target.add_facts({ 'sce_enabled' => false })
+    }
+
     # pupmod_skeleton
     # ------------------------------------------------------------------------
     $skeleton_metadata_json = "${target.vars['repo_path']}/skeleton/metadata.json.erb"
