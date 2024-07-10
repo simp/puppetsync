@@ -12,6 +12,11 @@ require 'rspec-puppet'
 require 'simp/rspec-puppet-facts'
 include Simp::RspecPuppetFacts
 
+<% if $facts['module_metadata']['name'] == 'simp-simpkv' { -%>
+require 'data_helper'
+include DataHelper
+
+<% } -%>
 require 'pathname'
 
 # RSpec Material
