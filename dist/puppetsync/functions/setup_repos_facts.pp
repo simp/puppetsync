@@ -46,10 +46,10 @@ function puppetsync::setup_repos_facts(
     $target.add_facts({ 'module_fixtures' => $module_fixtures })
 
     if (
-      file::exists("${target.vars['repo_path']}/.fixtures.yml") and (
-        $module_fixtures.dig('fixtures', 'repositories', 'compliance_markup') or
-        $module_fixtures.dig('fixtures', 'forge_modules', 'compliance_markup')
-      )
+      file::exists("${target.vars['repo_path']}/.fixtures.yml")
+      and ['repositories', 'forge_modules', 'symlinks'].any |$key| {
+        $module_fixtures.dig('fixtures', $key, 'compliance_markup')
+      }
     ) {
       $target.add_facts({ 'sce_enabled' => true })
     } else {
