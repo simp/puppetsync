@@ -92,7 +92,7 @@
 # @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
-plan puppetsync(
+plan puppetsync (
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   String[1]            $batchlist              = '---',
@@ -106,11 +106,10 @@ plan puppetsync(
   Sensitive[String[1]] $gitlab_token           = Sensitive(system::env('GITLAB_API_TOKEN')),
   Hash                 $options                = {},
 ) {
-
   $opts = {
     'clone_git_repos'          => true,
     'github_api_delay_seconds' => 5,
-   } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{}} + $options
+  } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{} } + $options
   $repos = puppetsync::setup_project_repos( $puppetsync_config, $repos_config, $project_dir, $opts )
   $feature_branch    = getvar('puppetsync_config.git.feature_branch')
 
@@ -179,7 +178,6 @@ plan puppetsync(
     )
   }
 
-
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'apply_puppet_role',
@@ -190,7 +188,7 @@ plan puppetsync(
       '_description' => "Apply Puppet role ${puppet_role}",
       '_noop' => false,
       _catch_errors => true,
-    ){
+    ) {
       if $puppet_role {
         include $puppet_role
       } else {
@@ -218,7 +216,7 @@ plan puppetsync(
       }
 
       Hash.new({
-        'file' => $file_path,
+          'file' => $file_path,
       })
     }
   }
@@ -239,7 +237,7 @@ plan puppetsync(
       }
 
       Hash.new({
-        'file' => "${dir_path}/.gitlab-ci.yml",
+          'file' => "${dir_path}/.gitlab-ci.yml",
       })
     }
   }
@@ -260,7 +258,7 @@ plan puppetsync(
       }
 
       Hash.new({
-        'file' => "${dir_path}/.gitlab-ci.yml",
+          'file' => "${dir_path}/.gitlab-ci.yml",
       })
     }
   }
@@ -281,7 +279,7 @@ plan puppetsync(
       }
 
       Hash.new({
-        'file' => "${dir_path}/.gitlab-ci.yml",
+          'file' => "${dir_path}/.gitlab-ci.yml",
       })
     }
   }
@@ -318,7 +316,7 @@ plan puppetsync(
         default           => "${repo.vars['repo_path']}/.fixtures.yml",
       }
       Hash.new({
-        'filename' => $file_path,
+          'filename' => $file_path,
       })
     }
   }
@@ -334,7 +332,7 @@ plan puppetsync(
       '_catch_errors'  => true,
     ) |$repo| {
       Hash.new({
-        'path' => "${repo.vars['repo_path']}"
+          'path' => "${repo.vars['repo_path']}",
       })
     }
   }
@@ -354,7 +352,7 @@ plan puppetsync(
         default           => "${repo.vars['repo_path']}/metadata.json",
       }
       Hash.new({
-        'filename' => $file_path,
+          'filename' => $file_path,
       })
     }
   }
@@ -370,11 +368,26 @@ plan puppetsync(
       '_catch_errors'  => true,
     ) |$repo| {
       Hash.new({
-        'path' => "${repo.vars['repo_path']}"
+          'path' => "${repo.vars['repo_path']}",
       })
     }
   }
 
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'run_gha_tests',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::run_gha_tests',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      Hash.new({
+          'path' => "${repo.vars['repo_path']}",
+      })
+    }
+  }
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
@@ -382,7 +395,7 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    $commit_message = $puppetsync_config.dig('git','commit_message').lest || { '' }
     run_task_with(
       'puppetsync::generate_reference_md',
       $ok_repos,
@@ -401,7 +414,7 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    $commit_message = $puppetsync_config.dig('git','commit_message').lest || { '' }
     run_task_with(
       'puppetsync::git_commit',
       $ok_repos,
@@ -414,7 +427,6 @@ plan puppetsync(
     }
   }
 
-
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'ensure_github_fork',
@@ -424,10 +436,10 @@ plan puppetsync(
     $results = run_task_with(
       'puppetsync::ensure_github_fork', $ok_repos, '_catch_errors' => true
     ) |$repo| {{
-      'extra_gem_path'   => $extra_gem_path,
-      'github_repo'      => $repo.vars['repo_url_path'],
-      'github_authtoken' => $github_token.unwrap,
-    }}
+        'extra_gem_path'   => $extra_gem_path,
+        'github_repo'      => $repo.vars['repo_url_path'],
+        'github_authtoken' => $github_token.unwrap,
+    } }
 
     $ok_repos.each |$repo| {
       if $results.ok {
@@ -447,7 +459,7 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $ok_repos.each |$repo| {$repo.set_var('remote_name', 'user_forked_repo')}
+    $ok_repos.each |$repo| { $repo.set_var('remote_name', 'user_forked_repo') }
     $results = run_task_with(
       'puppetsync::ensure_git_remote', $ok_repos, '_catch_errors' => true
     ) |$repo| {
@@ -460,13 +472,13 @@ plan puppetsync(
 
     $results.each |$r| {
       if !$r.ok {
-        out::message( @("END")
+        $msg = @("END")
           Running puppetsync::ensure_git_remote failed on ${r.target.name}:
           ${r.error.msg}
 
           ${r.error.details}
-          END
-        )
+          | END
+        out::message($msg)
       }
     }
   }
@@ -489,7 +501,6 @@ plan puppetsync(
     }
   }
 
-
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'ensure_gitlab_remote',
@@ -501,7 +512,7 @@ plan puppetsync(
     ) |$repo| {
       {
         'repo_path'     => $repo.vars['repo_path'],
-        'remote_url'    => $repo.vars['user_repo_fork']['ssh_url'].regsubst($puppetsync_config['github']['pr_user'],'simp').regsubst('github','gitlab'),
+        'remote_url'    => $repo.vars['user_repo_fork']['ssh_url'].regsubst($puppetsync_config['github']['pr_user'], 'simp').regsubst('github','gitlab'), # lint:ignore:140chars
         'remote_name'   => 'gitlab_repo',
       }
     }
@@ -522,7 +533,6 @@ plan puppetsync(
       $results.first
     }
   }
-
 
   # TODO if any repos were forked, wait 5 minutes for GitHub to catch up
 
@@ -554,8 +564,8 @@ plan puppetsync(
         out::message( "-- GitHub user's PR: '${results.first.value['pr_url']}'${created_status}")
       } else {
         out::message(
-          [ "Running puppetsync::ensure_github_pr failed on ${repo.name}:",
-            $results.first.error.msg,'','', $results.first.error.details,'', ].join("\n")
+          ["Running puppetsync::ensure_github_pr failed on ${repo.name}:",
+          $results.first.error.msg,'','', $results.first.error.details,'',].join("\n")
         )
       }
       ctrl::sleep($opts['github_api_delay_seconds'])
@@ -569,7 +579,7 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    $commit_message = $puppetsync_config.dig('git','commit_message').lest || { '' }
     run_task_with(
       'puppetsync::release_pupmod',
       $ok_repos,

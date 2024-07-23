@@ -3,8 +3,8 @@
 require 'fileutils'
 
 def modernize_gitlab_ci(content)
-  content.gsub!(%r[\n\n^pup5.*?(?=\n\n)]m,'')   # Remove pup5 blocks (nice formatting)
-  content.gsub!(%r[^pup5.*?(?=\n\n)]m,'')   # Remove pup5 blocks that beign with comments
+  content.gsub!(%r{\n\n^pup5.*?(?=\n\n)}m, '') # Remove pup5 blocks (nice formatting)
+  content.gsub!(%r{^pup5.*?(?=\n\n)}m, '') # Remove pup5 blocks that beign with comments
 
   content.gsub!(%r{pup6\.(?:16|17|18)\.0}, 'pup6.22.1')
   content.gsub!(%r{pup_6_(?:16|17|18)_0}, 'pup_6_22_1')
@@ -21,13 +21,12 @@ def modernize_gitlab_ci(content)
   content.gsub!(%r{\bpup6\.22\.1},   'pup6.pe')
   content.gsub!(%r{\bpup_6_22_1\b},  'pup_6_pe')
 
-  content.gsub!(%r{bundle exec rake beaker:suites'},"bundle exec rake beaker:suites[default,default]'")
+  content.gsub!(%r{bundle exec rake beaker:suites'}, "bundle exec rake beaker:suites[default,default]'")
   content
 end
 
 # ARGF hack to allow use run the task directly as a ruby script while testing
 if ARGF.filename == '-'
-  stdin = ''
   warn "ARGF.file.lineno: '#{ARGF.file.lineno}'"
   stdin = ARGF.file.read
   require 'json'
@@ -47,7 +46,7 @@ content = File.read(file)
 warn "\n== Modernizing Gitlab CI content"
 original_content = content.dup
 content = modernize_gitlab_ci(original_content)
-warn (content == original_content ? '  == content unchanged' : '  ++ content was changed!')
+warn((content == original_content) ? '  == content unchanged' : '  ++ content was changed!')
 
 # Write content back to original file
 File.open(file, 'w') { |f| f.puts content.strip }

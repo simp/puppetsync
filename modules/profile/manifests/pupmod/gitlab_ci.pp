@@ -1,45 +1,11 @@
-# Static .gitlab-ci.yml file for Puppet modules.
+# @summary Static .gitlab-ci.yml file for Puppet modules.
 #
-# There are two components of SIMP .gitlab-ci.yml pipelines:
-#
-#   1. The standardized CI pipeline for SIMP Puppet modules
-#     - e.g., Cache, stages, YAML anchors, most jobs EXCEPT acceptance tests
-#     - This section should be static across all module repositories
-#
-#   2. Repo-specific CI content
-#     - Jobs that provide acceptance and compliance tests
-#     - These jobs vary from repo to repo, and are managed directly in
-#       repository
-#
-# This profile enforces the standardized content in `.gitlab-ci.yml`, but also
-# persists existing repo-specific content.  The repo-specific content must be
-# defined below the following two lines:
-#
-#  ```
-#  # Repo-specific content
-#  # ========================================================================
-#  ```
-#
-# @param existing_pipeline_content
-#   The content of the module's existing `.gitlab-ci.yml` file, used to detect
-#   and perist local changes.
-#
-#   * By default, this content read directly from the target's `$::repo_path` on
-#     the local filesystem.
-#   * If the target doesn't have a `.gitlab-ci.yml` file, default starter
-#     content will be sourced from this module.
-#
-#   Target-specific content will be detected by searching for a specific lines
-#   (see the profile's documentation for an example)
-#
-#   Anything below those lines will be saved, and added to Puppet-managed
-#   template.
-#
-class profile::pupmod::gitlab_ci(
-  Stdlib::Absolutepath $target_gitlabci_yml_path = "${::repo_path}/.gitlab-ci.yml",
+# @param target_gitlabci_yml_path
+# @param target_module_name
+class profile::pupmod::gitlab_ci (
+  Stdlib::Absolutepath $target_gitlabci_yml_path = "${::repo_path}/.gitlab-ci.yml", # lint:ignore:top_scope_facts
   Optional[String[1]]  $target_module_name = $facts.dig('module_metadata','name'),
-){
-
+) {
   # NOTE: as noted above, the default value first attempts to read in the
   # target's existing `.gitlab-ci.yml`.  This allows us to persist
   # locally-managed, repo-specific pipeline content while keeping the resource
@@ -77,7 +43,7 @@ class profile::pupmod::gitlab_ci(
     "${module_name}/pupmod/_gitlab-ci.yml.epp"
   )
 
-  file{ $target_gitlabci_yml_path:
+  file { $target_gitlabci_yml_path:
     content => epp(
       $gitlab_ci_template_path, {
         'repo_specific_content' => $repo_specific_content,

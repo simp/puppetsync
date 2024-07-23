@@ -10,20 +10,20 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
 
   def pipeline_stage(targets, stage_name, opts = {}, &code)
     # Skip stage
-    if opts && opts.key?('stages') && !(opts['stages'] || []).include?(stage_name)
+    if opts&.key?('stages') && !opts['stages']&.include?(stage_name)
       Puppet.warning("!!! skipping stage '#{stage_name}'")
       call_function('out::message', "===== SKIPPING PIPELINE STAGE DUE TO CONFIGURATION: #{stage_name}")
       return []
     end
 
-    if opts && opts.key?('list_pipeline_stages') && (opts['list_pipeline_stages'] || false)
+    if opts&.key?('list_pipeline_stages') && opts['list_pipeline_stages']
       call_function('out::message', "- #{stage_name}")
       return []
     end
 
     # Only run targets that have succeeded in all stages so far
     Puppet.warning("== Preparing stage '#{stage_name}'")
-    ok_targets = targets.select { |repo| repo.vars['puppetsync_stage_results'].all? { |k,v| v['ok']}}
+    ok_targets = targets.select { |repo| repo.vars['puppetsync_stage_results'].all? { |_k, v| v['ok'] } }
 
     # Run stage block
     Puppet.warning('filtered ok stages before running')
@@ -40,16 +40,16 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
     else
       STDERR.puts '############ WARNING: results are NOT a Bolt::Result'
       Puppet.warning "############ WARNING: results are NOT a Bolt::Result (file:#{__FILE__}, stage: #{stage_name}, class: #{results.class}"
-      if results.kind_of? Array
+      if results.is_a? Array
         Puppet.warning "############ WARNING: ARRAY.size: #{results.size}"
         Puppet.warning "############ WARNING: ARRAY.first class: #{results.first.class}"
       end
 
-
       begin
-        require 'pry'; binding.pry
+        require 'pry'
+        binding.pry # rubocop:disable Lint/Debugger
       rescue LoadError => e
-        puts "==============================================================", e.message
+        puts '==============================================================', e.message
       end
     end
     ok_targets

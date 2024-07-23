@@ -1,5 +1,6 @@
 require 'octokit'
 
+# GitHubPRForker class
 class GitHubPRForker
   attr_reader :created_pr, :created_fork
 
@@ -32,9 +33,9 @@ class GitHubPRForker
   def existing_pr(upstream_reponame, target_branch, fork_user, fork_branch)
     repo_fork = user_fork_of_repo(upstream_reponame, fork_user)
     prs = @client.pull_requests(upstream_reponame).select do |pr|
-      pr.user.login == fork_user && \
-        pr.head.repo.full_name == repo_fork.full_name && \
-        pr.head.ref == fork_branch && \
+      pr.user.login == fork_user &&
+        pr.head.repo.full_name == repo_fork.full_name &&
+        pr.head.ref == fork_branch &&
         pr.base.ref == target_branch
       # TODO: should we test for merged PRs, too?   How?
     end
@@ -98,7 +99,7 @@ class GitHubPRForker
     if my_approvals.empty?
       warn("== Approving PR #{pr.html_url}")
       review = @client.create_pull_request_review(pr.base.repo.full_name, pr.number, opts)
-    elsif old_review = my_approvals.select { |x| x.body =~ Regexp.new(approval_tag) }.last
+    elsif (old_review = my_approvals.reverse.find { |x| x.body =~ Regexp.new(approval_tag) })
       puts '== we have already left an approval with this software; updating'
       review = @client.update_pull_request_review(
         pr.base.repo.full_name, pr.number, old_review.id, "#{tagged_approval_message}\n<!-- updated by robot -->"
@@ -175,5 +176,6 @@ if $PROGRAM_NAME == __FILE__
   # ##repo_pr = forker.approve_pr(pr, opts[:approval_message] || ':+1: :ghost:')
   result = forker.merge_pr(pr)
   puts result
-  require 'pry'; binding.pry
+  require 'pry'
+  binding.pry # rubocop:disable Lint/Debugger
 end

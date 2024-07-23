@@ -12,14 +12,14 @@ def tmp_bundle_rake_execs(repo_path, tasks)
     Dir.chdir repo_path
     gemfile_lock = false
     if File.exist?('Gemfile.lock')
-      gemfile_lock = File.expand_path('Gemfile.lock',tmp_dir)
+      gemfile_lock = File.expand_path('Gemfile.lock', tmp_dir)
       FileUtils.cp File.join(repo_path, 'Gemfile.lock'), gemfile_lock
     end
     results = []
     require 'bundler'
     require 'rake'
     Bundler.with_unbundled_env do
-      sh "/opt/puppetlabs/bolt/bin/bundle install &> /dev/null"
+      sh '/opt/puppetlabs/bolt/bin/bundle install &> /dev/null'
       tasks.each do |task|
         puts
         cmd = "/opt/puppetlabs/bolt/bin/bundle exec /opt/puppetlabs/bolt/bin/rake #{task}"
@@ -31,7 +31,7 @@ def tmp_bundle_rake_execs(repo_path, tasks)
         FileUtils.rm('Gemfile.lock')
       end
     end
-    unless results.all?{ |x| x }
+    unless results.all? { |x| x }
       warn 'bad result'
     end
   end
@@ -39,7 +39,6 @@ end
 
 # ARGF hack to allow use run the task directly as a ruby script while testing
 if ARGF.filename == '-'
-  stdin = ''
   warn "ARGF.file.lineno: '#{ARGF.file.lineno}'"
   stdin = ARGF.file.read
   warn "== stdin: '#{stdin}'"
@@ -52,32 +51,32 @@ end
 # Read content from  file
 warn "file: '#{file}'"
 raise('No .fixtures path given') unless file
-content = YAML.load File.read(file)
+content = YAML.load_file(file)
 
 # Transform content
 warn "\n== Modernizing .fixtures content"
 original_content_str = content.to_s
 
-#regexp_for_low_high_bounds = %r[\A(?<low_op>>=?) (?<low_ver>\d+.*) (?<high_op><=?) (?<high_ver>\d+.*)\Z]
+# regexp_for_low_high_bounds = %r[\A(?<low_op>>=?) (?<low_ver>\d+.*) (?<high_op><=?) (?<high_ver>\d+.*)\Z]
 #
-if content.to_s =~ /^ *#/
-  fail "FATAL OMG there was a comment in '#{file}', it might be important and we don't preserve those yet; check it out"
+if %r{^ *#}.match?(content.to_s)
+  raise "FATAL OMG there was a comment in '#{file}', it might be important and we don't preserve those yet; check it out"
 end
 
-content_repos = content.dig('fixtures','repositories').map do |k,v|
- unless (v.is_a?(String) || v.is_a?(Hash))
-   fail "NO HANDLER: fixtures.yml 'repositories' key is not a String or Hash!:\n#{v.to_yaml}\n"
- end
-  if v.is_a?(String) && v =~ /^http/ && v !~ /\.git$/
+content_repos = content.dig('fixtures', 'repositories').map { |k, v|
+  unless v.is_a?(String) || v.is_a?(Hash)
+    raise "NO HANDLER: fixtures.yml 'repositories' key is not a String or Hash!:\n#{v.to_yaml}\n"
+  end
+  if v.is_a?(String) && v =~ %r{^http} && v !~ %r{\.git$}
     v = "#{v}.git"
-  elsif v.is_a?(Hash) && v['repo'] && v['repo'] =~ /^http/ && v['repo'] !~ /\.git$/
+  elsif v.is_a?(Hash) && v['repo'] && v['repo'] =~ %r{^http} && v['repo'] !~ %r{\.git$}
     v['repo'] = "#{v['repo']}.git"
   end
 
-  [k,v]
-end.to_h
+  [k, v]
+}.to_h
 
-unless content_repos.nil? or content_repos.empty?
+unless content_repos.nil? || content_repos.empty?
   content['fixtures']['repositories'] = content_repos
 end
 

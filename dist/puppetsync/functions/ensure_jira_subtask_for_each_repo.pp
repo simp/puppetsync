@@ -21,27 +21,27 @@
 #   Jira API token
 #   (Default: Environment variable `$JIRA_API_TOKEN`)
 #
-# @return [Array[Bolt::Result]]
+# @return [Optional[Variant[Result, ApplyResult]]]
 function puppetsync::ensure_jira_subtask_for_each_repo(
   TargetSpec           $repos,
   Hash                 $puppetsync_config,
   String[1]            $jira_username  = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token     = Sensitive(system::env('JIRA_API_TOKEN')),
   Stdlib::Absolutepath $extra_gem_path = "#{system::env('PWD')}/.plan.gems"
-) {
+) >> Optional[Variant[Result, ApplyResult]] {
   $repos.map |$target| {
     assert_type( Hash, $puppetsync_config['jira'])
     $set_assignee = $puppetsync_config['jira']['subtask_assignee'] ? {
-      true   =>  $puppetsync_config['jira']['subtask_assignee'],
+      true    => $puppetsync_config['jira']['subtask_assignee'],
       default => undef,
     }
     # TODO: This doesn't work and isn't important to fix: always set to undef?
     $description = $puppetsync_config['jira']['subtask_description'].empty ? {
-      false   =>  $puppetsync_config['jira']['subtask_description'],
+      false   => $puppetsync_config['jira']['subtask_description'],
       default => undef,
     }
     $story_points = String($puppetsync_config['jira']['subtask_story_points']).empty ? {
-      false   =>  $puppetsync_config['jira']['subtask_story_points'],
+      false   => $puppetsync_config['jira']['subtask_story_points'],
       default => undef,
     }
 

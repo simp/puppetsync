@@ -13,12 +13,11 @@ def checkout_modules_to_branch(branch, repo_paths)
       status = 'checked_out'
       warn "NOTICE: branch '#{branch}' already exists; checking it out"
       pid = spawn 'git', 'checkout', branch, '-q'
-      Process.wait pid
     else
       warn "NOTICE: creating branch '#{branch}'"
       pid = spawn 'git', 'checkout', '-b', branch, '-q'
-      Process.wait pid
     end
+    Process.wait pid
     if $CHILD_STATUS.success?
       warn "== #{File.basename(dir).ljust(mx)} : checked out git branch '#{branch}' in #{dir}"
       results[dir] = status

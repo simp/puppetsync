@@ -5,8 +5,8 @@ config:
     interpreters:
       .rb: /opt/puppetlabs/bolt/bin/ruby
     tmpdir:
-     _plugin: env_var
-     var: PWD
+      _plugin: env_var
+      var: PWD
 
 groups:
   - name: repo_targets

@@ -10,8 +10,9 @@
 #
 require_relative '../../ruby_task_helper/files/task_helper.rb'
 
+# Bolt task class
 class MyTask < TaskHelper
-  def task(name: nil, **kwargs)
+  def task(name: nil, **kwargs) # rubocop:disable Lint/UnusedMethodArgument
     Dir["#{kwargs[:extra_gem_path]}/gems/*/lib"].each { |path| $LOAD_PATH << path } # for octokit
 
     require_relative '../../puppetsync/files/github_pr_forker.rb'

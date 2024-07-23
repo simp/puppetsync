@@ -1,16 +1,17 @@
+---
 puppetsync::repos_config:
 
   # TODO: determine if gitlab-beaker-cleanup-driver needs its own project type
-  #https://github.com/simp/gitlab-beaker-cleanup-driver:
-  #  branch: main
+  # https://github.com/simp/gitlab-beaker-cleanup-driver:
+  #   branch: main
 
   # TODO: determine if releng-misc needs its own project type
-  #https://github.com/simp/releng-misc:
-  #  branch: master
+  # https://github.com/simp/releng-misc:
+  #   branch: master
 
   # TODO: review simp-core's GLCI pipeline customizations
-  #https://github.com/simp/simp-core:
-  #  branch: master
+  # https://github.com/simp/simp-core:
+  #   branch: master
 
   https://github.com/simp/simp-doc:
     branch: master

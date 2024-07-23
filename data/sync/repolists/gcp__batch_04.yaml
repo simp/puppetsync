@@ -1,3 +1,4 @@
+---
 puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-oath:
@@ -35,4 +36,3 @@ puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-rsyslog:
     branch: master
-

@@ -6,7 +6,7 @@ puppetsync:
     - pupmod
   plans:
     sync:
-      #clone_git_repos: false
+      # clone_git_repos: false
       skip_pipeline_stages:
       #  - install_gems
       #  - checkout_git_feature_branch_in_each_repo

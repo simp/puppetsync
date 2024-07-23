@@ -1,0 +1,3 @@
+--relative
+--ignore-paths
+./.vendor/*,./.git/*,./.gems/*,./.modules/*,./.plan.gems/*,./_repos/*
