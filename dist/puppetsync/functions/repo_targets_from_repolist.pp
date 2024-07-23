@@ -22,21 +22,23 @@ function puppetsync::repo_targets_from_repolist(
   Stdlib::Absolutepath $project_dir,
   String[1] $default_moduledir = '_repos',
 ) {
-  $pf_repos = Hash($repos_config.map |$url, $data| {
-    [
-      $url.basename,
-      {
-        'git_url'      => $url,
-        'name'         => $url.basename,
-        'rel_path'     => "${default_moduledir}/${url.basename}",
-        ###'mod_rel_path' => "${default_moduledir}/${url.basename}",  #  .split(/[-\/]/)[-1],
-        ### 'install_path' => $default_moduledir,
-        ###'mod_name'     => $url.basename,
-        'repo_name'    => $url.basename('.git'),  # used by function template_git_commit_message()
-        'branch'       => $data['branch'],
-      },
-    ]
-  })
+  $pf_repos = Hash(
+    $repos_config.map |$url, $data| {
+      [
+        $url.basename,
+        {
+          'git_url'      => $url,
+          'name'         => $url.basename,
+          'rel_path'     => "${default_moduledir}/${url.basename}",
+          ###'mod_rel_path' => "${default_moduledir}/${url.basename}",  #  .split(/[-\/]/)[-1],
+          ### 'install_path' => $default_moduledir,
+          ###'mod_name'     => $url.basename,
+          'repo_name'    => $url.basename('.git'),  # used by function template_git_commit_message()
+          'branch'       => $data['branch'],
+        },
+      ]
+    }
+  )
 
   # add a localhost Target for each repo
   # --------------------------------------
@@ -57,7 +59,7 @@ function puppetsync::repo_targets_from_repolist(
     # automagically configured by bolt to point to its own ruby executable)
     # This keeps the inventory as cross-platform as possible
     $localhost = get_target('localhost')
-    $target.set_config( ['transport'], $localhost.config.dig('transport'))
+    $target.set_config(['transport'], $localhost.config.dig('transport'))
     $target.set_config(
       ['local', 'interpreters', '.rb'],
       $localhost.config.dig('local', 'interpreters', '.rb')

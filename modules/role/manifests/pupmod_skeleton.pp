@@ -10,4 +10,3 @@
 class role::pupmod_skeleton {
   include 'role::pupmod'
 }
-

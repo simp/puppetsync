@@ -2,10 +2,10 @@
 # session's puppetsynce_config data
 #
 # @return [String] Customized git commit message
-function puppetsync::template_git_commit_message(
+function puppetsync::template_git_commit_message (
   Target $repo,
   Hash   $puppetsync_config,
-){
+) {
   $commmit_template = $puppetsync_config.dig('git','commit_message').lest || {
     fail("ERROR: ${repo.name} missing required var ['git']['commit_message']")
   }

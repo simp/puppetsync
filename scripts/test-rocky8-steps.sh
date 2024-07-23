@@ -15,5 +15,5 @@ rm -rf spec/fixtures/modules/pupmod-* || :
   test -f "$i/metadata.json" && SKIP_RAKE_TASKS=yes "$RUBY_EXE" ../../dist/puppetsync/tasks/modernize_metadata_json.rb "$i/metadata.json" || :
 done
 
-[[ ${SKIP_TESTS:-no} == yes ]] && exit 0 || :
+[[ "${SKIP_TESTS:-no}" == yes ]] && exit 0 || :
 SPEC_OPTS="${SPEC_OPTS:---no-fail-fast}" "$BUNDLE_EXE" exec rake spec_standalone 2>&1 | tee ../"$( jq -r .name metadata.json ).rspec.log" && rm -f Gemfile.lock

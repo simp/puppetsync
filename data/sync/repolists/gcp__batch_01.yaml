@@ -1,3 +1,4 @@
+---
 puppetsync::repos_config:
 
   https://github.com/simp/pkg-r10k:
@@ -21,8 +22,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-clamav:
     branch: master
 
-      #  https://github.com/simp/pupmod-simp-common:
-      #branch: master
+  # https://github.com/simp/pupmod-simp-common:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-compliance_markup:
     branch: master
@@ -35,5 +36,3 @@ puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-dconf:
     branch: master
-
-

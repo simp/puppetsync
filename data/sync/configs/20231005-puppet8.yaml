@@ -18,7 +18,7 @@ puppetsync::plan_config:
 ###          - lint_gitlab_ci  TODO
 ###          - modernize_fixtures      # one-off
           - os_data
-          - modernize_metadata_json # one-off?
+          - modernize_metadata_json  # one-off?
           - modernize_spec_helper
           - run_spec_tests
           - git_commit_changes

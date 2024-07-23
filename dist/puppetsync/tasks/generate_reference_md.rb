@@ -6,24 +6,24 @@ require 'json'
 require 'tempfile'
 require 'tmpdir'
 
-BUNDLER_EXE=ENV['BUNDLER_EXE'] || "/opt/puppetlabs/bolt/bin/bundle"
-RAKE_EXE=ENV['RAKE_EXE'] || "/opt/puppetlabs/bolt/bin/rake"
-BUNDLE_PATH=ENV['BUNDLE_PATH']||'../../.vendor/bundle'
+BUNDLER_EXE = ENV['BUNDLER_EXE'] || '/opt/puppetlabs/bolt/bin/bundle'
+RAKE_EXE = ENV['RAKE_EXE'] || '/opt/puppetlabs/bolt/bin/rake'
+BUNDLE_PATH = ENV['BUNDLE_PATH'] || '../../.vendor/bundle'
 
 def tmp_bundle_rake_execs(repo_path, tasks, save_rake_stdout: false)
   Dir.mktmpdir('tmp_bundle_rake_execs') do |tmp_dir|
     Dir.chdir repo_path
     gemfile_lock = false
     if File.exist?('Gemfile.lock')
-      gemfile_lock = File.expand_path('Gemfile.lock',tmp_dir)
+      gemfile_lock = File.expand_path('Gemfile.lock', tmp_dir)
       FileUtils.cp File.join(repo_path, 'Gemfile.lock'), gemfile_lock
     end
     results = []
-    rake_stdout_files={}
+    rake_stdout_files = {}
     require 'bundler'
     require 'rake'
     Bundler.with_unbundled_env do
-      #sh "#{BUNDLER_EXE} config path .vendor/bundle &> /dev/null"
+      # sh "#{BUNDLER_EXE} config path .vendor/bundle &> /dev/null"
       sh "#{BUNDLER_EXE} install --path '#{BUNDLE_PATH}'  &> /dev/null"
       tasks.each do |task|
         puts
@@ -41,18 +41,16 @@ def tmp_bundle_rake_execs(repo_path, tasks, save_rake_stdout: false)
         FileUtils.rm('Gemfile.lock')
       end
     end
-    unless results.all?{ |x| x }
+    unless results.all? { |x| x }
       warn 'bad result'
     end
     return rake_stdout_files if save_rake_stdout
   end
 end
 
-
 # ARGF hack to allow use run the task directly as a ruby script while testing
 metadata_json_path = false
 if ARGF.filename == '-'
-  stdin = ''
   warn "ARGF.file.lineno: '#{ARGF.file.lineno}'"
   stdin = ARGF.file.read
   warn "== stdin: '#{stdin}'"
@@ -69,14 +67,14 @@ pupmod_metadata = JSON.parse File.read(metadata_json_path)
 repo_path = File.dirname metadata_json_path
 
 unless ENV['UPDATE_NON_SIMP_MODULES'] == 'yes'
-  if pupmod_metadata['name'] !~ %r{\Asimp[-/]}
+  if !%r{\Asimp[-/]}.match?(pupmod_metadata['name'])
     warn("\n\n\n== WARNING: SKIPPING update of non-simp module (#{content['name']}) (force with `UPDATE_NON_SIMP_MODULES=yes`)\n\n\n")
   else
-    task_output_files = tmp_bundle_rake_execs(repo_path, ['strings:generate:reference'])
+    tmp_bundle_rake_execs(repo_path, ['strings:generate:reference'])
 
-    Dir.chdir(repo_path) do |dir|
-      fail "ERROR: no file at REFERENCE.md" unless File.exist?('REFERENCE.md')
-      sh "git add REFERENCE.md"
+    Dir.chdir(repo_path) do |_dir|
+      raise 'ERROR: no file at REFERENCE.md' unless File.exist?('REFERENCE.md')
+      sh 'git add REFERENCE.md'
       sh ">&2 git commit -m 'Update REFERENCE.md' || :"
     end
     exit 0

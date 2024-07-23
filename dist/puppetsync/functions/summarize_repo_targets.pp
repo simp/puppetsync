@@ -1,9 +1,9 @@
 # Summarize a repo target as a printable String
 # @return [String] Summary of each Target
-function puppetsync::summarize_repo_targets(
+function puppetsync::summarize_repo_targets (
   TargetSpec $repos,
   Boolean $verbose = false,
-){
+) {
   warning( "=@@@@@ repos.type = '${repos.type}'" )
   $t_summ = $repos.map |$idx, $target| {
     $t_idx  = "  [${idx}]: ${target.name}"
@@ -14,7 +14,6 @@ function puppetsync::summarize_repo_targets(
       default => $t_idx
     }
   }.join("\n")
-
 
   "Targets: ${repos.size}:\n${t_summ}"
 }

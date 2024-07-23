@@ -15,14 +15,14 @@ puppetsync::plan_config:
           # - apply_puppet_role
           # - modernize_gitlab_files
           # - lint_gitlab_ci
-            ###- modernize_fixtures
+          ### - modernize_fixtures
           - modernize_metadata_json
           - git_commit_changes
           - ensure_github_fork
           - ensure_git_remote
           - git_push_to_remote
-            # - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
-            # - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
+          # - ensure_gitlab_remote # No longer needed with new GLCI PR Trigger workflows
+          # - git_push_to_gitlab   # No longer needed with new GLCI PR Trigger workflows
           - ensure_github_pr
 
       approve_github_prs:

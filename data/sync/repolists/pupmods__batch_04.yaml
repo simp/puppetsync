@@ -1,3 +1,4 @@
+---
 puppetsync::repos_config:
 
   #  https://github.com/simp/pupmod-simp-acpid:
@@ -54,26 +55,26 @@ puppetsync::repos_config:
   #  https://github.com/simp/pupmod-simp-gnome:
   #    branch: master
   #
-   https://github.com/simp/pupmod-simp-haveged:
-     branch: master
+  https://github.com/simp/pupmod-simp-haveged:
+    branch: master
 
-   https://github.com/simp/pupmod-simp-hirs_provisioner:
-     branch: master
+  https://github.com/simp/pupmod-simp-hirs_provisioner:
+    branch: master
 
-   https://github.com/simp/pupmod-simp-ima:
-     branch: master
+  https://github.com/simp/pupmod-simp-ima:
+    branch: master
 
-   https://github.com/simp/pupmod-simp-incron:
-     branch: master
+  https://github.com/simp/pupmod-simp-incron:
+    branch: master
 
-   https://github.com/simp/pupmod-simp-iptables:
-     branch: master
+  https://github.com/simp/pupmod-simp-iptables:
+    branch: master
 
-   https://github.com/simp/pupmod-simp-issue:
-     branch: master
+  https://github.com/simp/pupmod-simp-issue:
+    branch: master
 
-   https://github.com/simp/pupmod-simp-krb5:
-     branch: master
+  https://github.com/simp/pupmod-simp-krb5:
+    branch: master
 
 ###  https://github.com/simp/pupmod-simp-libreswan:
 ###    branch: master
