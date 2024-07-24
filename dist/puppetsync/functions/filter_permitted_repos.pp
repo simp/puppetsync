@@ -1,7 +1,7 @@
-function puppetsync::filter_permitted_repos (
+function puppetsync::filter_permitted_repos(
   TargetSpec $pf_repos,
   Hash $puppetsync_config,
-) {
+) >> TargetSpec {
   $permitted_project_types = $puppetsync_config.dig('puppetsync','permitted_project_types').lest || {[] }
   $pf_repos.filter |$repo| {
     if ($repo.facts.dig('project_type') in $permitted_project_types) {

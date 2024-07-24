@@ -6,7 +6,7 @@ function puppetsync::setup_project_repos(
   Hash                 $repos_config,
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   Hash                 $options                = {},
-) {
+) >> Array[Target] {
   $opts = {
     'clone_git_repos'        => true,
     'default_repo_moduledir' => '_repos',

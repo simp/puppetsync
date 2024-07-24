@@ -496,10 +496,7 @@ plan puppetsync (
     ) |$repo| {
       {
         'repo_path'     => $repo.vars['repo_path'],
-        'remote_url'    => $repo.vars['user_repo_fork']['ssh_url'].regsubst(
-          $puppetsync_config['github']['pr_user'],
-          'simp',
-        ).regsubst('github','gitlab'),
+        'remote_url'    => $repo.vars['user_repo_fork']['ssh_url'].regsubst($puppetsync_config['github']['pr_user'], 'simp').regsubst('github','gitlab'), # lint:ignore:140chars
         'remote_name'   => 'gitlab_repo',
       }
     }

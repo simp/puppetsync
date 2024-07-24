@@ -14,11 +14,11 @@
 #
 # [0]: https://puppet.com/docs/puppet/latest/modules_metadata.html#modules_metadata_json_keys
 #
-# @params repos Target objects for each locally checked-out git repo to consider
+# @param repos Target objects for each locally checked-out git repo to consider
 # @return [TargetSpec] The same repos, now with facts
-function puppetsync::setup_repos_facts (
+function puppetsync::setup_repos_facts(
   TargetSpec $repos,
-) {
+) >> TargetSpec {
   $repos.each |$target| {
     $target.add_facts({ 'project_attributes' => [] })
 

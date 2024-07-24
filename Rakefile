@@ -1,5 +1,28 @@
 #!/opt/puppetlabs/bolt/bin/rake -f
 require 'rake/clean'
+require 'puppet-syntax/tasks/puppet-syntax'
+require 'puppet-strings/tasks'
+require 'puppet-lint/tasks/puppet-lint'
+require 'metadata-json-lint/rake_task'
+require 'rubocop/rake_task'
+
+begin
+  require 'yaml'
+  exclude_paths = YAML.safe_load(File.read('.rubocop.yml')).dig('AllCops', 'Exclude')
+rescue StandardError => e
+  warn "Failed to load path exclusions: #{e.message}"
+end
+
+PuppetSyntax.exclude_paths = exclude_paths unless exclude_paths.nil?
+PuppetSyntax.check_hiera_keys = true
+
+PuppetLint::RakeTask.new :lint do |config|
+  config.ignore_paths = exclude_paths unless exclude_paths.nil?
+end
+
+RuboCop::RakeTask.new do |task|
+  task.requires << 'rubocop-rake'
+end
 
 BOLT_BIN_PATH = '/opt/puppetlabs/bolt/bin'.freeze
 BOLT_GEM_EXE = File.join(BOLT_BIN_PATH, 'gem')

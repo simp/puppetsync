@@ -20,15 +20,20 @@ gem 'terminal-table', '~> 1.8'
 gem 'facter', '~> 4.0'
 gem 'gitlab'
 gem 'jsonlint'
-gem 'puppet', "~> #{ENV.fetch('PUPPET_VERSION', ruby3? ? '8' : '7')}"
+gem 'puppet', ENV.fetch('PUPPET_VERSION', ruby3? ? '~> 8' : '~> 7')
 
 group :syntax do
-  gem 'puppet-lint', '~> 4.2', require: false
+  gem 'puppet-syntax', '~> 4.1',                 require: false
+  gem 'puppet-lint', '~> 4.2',                   require: false
   gem 'voxpupuli-puppet-lint-plugins', '~> 5.0', require: false
-  gem 'metadata-json-lint', '~> 4.0', require: false
-  # gem 'yamllint', require: false
-  gem 'rubocop', '~> 1.42', require: false
-  gem 'rubocop-rspec', '~> 3.0', require: false
-  gem 'rubocop-performance', '~> 1.19', require: false
-  gem 'rubocop-rake', '~> 0.6', require: false
+  gem 'metadata-json-lint', '~> 4.0',            require: false
+  # gem 'yamllint',                              require: false
+  gem 'rubocop', '~> 1.42',                      require: false
+  gem 'rubocop-rspec', '~> 3.0',                 require: false
+  gem 'rubocop-performance', '~> 1.19',          require: false
+  gem 'rubocop-rake', '~> 0.6',                  require: false
+end
+
+group :development do
+  gem 'puppet-strings', '~> 4.0',                require: false
 end

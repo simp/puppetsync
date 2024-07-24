@@ -8,11 +8,11 @@
 # @param inventory_group
 #   Name of inventory group for the repo Targets
 #
-# @param default_moduledir
-#   Path to directory where repos will be cloned
-#
 # @param project_dir
 #   The bolt project directory.
+#
+# @param default_moduledir
+#   Path to directory where repos will be cloned
 #
 # @return [TargetSpec] the repo Targets read from the Puppetfile
 #
@@ -21,7 +21,7 @@ function puppetsync::repo_targets_from_repolist(
   String[1] $inventory_group,
   Stdlib::Absolutepath $project_dir,
   String[1] $default_moduledir = '_repos',
-) {
+) >> TargetSpec {
   $pf_repos = Hash(
     $repos_config.map |$url, $data| {
       [
