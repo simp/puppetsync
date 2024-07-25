@@ -375,6 +375,22 @@ plan puppetsync (
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
+    'run_gha_tests',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::run_gha_tests',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      Hash.new({
+          'path' => "${repo.vars['repo_path']}",
+      })
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
     'generate_reference_md',
     # --------------------------------------------------------------------------
     $opts

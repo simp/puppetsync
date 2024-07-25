@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [ -n "${PT_path}" ] && [ -d "${PT_path:-xxxxxx}" ] ; then
+if [ -n "${PT_path}" ] && [ -d "${PT_path}" ] ; then
     cd "${PT_path}"
 else
     echo "'path' parameter not set or not a valid directory!" >&2
@@ -15,4 +15,4 @@ if [ -z "$act" ] ; then
     exit 1
 fi
 
-act
+act pull_request
