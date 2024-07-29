@@ -1,0 +1,54 @@
+# Validate API tokens in GitHub Secrets against their respective services
+# ------------------------------------------------------------------------------
+#
+#             NOTICE: **This file is maintained with puppetsync**
+#
+# This file is updated automatically as part of a puppet module baseline.
+#
+# The next baseline sync will overwrite any local changes to this file!
+#
+# ==============================================================================
+#
+# This pipeline uses the following GitHub Action Secrets:
+#
+#   GitHub Secret variable    Type      Notes
+#   ------------------------  --------  ----------------------------------------
+#   NO_SCOPE_GITHUB_TOKEN     Required  GitHub token (should have no scopes)
+#   The secure vars will be filtered in GitHub Actions log output, and aren't
+#   provided to untrusted builds (i.e, triggered by PR from another repository)
+#
+---
+name: 'Manual: Validate API tokens'
+
+'on':
+  - workflow_dispatch
+
+jobs:
+  github-no-scope:
+    name: 'No-scope GitHub token has NO scopes'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_ORG: ${{ github.event.organization.login }}
+      NO_SCOPE_GITHUB_TOKEN: ${{secrets.NO_SCOPE_GITHUB_TOKEN}}
+    steps:
+      - name: Test token scopes with curl (expect no scopes)
+        run: |
+          if ! response="$(curl -I --http1.0 --fail --silent --show-error \
+            --header 'Content-Type: application/json' \
+            --header "Authorization: token ${NO_SCOPE_GITHUB_TOKEN:-default_content_to_cause_error}" \
+             "https://api.github.com/users/${GITHUB_ORG}")" 2>/tmp/x.$$.err; then
+            echo "::error ::$(cat /tmp/x.$$.err)"
+            exit 1
+          fi
+
+          if ! scopes="$(echo "$response" | grep '^X-OAuth-Scopes:' )"; then
+            echo "::error ::No X-OAuth-Scopes in response headers!"
+            echo "::debug ::$response"
+            exit 1
+          fi
+          scopes="$( echo "$scopes" | strings )"
+          if echo "$scopes" | awk -F: '{print $2}' | grep -E '\w' ; then
+            echo "::error ::The NO_SCOPE_GITHUB_TOKEN token has scopes! (${scopes})"
+            echo "::debug ::${scopes}"
+            exit 1
+          fi
