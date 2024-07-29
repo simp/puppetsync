@@ -210,3 +210,8 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/simp-utils:
     branch: master
+  # forks missing from generated config
+  https://github.com/simp/rubygem-simp-rspec-puppet-facts:
+    branch: master
+  https://github.com/simp/pupmod-simp-haveged:
+    branch: master

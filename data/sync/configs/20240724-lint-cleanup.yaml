@@ -20,7 +20,7 @@ puppetsync::plan_config:
 ###          - os_data
 ###          - modernize_metadata_json
 ###          - run_spec_tests
-          - run_gha_tests
+###          - run_gha_tests
           - git_commit_changes
 ###          - generate_reference_md
           - ensure_github_fork

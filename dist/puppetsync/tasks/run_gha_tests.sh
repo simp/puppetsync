@@ -15,4 +15,5 @@ if [ -z "$act" ] ; then
     exit 1
 fi
 
-act pull_request
+# Unfortunately, we need the jumbo image for `rpm`
+act --rm -P ubuntu-latest=catthehacker/ubuntu:full-latest pull_request
