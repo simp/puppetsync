@@ -2,15 +2,15 @@
 puppetsync::batches_config:
   delay: 30
   repolists:
-    #- gcp__batch_01
-    #- gcp__batch_02
-    #- gcp__batch_03
-    #- gcp__batch_04
-    #- gcp__batch_05
-    #- gcp__batch_06
-    #- gcp__batch_07
-    #- simp_misc
-    #- rubygems
+    # - gcp__batch_01
+    # - gcp__batch_02
+    # - gcp__batch_03
+    # - gcp__batch_04
+    # - gcp__batch_05
+    # - gcp__batch_06
+    # - gcp__batch_07
+    # - simp_misc
+    # - rubygems
     - pupmods__batch_01
     - pupmods__batch_02
     - pupmods__batch_03

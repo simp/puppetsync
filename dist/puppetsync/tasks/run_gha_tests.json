@@ -1,0 +1,11 @@
+{
+  "description": "Run GitHub Actions tests",
+  "input_method": "environment",
+  "parameters": {
+    "path": {
+      "description": "Path to project folder (ex: '/path/to/gems')",
+      "type": "String[1]"
+    }
+  }
+}
+

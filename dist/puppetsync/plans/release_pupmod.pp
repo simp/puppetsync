@@ -51,7 +51,7 @@ plan puppetsync::release_pupmod(
     'clone_git_repos'          => true, # Need to clone repos in order to tag and push
     'filter_permitted_repos'   => true, # Assume all matching PRs are permitted repo types
     'github_api_delay_seconds' => 1,
-  } + getvar('puppetsync_config.puppetsync.plans.release_pupmod').lest || {{}} + $options
+  } + getvar('puppetsync_config.puppetsync.plans.release_pupmod').lest || { {} } + $options # lint:ignore:manifest_whitespace_opening_brace_before lint:ignore:140chars
 
   $repos = puppetsync::setup_project_repos(
     $puppetsync_config,
@@ -72,7 +72,6 @@ plan puppetsync::release_pupmod(
     $opts
   ) |$ok_repos, $stage_name| {
     $ok_repos.map |$repo| {
-
       $metadata_json_path = $repo.facts['project_type'] ? {
         'pupmod' => "${repo.vars['repo_path']}/metadata.json",
         default  => fail("ERROR: This plan can only release pupmods - ${repo.vars['repo_name']} is type '${repo.facts['project_type']}'"),

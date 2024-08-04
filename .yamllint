@@ -1,0 +1,18 @@
+---
+extends: default
+rules:
+  line-length:
+    max: 200
+  indentation:
+    indent-sequences: consistent
+  comments-indentation:
+    ignore: |
+      /data/sync/configs/
+      /data/sync/repolists/
+ignore: |
+  /.git/
+  /.gems/
+  /.modules/
+  /.plan.gems/
+  /.vendor/
+  /_repos/

@@ -7,8 +7,8 @@ puppetsync::plan_config:
       - simp_unknown
     plans:
       sync:
-        #clone_git_repos: false    # set to `false` when applying manual updates on a second run
-        #clear_before_clone: false # set to `false` when applying manual updates on a second run
+        # clone_git_repos: false    # set to `false` when applying manual updates on a second run
+        # clear_before_clone: false # set to `false` when applying manual updates on a second run
         github_api_delay_seconds: 10
         stages:
           ### - install_gems         # Uncomment for first-time puppetsync run

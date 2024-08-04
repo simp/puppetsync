@@ -4,19 +4,20 @@ function puppetsync::output_pipeline_results(
   TargetSpec $repos,
   Stdlib::Absolutepath $project_dir,
   Hash $project_opts = {},
-){
+) {
   if $project_opts.dig('list_pipeline_stages') {
     warning( 'Project is listing pipeline stages; no results to output' )
-    return( {} )
+    return({})
   }
-  out::message( [
-    '',
-    '================================================================================',
-    "                                    FINIS                                       ",
-    '================================================================================',
-    "time to sort out what happened to:\n\t${repos}",
-    '--------------------------------------------------------------------------------',
-    '',
+  out::message(
+    [
+      '',
+      '================================================================================',
+      "                                    FINIS                                       ",
+      '================================================================================',
+      "time to sort out what happened to:\n\t${repos}",
+      '--------------------------------------------------------------------------------',
+      '',
     ].join("\n")
   )
 
@@ -29,19 +30,19 @@ function puppetsync::output_pipeline_results(
         $e = $v.dig($key,'data')
         [
           "${e['target']}: ${key}",
-          {'stage'=>$key } +
-            $e.filter |$x,$y| { $x in ['action', 'object'] } +
-            $e.dig('value','_error').lest||{{}}.filter |$x,$y| { $x in ['kind','msg']  }
+          { 'stage'=> $key } +
+          $e.filter |$x,$y| { $x in ['action', 'object'] } +
+          $e.dig('value','_error').lest|| {{} }.filter |$x,$y| { $x in ['kind','msg'] }
         ]
       }
       Hash($pairs)
-    }.reduce({})|$m,$v|{$m+$v}
+    }.reduce({})|$m,$v| { $m+$v }
 
     out::message( "===== ERRORS (${f_hashes.values.count}): \n\n" )
     out::message( $f_hashes.map |$k,$v| {
-      $banner = "=== ${k}".format::colorize('fatal')
-      $msg = "${v['action']} ${v['object']} (${v['kind']}):\n${v['msg']}".format::colorize('warning')
-      "${banner}\n\n${msg}"
+        $banner = "=== ${k}".format::colorize('fatal')
+        $msg = "${v['action']} ${v['object']} (${v['kind']}):\n${v['msg']}".format::colorize('warning')
+        "${banner}\n\n${msg}"
     }.join("\n\n\n") )
     fail_plan( 'Plan complete: failures occured', 'puppetsync--plan-errors', $f_hashes )
   }
