@@ -42,8 +42,6 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/pupmod-simp-simp_gitlab:
     branch: master
-  https://github.com/simp/pupmod-simp-simp_openldap:
-    branch: master
   https://github.com/simp/pupmod-simp-simp_snmpd:
     branch: master
   https://github.com/simp/pupmod-simp-site:
@@ -167,9 +165,9 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-x2go:
   #   branch: master
 
-  # No (related) changes
-  # See https://github.com/simp/pupmod-simp-simp_bolt/pull/27
-  # https://github.com/simp/pupmod-simp-simp_bolt:
+  # Test failures
+  # See https://github.com/simp/pupmod-simp-libreswan/pull/86
+  # https://github.com/simp/pupmod-simp-libreswan:
   #   branch: master
 
   # Must be updated after simp-ssh
@@ -177,7 +175,12 @@ puppetsync::repos_config:
   # https://github.com/simp/pupmod-simp-simp:
   #   branch: master
 
-  # Test failures
-  # See https://github.com/simp/pupmod-simp-libreswan/pull/86
-  # https://github.com/simp/pupmod-simp-libreswan:
+  # No (related) changes
+  # See https://github.com/simp/pupmod-simp-simp_bolt/pull/27
+  # https://github.com/simp/pupmod-simp-simp_bolt:
+  #   branch: master
+
+  # Test failures due to module changes
+  # See https://github.com/simp/pupmod-simp-simp_openldap/pull/134
+  # https://github.com/simp/pupmod-simp-simp_openldap:
   #   branch: master
