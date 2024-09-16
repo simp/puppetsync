@@ -42,7 +42,7 @@ def bump_version(file)
     require 'date'
     new_lines = []
     new_lines << DateTime.now.strftime("* %a %b %d %Y Steven Pritchard <steve@sicura.us> - #{new_version}")
-    new_lines << '- [puppetsync] Add EL9 support'
+    new_lines << '- [puppetsync] Update module dependencies to support simp-iptables 7.x'
     changelog = new_lines.join("\n") + "\n\n" + changelog
     File.open(changelog_file,'w'){|f| f.puts changelog; f.flush }
   end
@@ -196,7 +196,7 @@ original_content_str = content.to_s
 # These methods mutate `content` and its contents by reference
 # ------------------------------------------------------------------------------
 transform_puppet_version_requirements(content)
-transform_operatingsystem_support(content)
+# transform_operatingsystem_support(content)
 transform_module_dependencies(content)
 
 # Write content back to original file
