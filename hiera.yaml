@@ -5,21 +5,20 @@ hierarchy:
 
   - name: 'Basic hierarchy'
     paths:
-    - "repos/%{::mod_data.repo_name}.yaml"
-    - "module_names/%{facts.module_metadata.name}.yaml"
-    - "forge_orgs/%{facts.module_metadata.forge_org}.yaml"
-    - "project_types/%{facts.project_type}.yaml"
-    - "common.yaml"
+      - "repos/%{::mod_data.repo_name}.yaml"
+      - "module_names/%{facts.module_metadata.name}.yaml"
+      - "forge_orgs/%{facts.module_metadata.forge_org}.yaml"
+      - "project_types/%{facts.project_type}.yaml"
+      - "common.yaml"
 
 plan_hierarchy:
   - name: 'Basic plan hierarchy'
     paths:
-    - "sync/batches/%{batchlist}.yaml"
-    - "sync/configs/%{config}.yaml"
-    - "sync/repolists/%{repolist}.yaml"
-    - "sync/common.yaml"
+      - "sync/batches/%{batchlist}.yaml"
+      - "sync/configs/%{config}.yaml"
+      - "sync/repolists/%{repolist}.yaml"
+      - "sync/common.yaml"
 
 defaults:
   datadir: data
   data_hash: yaml_data
-

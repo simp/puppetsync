@@ -1,3 +1,4 @@
+---
 puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-svckill:
@@ -6,8 +7,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-swap:
     branch: master
 
-      #  https://github.com/simp/pupmod-simp-sysctl:
-      #branch: master
+  # https://github.com/simp/pupmod-simp-sysctl:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-tftpboot:
     branch: master
@@ -42,9 +43,8 @@ puppetsync::repos_config:
   https://github.com/simp/simp-adapter:
     branch: master
 
-      #  https://github.com/simp/simp-core:
-      #branch: master
+  # https://github.com/simp/simp-core:
+  #   branch: master
 
   https://github.com/simp/simp-utils:
     branch: master
-

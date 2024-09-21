@@ -10,13 +10,18 @@ class profile::pupmod::rspec (
   Optional[String[1]]  $target_module_name = $facts.dig('module_metadata','name'),
 ) {
   file { $rspec_path:
+    ensure  => file,
     content => file(
       "${module_name}/pupmod/_rspec.${target_module_name}",
       "${module_name}/pupmod/_rspec",
     ),
   }
 
-  file { $spec_helper_path:
+  file { dirname($spec_helper_path):
+    ensure => directory,
+  }
+  -> file { $spec_helper_path:
+    ensure  => file,
     content => epp(
       "${module_name}/pupmod/spec/spec_helper.rb.epp",
     ),

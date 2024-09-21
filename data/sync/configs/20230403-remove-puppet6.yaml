@@ -7,8 +7,8 @@ puppetsync::plan_config:
 #      - simp_unknown
     plans:
       sync:
-        clone_git_repos: false    # set to `false` when applying manual updates on a second run
-        clear_before_clone: false # set to `false` when applying manual updates on a second run
+        clone_git_repos: false     # set to `false` when applying manual updates on a second run
+        clear_before_clone: false  # set to `false` when applying manual updates on a second run
         github_api_delay_seconds: 30
         stages:
 #          - install_gems         # Uncomment for first-time puppetsync run
@@ -50,7 +50,7 @@ puppetsync::plan_config:
       Removes puppet 6 from .gitlab-ci.yml
 
       This patch moves puppet 6 refs to 7, puppet 7 refs to 8. Then we manually
-      update all spec nodesets to point to sicura oel boxes and comment out all 
+      update all spec nodesets to point to sicura oel boxes and comment out all
       pup8 tests.
 
       The patch enforces a standardized asset baseline using simp/puppetsync,

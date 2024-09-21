@@ -19,12 +19,11 @@ def git_commit(repo_path, commit_message)
     if current_commit == commit_message
       warn "NOTICE: Running 'git commit -F #{commit_msg_file.path} --amend' in #{repo_path}"
       pid = spawn 'git', 'commit', '-F', commit_msg_file.path, '--amend'
-      Process.wait pid
     else
       warn "NOTICE: Running 'git commit -F #{commit_msg_file.path}' in #{repo_path}"
       pid = spawn 'git', 'commit', '-F', commit_msg_file.path
-      Process.wait pid
     end
+    Process.wait pid
     if $CHILD_STATUS.success?
       puts "== #{File.basename(repo_path)} : committed changes in #{repo_path}"
     end

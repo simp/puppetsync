@@ -7,8 +7,9 @@
 function puppetsync::record_stage_results(
   String[1] $stage_name,
   Variant[ApplyResult,ResultSet,Result,Array[Result],Array[ResultSet]] $results
-){
+) {
   case $results {
+    # lint:ignore:unquoted_string_in_case
     Array[Result]: {
       warning( "** puppetsync::record_stage_results (${stage_name}): Array[Result], ResultSet" )
       $results.each |$result| { puppetsync::record_stage_results($stage_name, $result) }
@@ -41,5 +42,6 @@ function puppetsync::record_stage_results(
       out::message("+++++++ DEFAULT puppetsync::record_stage_results (\$result = Tuple?)")
       debug::break()
     }
+    # lint:endignore
   }
 }
