@@ -10,8 +10,9 @@
 require_relative '../../ruby_task_helper/files/task_helper.rb'
 require_relative '../../puppetsync/files/git_repo_remote_tasks.rb'
 
+# Bolt task class
 class MyTask < TaskHelper
-  def task(name: nil, **kwargs)
+  def task(name: nil, **kwargs) # rubocop:disable Lint/UnusedMethodArgument
     helper = GitRepoRemoteTasks.new(kwargs[:repo_path], kwargs[:remote_url], kwargs[:remote_name])
     helper.ensure_remote_exists
     {

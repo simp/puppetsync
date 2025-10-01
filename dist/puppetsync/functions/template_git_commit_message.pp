@@ -5,7 +5,7 @@
 function puppetsync::template_git_commit_message(
   Target $repo,
   Hash   $puppetsync_config,
-){
+) >> String {
   $commmit_template = $puppetsync_config.dig('git','commit_message').lest || {
     fail("ERROR: ${repo.name} missing required var ['git']['commit_message']")
   }

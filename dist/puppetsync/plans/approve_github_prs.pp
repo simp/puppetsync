@@ -36,7 +36,7 @@
 # @author Chris Tessmer <chris.tessmer@onyxpoint.com>
 #
 # ------------------------------------------------------------------------------
-plan puppetsync::approve_github_prs(
+plan puppetsync::approve_github_prs (
   TargetSpec           $targets                = get_targets('default'),
   Stdlib::Absolutepath $project_dir            = system::env('PWD'),
   String[1]            $batchlist              = '---',
@@ -54,7 +54,7 @@ plan puppetsync::approve_github_prs(
     'clone_git_repos'          => false, # Don't need to clone repos just to approve PRs
     'filter_permitted_repos'   => false, # Assume all matching PRs are permitted repo types
     'github_api_delay_seconds' => 1,
-  } + getvar('puppetsync_config.puppetsync.plans.approve_github_prs').lest || {{}} + $options
+  } + getvar('puppetsync_config.puppetsync.plans.approve_github_prs').lest || {{} } + $options
 
   $repos = puppetsync::setup_project_repos(
     $puppetsync_config,

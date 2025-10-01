@@ -9,4 +9,3 @@ classes:
 profile::obsoletes::files:
   - '.ruby-version'                   # Borks RUBY_MATRIX (SIMP-8931, SIMP-8958)
   - '.travis.yml'                     # Travis is dead to us (SIMP-9150)
-

@@ -1,4 +1,5 @@
 require 'json'
+# JiraHelper class
 class JiraHelper
   def initialize(
     username     = ENV['JIRA_USER'],
@@ -28,8 +29,8 @@ class JiraHelper
     subtask_issuetype_id  = issuetype_id(%r{^Sub-task}i)
 
     st_summary      = subtask_opts[:subtask_title].gsub('%COMPONENT%', component_name)
-    st_description  = (subtask_opts[:subtask_description]) ? subtask_opts[:subtask_description].gsub('%COMPONENT%', component_name) : nil
-    st_story_points = (subtask_opts[:subtask_story_points]) ? subtask_opts[:subtask_story_points] : nil
+    st_description  = subtask_opts[:subtask_description]&.gsub('%COMPONENT%', component_name)
+    st_story_points = subtask_opts[:subtask_story_points] ? subtask_opts[:subtask_story_points] : nil
 
     component = project.components.select { |x| x.name == component_name }
     raise("FATAL: could not find component for '#{component_name}' in Jira project '#{project_string}'") if component.empty?
@@ -54,26 +55,26 @@ class JiraHelper
       data['id'] = existing_subtasks_for_target.first.attrs['id']
     end
 
-    if existing_subtasks_for_target.empty? || true
-      begin
-        issue = @client.Issue.build data
-        issue.save! data
-        if subtask_opts[:subtask_assignee]
-          st_assignee = @client.User.myself.attrs['accountId']
-          issue.save('fields' => { 'assignee' => { 'accountId' => st_assignee } })
-        end
-      rescue JIRA::HTTPError => e
-        require 'yaml'
-        warn e.to_yaml
-        require 'pry'
-        binding.irb
-        raise e
+    # if existing_subtasks_for_target.empty? || true
+    begin
+      issue = @client.Issue.build data
+      issue.save! data
+      if subtask_opts[:subtask_assignee]
+        st_assignee = @client.User.myself.attrs['accountId']
+        issue.save('fields' => { 'assignee' => { 'accountId' => st_assignee } })
       end
-      issue.fetch
-      target_subtask_issue_key = issue.key
-    else
-      target_subtask_issue_key = existing_subtasks_for_target.first.key
+    rescue JIRA::HTTPError => e
+      require 'yaml'
+      warn e.to_yaml
+      require 'pry'
+      binding.irb # rubocop:disable Lint/Debugger
+      raise e
     end
+    issue.fetch
+    target_subtask_issue_key = issue.key
+    # else
+    #   target_subtask_issue_key = existing_subtasks_for_target.first.key
+    # end
 
     target_subtask_issue_key
   end
@@ -89,12 +90,12 @@ class JiraHelper
     #
     # risks:
     #  - Jira supports more than one component ber issue/subtask
-    _jql = "project = #{project_string} " \
-           " AND parent = #{parent_issue_string}" \
-           " AND component = #{component_name}" \
-           ' AND statuscategory != done' + # FIXME: remains to be seen if this is necessary
-           ' AND statuscategory != undefined'
-    @client.Issue.jql(_jql)
+    jql = "project = #{project_string} " \
+          " AND parent = #{parent_issue_string}" \
+          " AND component = #{component_name}" \
+          ' AND statuscategory != done' + # FIXME: remains to be seen if this is necessary
+          ' AND statuscategory != undefined'
+    @client.Issue.jql(jql)
   end
 
   # @param [JIRA::Client] client
@@ -115,10 +116,10 @@ class JiraHelper
     matching_fields = @client.Field.all.select { |x| x.name =~ regex }
     raise "ERROR: No fields that match #{regex}" if matching_fields.empty?
     if matching_fields.size > 1
-      raise (
+      raise(
         "ERROR: Too many fields that match #{regex} " \
         "(got #{matching_fields.size}, expected 1): \n\n" +
-        matching_fields.to_yaml
+        matching_fields.to_yaml,
       )
     end
     matching_fields.first.id
@@ -128,10 +129,10 @@ class JiraHelper
     matching_fields = @client.Issuetype.all.select { |x| x.name =~ regex }
     raise "ERROR: No issuetypes that match #{regex}" if matching_fields.empty?
     if matching_fields.size > 1
-      raise (
+      raise(
         "ERROR: Too many fields that match #{regex} " \
         "(got #{matching_fields.size}, expected 1): \n\n" +
-        matching_fields.to_yaml
+        matching_fields.to_yaml,
       )
     end
     matching_fields.first.id
@@ -155,5 +156,6 @@ if $PROGRAM_NAME == __FILE__
     kwargs[:component_name.to_s],
     Hash[opts.map { |k, v| [k.to_sym, v] }],
   )
-  require 'pry'; binding.pry
+  require 'pry'
+  binding.pry # rubocop:disable Lint/Debugger
 end

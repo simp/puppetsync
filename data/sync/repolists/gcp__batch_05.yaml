@@ -1,3 +1,4 @@
+---
 puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-selinux:
@@ -9,20 +10,20 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_apache:
     branch: master
 
-      #  https://github.com/simp/pupmod-simp-simp_choria:
-      #branch: master
+  # https://github.com/simp/pupmod-simp-simp_choria:
+  #   branch: master
 
-      #https://github.com/simp/pupmod-simp-simp_consul:
-      #branch: master
+  # https://github.com/simp/pupmod-simp-simp_consul:
+  #   branch: master
 
-      #https://github.com/simp/pupmod-simp-simp_docker:
-      #branch: master
+  # https://github.com/simp/pupmod-simp-simp_docker:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-simp_ds389:
     branch: master
 
-      #https://github.com/simp/pupmod-simp-simp_elasticsearch:
-      #branch: master
+  # https://github.com/simp/pupmod-simp-simp_elasticsearch:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-simp_firewalld:
     branch: master
@@ -30,8 +31,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_gitlab:
     branch: master
 
-      #https://github.com/simp/pupmod-simp-simp_grafana:
-      #branch: master
+  # https://github.com/simp/pupmod-simp-simp_grafana:
+  #   branch: master
 
   https://github.com/simp/pupmod-simp-simp_grub:
     branch: master
@@ -39,7 +40,5 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_ipa:
     branch: master
 
-      #https://github.com/simp/pupmod-simp-simp_logstash:
-      #branch: master
-
-
+  # https://github.com/simp/pupmod-simp-simp_logstash:
+  #   branch: master

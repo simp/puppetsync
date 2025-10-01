@@ -29,7 +29,7 @@
 ---
 name: 'Tag: Release to GitHub'
 
-on:
+'on':
   push:
     tags:
       # NOTE: These filter patterns aren't actually regexes:
@@ -92,13 +92,14 @@ jobs:
         run: |
           echo "${RELEASE_MESSAGE}" > /tmp/.commit-msg.txt
           args=(-F /tmp/.commit-msg.txt)
-          [[ ${{ steps.tag-check.outputs.prerelease }} == yes ]] && args+=(--prerelease)
+          [[ "${{ steps.tag-check.outputs.prerelease }}" == yes ]] && args+=(--prerelease)
 
           gh release create ${args[@]} "$TARGET_TAG"
 
   build-and-attach-rpms:
     name: Trigger RPM release
-    needs: [ create-github-release ]
+    needs:
+      - create-github-release
     if: github.repository_owner == 'simp'
     runs-on: ubuntu-latest
     env:

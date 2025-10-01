@@ -1,3 +1,4 @@
+---
 puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-deferred_resources:
@@ -38,4 +39,3 @@ puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-iptables:
     branch: master
-

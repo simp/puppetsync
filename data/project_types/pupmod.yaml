@@ -3,9 +3,9 @@ classes:
   - 'role::pupmod'
 
 profile::obsoletes::files:
-  - 'spec/fixtures/site.pp'           # Several modules had this incorrect path
-  - 'spec/fixtures/manifests/site.pp' # Not required since Puppet 3.x
-  - '.pmtignore'                      # Now using .pdkignore
+  - 'spec/fixtures/site.pp'            # Several modules had this incorrect path
+  - 'spec/fixtures/manifests/site.pp'  # Not required since Puppet 3.x
+  - '.pmtignore'                       # Now using .pdkignore
 
 profile::github_actions::absent_action_files:
   - pr_glci.yml          # PR-triggered GLCI actions
