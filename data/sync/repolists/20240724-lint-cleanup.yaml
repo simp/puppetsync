@@ -106,14 +106,12 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/pupmod-simp-simp_apache:
     branch: master
-  # Test failures - https://github.com/simp/pupmod-simp-simp_authselect/pull/2
-  # https://github.com/simp/pupmod-simp-simp_authselect:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-simp_authselect:
+    branch: master
   https://github.com/simp/pupmod-simp-simp_banners:
     branch: master
-  # Test failures - https://github.com/simp/pupmod-simp-simp_bolt/pull/26
-  # https://github.com/simp/pupmod-simp-simp_bolt:
-  #   branch: master
+  https://github.com/simp/pupmod-simp-simp_bolt:
+    branch: master
   https://github.com/simp/pupmod-simp-simp_ds389:
     branch: master
   https://github.com/simp/pupmod-simp-simp_firewalld:
