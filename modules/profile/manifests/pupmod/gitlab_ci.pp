@@ -38,6 +38,7 @@
 class profile::pupmod::gitlab_ci(
   Stdlib::Absolutepath $target_gitlabci_yml_path = "${::repo_path}/.gitlab-ci.yml",
   Optional[String[1]]  $target_module_name = $facts.dig('module_metadata','name'),
+  Enum['file', 'absent'] $ensure = 'absent',
 ){
 
   # NOTE: as noted above, the default value first attempts to read in the
@@ -78,6 +79,7 @@ class profile::pupmod::gitlab_ci(
   )
 
   file{ $target_gitlabci_yml_path:
+    ensure  => $ensure,
     content => epp(
       $gitlab_ci_template_path, {
         'repo_specific_content' => $repo_specific_content,
