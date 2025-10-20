@@ -15,6 +15,7 @@ puppetsync::plan_config:
           - checkout_git_feature_branch_in_each_repo
           # - apply_puppet_role
           - drop_glci_config
+          - configure_renovate
           # - modernize_fixtures      # one-off
           # - os_data
           # - modernize_metadata_json

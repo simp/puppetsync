@@ -188,8 +188,8 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/simp-rsync-skeleton:
     branch: master
-  https://github.com/simp/pupmod-simp-mockup:
-    branch: master
+  # https://github.com/simp/pupmod-simp-mockup:
+  #   branch: master
   https://github.com/simp/simp-selinux-policy:
     branch: master
   https://github.com/simp/rubygem-simp-rake-helpers:

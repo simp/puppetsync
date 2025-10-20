@@ -218,6 +218,22 @@ plan puppetsync(
   }
 
   $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'configure_renovate',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::configure_renovate',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      {
+        'path' => "${repo.vars['repo_path']}",
+      }
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
     'remove_el6',
     # ---------------------------------------------------------------------------
