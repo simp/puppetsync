@@ -179,7 +179,6 @@ plan puppetsync(
     )
   }
 
-
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'apply_puppet_role',
@@ -203,6 +202,38 @@ plan puppetsync(
   }
 
   $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'drop_glci_config',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::drop_glci_config',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      {
+        'path' => "${repo.vars['repo_path']}",
+      }
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
+    'configure_renovate',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    run_task_with('puppetsync::configure_renovate',
+      $ok_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      {
+        'path' => "${repo.vars['repo_path']}",
+      }
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
     'remove_el6',
     # ---------------------------------------------------------------------------
@@ -221,86 +252,6 @@ plan puppetsync(
         'file' => $file_path,
       })
     }
-  }
-
-  $repos.puppetsync::pipeline_stage(
-    # ---------------------------------------------------------------------------
-    'remove_puppet6',
-    # ---------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    run_task_with('puppetsync::remove_puppet6',
-      $ok_repos,
-      '_catch_errors'  => true,
-    ) |$repo| {
-      $dir_path = $repo.facts['project_type'] ? {
-        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/",
-        default           => "${repo.vars['repo_path']}",
-      }
-
-      Hash.new({
-        'file' => "${dir_path}/.gitlab-ci.yml",
-      })
-    }
-  }
-
-  $repos.puppetsync::pipeline_stage(
-    # ---------------------------------------------------------------------------
-    'comment_puppet8_spec_tests',
-    # ---------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    run_task_with('puppetsync::comment_puppet8_spec_tests',
-      $ok_repos,
-      '_catch_errors'  => true,
-    ) |$repo| {
-      $dir_path = $repo.facts['project_type'] ? {
-        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/",
-        default           => "${repo.vars['repo_path']}",
-      }
-
-      Hash.new({
-        'file' => "${dir_path}/.gitlab-ci.yml",
-      })
-    }
-  }
-
-  $repos.puppetsync::pipeline_stage(
-    # ---------------------------------------------------------------------------
-    'modernize_gitlab_files',
-    # ---------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    run_task_with('puppetsync::modernize_gitlab_files',
-      $ok_repos,
-      '_catch_errors'  => false,
-    ) |$repo| {
-      $dir_path = $repo.facts['project_type'] ? {
-        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton",
-        default           => "${repo.vars['repo_path']}",
-      }
-
-      Hash.new({
-        'file' => "${dir_path}/.gitlab-ci.yml",
-      })
-    }
-  }
-
-  $repos.puppetsync::pipeline_stage(
-    # ---------------------------------------------------------------------------
-    'lint_gitlab_ci',
-    # ---------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    run_task( 'puppetsync::lint_gitlab_ci',
-      'localhost',
-      "lint .gitlab-ci.yml file to make sure it hasn't become an abomination",
-      {
-        'repo_paths'               => $ok_repos.map |$x| { $x.vars['repo_path'] },
-        'gitlab_private_api_token' => $gitlab_token.unwrap,
-        '_catch_errors'            => false,
-      }
-    )
   }
 
   $repos.puppetsync::pipeline_stage(
