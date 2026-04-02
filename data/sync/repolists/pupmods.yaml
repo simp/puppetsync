@@ -16,8 +16,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-autofs:
     branch: master
 
-  https://github.com/simp/pupmod-simp-chkrootkit:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-chkrootkit:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-clamav:
     branch: master
@@ -58,14 +58,14 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-haveged:
     branch: master
 
-  https://github.com/simp/pupmod-simp-hirs_provisioner:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-hirs_provisioner:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-ima:
     branch: master
 
-  https://github.com/simp/pupmod-simp-incron:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-incron:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-iptables:
     branch: master
@@ -94,8 +94,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-named:
     branch: master
 
-  https://github.com/simp/pupmod-simp-network:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-network:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-nfs:
     branch: master
@@ -130,8 +130,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-resolv:
     branch: master
 
-  https://github.com/simp/pupmod-simp-rkhunter:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-rkhunter:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-rsync:
     branch: master
@@ -169,20 +169,20 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-simp_grub:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp_ipa:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-simp_ipa:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-simp_nfs:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp_openldap:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-simp_openldap:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-simp_options:
     branch: master
 
-  https://github.com/simp/pupmod-simp-simp_pki_service:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-simp_pki_service:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-simp_rsyslog:
     branch: master
@@ -202,8 +202,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-sudo:
     branch: master
 
-  https://github.com/simp/pupmod-simp-sudosh:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-sudosh:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-svckill:
     branch: master
@@ -211,8 +211,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-swap:
     branch: master
 
-  https://github.com/simp/pupmod-simp-tcpwrappers:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-tcpwrappers:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-tftpboot:
     branch: master
@@ -220,8 +220,8 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-tlog:
     branch: master
 
-  https://github.com/simp/pupmod-simp-tpm:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-tpm:
+    # branch: master
 
   https://github.com/simp/pupmod-simp-tpm2:
     branch: master
@@ -241,5 +241,5 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-x2go:
     branch: master
 
-  https://github.com/simp/pupmod-simp-xinetd:
-    branch: master
+  # ARCHIVED: https://github.com/simp/pupmod-simp-xinetd:
+    # branch: master
