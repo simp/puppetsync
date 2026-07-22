@@ -1,0 +1,115 @@
+# Manual action to create + push a release tag from metadata.json & CHANGELOG
+# ------------------------------------------------------------------------------
+#
+#             NOTICE: **This file is maintained with puppetsync**
+#
+# This file is updated automatically as part of a puppet module baseline.
+#
+# The next baseline sync will overwrite any local changes to this file!
+#
+# ==============================================================================
+# This pipeline uses the following GitHub Action Secrets:
+#
+#   GitHub Secret variable               Notes
+#   -------------------------------      ---------------------------------------
+#   SIMP_AUTO_GITHUB_TOKEN__REPO_SCOPE   Used to push the release tag. A PAT is
+#                                        required in order for the pushed tag to
+#                                        trigger the `tag_deploy.yml` workflow
+#                                        (events created with the workflow's own
+#                                        GITHUB_TOKEN do not trigger other
+#                                        workflows). Falls back to GITHUB_TOKEN,
+#                                        which still creates the tag but will
+#                                        NOT trigger the release workflow.
+#
+# ------------------------------------------------------------------------------
+#
+# * This is a workflow_dispatch action, which can be triggered manually or from
+#   other workflows/API
+#
+# * It must be dispatched from the repository's default branch
+#
+# * The tag version is read from `metadata.json` and the tag's annotation is
+#   generated from the CHANGELOG (`rake pkg:create_tag_changelog`)
+#
+# * Pushing the tag triggers the `tag_deploy.yml` release workflow
+#
+---
+name: 'RELENG: Create release tag'
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (validate + report the tag annotation, don't push)"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  PUPPET_VERSION: '~> 8'
+
+jobs:
+  create-release-tag:
+    name: 'Create release tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: "Assert '${{ github.ref }}' is the default branch"
+        env:
+          DEFAULT_BRANCH_REF: 'refs/heads/${{ github.event.repository.default_branch }}'
+        run: |
+          [[ "$GITHUB_REF" == "$DEFAULT_BRANCH_REF" ]] || \
+            { echo "::error ::Dispatched ref '${GITHUB_REF}' is not the default branch ('${DEFAULT_BRANCH_REF}')"; exit 1; }
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref }}
+          clean: true
+          fetch-depth: 0  # tag history is needed for `rake pkg:compare_latest_tag`
+          token: ${{ secrets.SIMP_AUTO_GITHUB_TOKEN__REPO_SCOPE || github.token }}
+
+      - name: Read + validate version from metadata.json
+        id: version
+        run: |
+          version="$(jq -r .version metadata.json)"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+[0-9]+)?$ ]]; then
+            echo "::error ::metadata.json version '${version}' is not SemVer (X.Y.Z or X.Y.Z-<prerelease>)"
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/${version}" >/dev/null; then
+            echo "::error ::Tag '${version}' already exists"
+            exit 1
+          fi
+          echo "version=${version}" | tee -a "$GITHUB_OUTPUT"
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.9
+          bundler-cache: true
+
+      - name: RELENG sanity checks
+        run: |
+          bundle exec rake pkg:check_version
+          bundle exec rake pkg:compare_latest_tag
+          bundle exec rake metadata_lint
+
+      - name: Generate tag annotation from CHANGELOG
+        env:
+          TARGET_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          bundle exec rake pkg:create_tag_changelog > "/tmp/tag_annotation_${TARGET_VERSION}.txt"
+          echo '::group::Tag annotation'
+          cat "/tmp/tag_annotation_${TARGET_VERSION}.txt"
+          echo '::endgroup::'
+
+      - name: Create + push annotated tag (skipped when dry_run)
+        if: ${{ !inputs.dry_run }}
+        env:
+          TARGET_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git tag -a "$TARGET_VERSION" -F "/tmp/tag_annotation_${TARGET_VERSION}.txt"
+          git push origin "refs/tags/${TARGET_VERSION}"
+          echo "Pushed tag \`${TARGET_VERSION}\` (this triggers the \`tag_deploy.yml\` release workflow)" >> "$GITHUB_STEP_SUMMARY"

@@ -14,6 +14,7 @@ profile::github_actions::absent_action_files:
 
 profile::github_actions::present_action_files:
   - pr_tests.yml         # PR-triggered Pupmod checks + test matrix
+  - create_release_tag.yml  # Manually create + push a release tag
   - tag_deploy.yml       # Release on tag, deploy pupmod to forge, RPMs to GH
   - release_rpms.yml     # Build, sign, upload RPMs to a release from any repo
   - validate_tokens.yml  # Diagnostic workflow to check API tokens work
