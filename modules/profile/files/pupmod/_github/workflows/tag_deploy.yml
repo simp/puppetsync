@@ -184,6 +184,12 @@ jobs:
           bundler-cache: true
       - name: Build Puppet module
         run: bundle exec rake pupmod:build
+      - name: Upload module archive as a workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: puppet-module
+          path: pkg/*.tar.gz
+          if-no-files-found: error
       - name: Deploy to Puppet Forge (skipped when prerelease)
         run: |
           file="$(find "$PWD/pkg" -name '*.tar.gz')"
