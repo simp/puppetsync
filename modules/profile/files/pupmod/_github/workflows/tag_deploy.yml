@@ -190,6 +190,10 @@ jobs:
           name: puppet-module
           path: pkg/*.tar.gz
           if-no-files-found: error
+      - name: Attach module archive to the GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${GITHUB_REF_NAME}" pkg/*.tar.gz --clobber
       - name: Deploy to Puppet Forge (skipped when prerelease)
         run: |
           file="$(find "$PWD/pkg" -name '*.tar.gz')"
