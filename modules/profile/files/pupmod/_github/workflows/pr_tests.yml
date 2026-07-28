@@ -96,7 +96,7 @@ jobs:
           bundler-cache: true
       - name: 'Regenerate REFERENCE.md and fail on drift'
         run: |
-          run: 'bundle exec rake validate:strings'
+         'bundle exec rake validate:strings'
           git diff --exit-code -- REFERENCE.md || {
             echo '::error file=REFERENCE.md::REFERENCE.md is stale. Run `bundle exec rake strings:generate:reference` and commit the result.'
             exit 1
