@@ -25,21 +25,25 @@ function puppetsync::setup_project_repos(
   warning( "\n\n==  \$puppetsync_config:\n${puppetsync_config.to_yaml.regsubst('^','    ','G')}" )
 
   if $opts['clone_git_repos'] {
-    $repos_dir = "${project_dir}/${opts['default_repo_moduledir']}"
-    if $opts['clear_before_clone'] {
-      $ruby_path = get_target('localhost').config['local']['interpreters']['.rb']
-      run_command(
-        "${ruby_path} -r fileutils -e 'FileUtils.mkdir_p \"${repos_dir}\"; FileUtils.rm_rf(Dir[\"${repos_dir}/*\"])'",
-        'localhost'
-      )
+    # Clone each repo, or — when a matching clone already exists — fetch and
+    # reset it to origin's state, which is much faster than re-cloning.
+    # Paths that exist but don't match their repo are replaced when
+    # `clear_before_clone` is true (the default), and fail the run otherwise.
+    $results = run_task_with('puppetsync::ensure_git_clone', $pf_repos, '_catch_errors' => false) |$t| {
+      {
+        'git_url'   => $t.vars['mod_data']['git_url'],
+        'repo_path' => $t.vars['repo_path'],
+        'branch'    => $t.vars['mod_data']['branch'],
+        'clear'     => $opts['clear_before_clone'],
+      }
     }
-    $result = parallelize($pf_repos) |$t| {
-      # FIXME should this blow away the old directory or git fetch/checkout?
-      # TODO make this a task with smarter behavior
-      $cmd = "git clone \"${t.vars['mod_data']['git_url']}\" \"${t.vars['repo_path']}\" -b \"${t.vars['mod_data']['branch']}\""
-      out::message($cmd)
-      run_command($cmd, $t)
-    }
+    $methods = $results.map |$r| { $r.value['method'] }
+    out::message( sprintf(
+      '== repos ready: %d cloned / %d updated / %d recloned',
+      $methods.filter |$x| { $x == 'cloned' }.size,
+      $methods.filter |$x| { $x == 'updated' }.size,
+      $methods.filter |$x| { $x == 'recloned' }.size,
+    ))
   } else {
     warning( '' )
     warning( '== WARNING: **NOT** cloning git repos because $opts["clone_git_repos"] = false!' )
