@@ -27,6 +27,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Update GHA ruby tag deploy workflows to use `$GITHUB_OUTPUT`, Ruby 2.7
+- `puppetsync::pipeline_stage` now raises a clear error when a stage block
+  returns something other than Bolt results, instead of dropping into an
+  interactive `binding.pry` debugger that would hang unattended runs (#52)
 
 ### Fixed
 

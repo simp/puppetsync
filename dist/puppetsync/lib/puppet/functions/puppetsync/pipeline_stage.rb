@@ -1,4 +1,5 @@
-# Parse Puppetfile contents
+# Run a block of plan logic as a named, skippable pipeline stage and record
+# its results on each Target
 Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
   dispatch :pipeline_stage do
     param 'Boltlib::TargetSpec', :targets
@@ -38,19 +39,12 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
       call_function('out::message', "puppetsync::record_stage_results( #{stage_name}, #{results.class})")
       call_function('puppetsync::record_stage_results', stage_name, results)
     else
-      STDERR.puts '############ WARNING: results are NOT a Bolt::Result'
-      Puppet.warning "############ WARNING: results are NOT a Bolt::Result (file:#{__FILE__}, stage: #{stage_name}, class: #{results.class}"
-      if results.kind_of? Array
-        Puppet.warning "############ WARNING: ARRAY.size: #{results.size}"
-        Puppet.warning "############ WARNING: ARRAY.first class: #{results.first.class}"
-      end
-
-
-      begin
-        require 'pry'; binding.pry
-      rescue LoadError => e
-        puts "==============================================================", e.message
-      end
+      details = results.is_a?(Array) ? " of [#{results.map(&:class).uniq.join(', ')}] (size: #{results.size})" : ''
+      raise Puppet::Error,
+            "puppetsync::pipeline_stage('#{stage_name}'): the stage block returned " \
+            "#{results.class}#{details}, but a Bolt::Result, Bolt::ResultSet, or " \
+            'Array of Bolt::Results is required. Unrecordable results would let ' \
+            'failed targets continue through later stages, so this is a fatal error.'
     end
     ok_targets
   end
