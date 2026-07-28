@@ -1,0 +1,69 @@
+# CI for puppetsync itself (internal — NOT a puppetsync-managed baseline file)
+#
+# * spec:  unit tests for the Bolt tasks + sanity checks over Hiera data and
+#          task metadata (plain rspec; the tasks are standalone Ruby scripts)
+# * bolt:  install openbolt, install project dependencies the documented way,
+#          validate Puppet syntax, and smoke-test that the plans load
+---
+name: CI
+
+'on':
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+env:
+  BOLT_DISABLE_ANALYTICS: 'true'
+
+jobs:
+  spec:
+    name: 'Unit tests (tasks & project files)'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Match the Ruby bundled with openbolt, which runs the tasks in production
+          ruby-version: '3.2'
+      - run: gem install rspec --no-document
+      - run: rspec
+
+  bolt:
+    name: 'Bolt plan smoke test'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install openbolt (OpenVox Bolt)
+        run: |
+          curl -sSLo /tmp/openvox8-release.deb https://apt.voxpupuli.org/openvox8-release-ubuntu24.04.deb
+          sudo dpkg -i /tmp/openvox8-release.deb
+          sudo apt-get update -qq
+          sudo apt-get install -y openbolt
+
+      - name: Install project dependencies (gems + Puppet modules)
+        run: ./Rakefile install
+
+      - name: Validate Puppet syntax
+        run: |
+          /opt/puppetlabs/bolt/bin/puppet parser validate --tasks \
+            $(find dist/puppetsync/plans -name '*.pp')
+          /opt/puppetlabs/bolt/bin/puppet parser validate \
+            $(find dist/puppetsync/functions modules manifests -name '*.pp')
+
+      - name: Verify the puppetsync plans load
+        run: /opt/puppetlabs/bolt/bin/bolt plan show puppetsync
+
+      - name: List pipeline stages (plan dry run)
+        env:
+          # The plan requires these to be set, but nothing calls the APIs in
+          # list_pipeline_stages mode
+          GITHUB_API_TOKEN: dummy
+          GITLAB_API_TOKEN: dummy
+          JIRA_USER: dummy
+          JIRA_API_TOKEN: dummy
+        run: >-
+          /opt/puppetlabs/bolt/bin/bolt plan run puppetsync
+          options='{"list_pipeline_stages": true}'
