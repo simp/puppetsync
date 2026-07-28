@@ -26,6 +26,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Repo setup no longer wipes `_repos/` and re-clones everything on each run
+  (#53): existing matching clones are fetched and reset to origin's state by
+  the new `ensure_git_clone` task, which is much faster for large repolists.
+  Mismatched paths are replaced when `clear_before_clone` is true (the
+  default) and fail the run otherwise.
 - The `puppetsync` plan is now fully idempotent: repos that need no changes
   pass through cleanly instead of failing at the PR stage (#49)
   - The `git_commit` task reports `changed: false` when there is nothing to

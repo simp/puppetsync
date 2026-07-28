@@ -1,0 +1,22 @@
+{
+  "description": "Ensure a git clone exists at repo_path and matches origin's state. Existing matching clones are fetched and reset (much faster than re-cloning); mismatched paths are replaced when clear is true.",
+  "input_method": "stdin",
+  "parameters": {
+    "git_url": {
+      "description": "URL of the git repository to clone",
+      "type": "String[1]"
+    },
+    "repo_path": {
+      "description": "Path where the clone should exist",
+      "type": "String[1]"
+    },
+    "branch": {
+      "description": "Branch to check out (reset to origin's tip)",
+      "type": "String[1]"
+    },
+    "clear": {
+      "description": "When repo_path exists but is not a clone of git_url: true replaces it, false fails (default: true)",
+      "type": "Optional[Boolean]"
+    }
+  }
+}
