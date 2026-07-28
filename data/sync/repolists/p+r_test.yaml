@@ -7,9 +7,6 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-nfs:
     branch: master
 
-  https://github.com/simp/pupmod-simp-ntpd:
-    branch: master
-
   https://github.com/simp/pupmod-simp-rsyslog:
     branch: master
 

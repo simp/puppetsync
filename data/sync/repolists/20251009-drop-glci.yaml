@@ -152,8 +152,6 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/pupmod-simp-sssd:
     branch: master
-  https://github.com/simp/pupmod-simp-ntpd:
-    branch: master
   https://github.com/simp/pupmod-simp-clamav:
     branch: master
   https://github.com/simp/pupmod-simp-ssh:

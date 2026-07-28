@@ -74,8 +74,6 @@ puppetsync::repos_config:
     branch: master
   https://github.com/simp/pupmod-simp-network:
     branch: master
-  https://github.com/simp/pupmod-simp-ntpd:
-    branch: master
   https://github.com/simp/pupmod-simp-oath:
     branch: master
   https://github.com/simp/pupmod-simp-oddjob:
