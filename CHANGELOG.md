@@ -21,6 +21,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- `release_rpms.yml` now pulls build containers from `ghcr.io/simp/simp-<os>-build`
+  instead of the retired `docker.io/simpproject/simp_build_<os>` images
+  - New `build_container_tag` input (default `latest`) to pin a dated container tag
+  - `build_container_os` default changed from `centos8` to `el8`
 - Update GHA ruby tag deploy workflows to use `$GITHUB_OUTPUT`, Ruby 2.7
 
 ### Fixed
