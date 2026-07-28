@@ -69,8 +69,8 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
    ```
 
 2. Set the [environment variable](#environment-variables) `GITHUB_API_TOKEN`.
-   * Before using the main `puppetsync::` plan, also set `JIRA_USER`,
-     `JIRA_API_TOKEN`, and `GITLAB_API_TOKEN`
+   * Before using the main `puppetsync::` plan, also set `JIRA_USER` and
+     `JIRA_API_TOKEN`
 
 4. At this point, you are ready to run a plan.  The plan to run will depend on your role:
 
@@ -90,7 +90,7 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
    `data/sync/repolists/`
 2. Copy and customize a Puppetsync config file under `data/sync/configs/` to
    fit your workflow
-3. Set [environment variables](#environment-variables) for GITHUB, GITLAB, and
+3. Set [environment variables](#environment-variables) for GITHUB and
    JIRA API authentication
 4. (Optional) Develop Puppet code/Hiera data/Tasks to provide new features
 
@@ -106,7 +106,6 @@ config files from the puppetsync session you used.
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
   JIRA_USER=$JIRA_USER \
   JIRA_API_TOKEN=$JIRA_API_TOKEN \
-  GITLAB_API_TOKEN=$JIRA_API_TOKEN \
     bolt plan run puppetsync config={CONFIG_NAME} repolist={REPOLIST_NAME}
 ```
 
@@ -180,14 +179,10 @@ bolt plan run puppetsync \
 #   - checkout_git_feature_branch_in_each_repo
 #   - ensure_jira_subtask
 #   - apply_puppet_role
-#   - modernize_gitlab_files
-#   - lint_gitlab_ci
 #   - git_commit_changes
 #   - ensure_github_fork
 #   - ensure_git_remote
 #   - git_push_to_remote
-#   - ensure_gitlab_remote
-#   - git_push_to_gitlab
 #   - ensure_github_pr
 #   Finished: plan puppetsync in 0.04 sec
 #   Plan completed successfully with no result
@@ -206,14 +201,10 @@ puppetsync:
         - checkout_git_feature_branch_in_each_repo
         - ensure_jira_subtask
         - apply_puppet_role
-        - modernize_gitlab_files
-        - lint_gitlab_ci
         - git_commit_changes
         - ensure_github_fork
         - ensure_git_remote
         - git_push_to_remote
-        - ensure_gitlab_remote
-        - git_push_to_gitlab
         - ensure_github_pr
 ```
 
@@ -234,12 +225,6 @@ These environment variables are necessary to fork GitHub repositories and submit
 | Env variable       | Purpose          |     |
 | ------------       | -------          | --- |
 | `GITHUB_API_TOKEN` | GitHub API token |     |
-
-These environment variables are necessary to use GitLab's CI lint API:
-
-| Env variable       | Purpose                   |                      |
-| ------------       | -------                   | -------------------- |
-| `GITLAB_API_TOKEN` | GitLab Personal API Token | Requires `api` scope |
 
 (Recommended) To stop Bolt from collecting analytics, set this environment variable:
 
@@ -275,14 +260,10 @@ puppetsync::plan_config:
         - checkout_git_feature_branch_in_each_repo
         - ensure_jira_subtask
         - apply_puppet_role
-        - modernize_gitlab_files
-        - lint_gitlab_ci
         - git_commit_changes
         - ensure_github_fork
         - ensure_git_remote
         - git_push_to_remote
-        - ensure_gitlab_remote
-        - git_push_to_gitlab
         - ensure_github_pr
 
     approve_github_pr:

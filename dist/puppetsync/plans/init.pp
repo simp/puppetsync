@@ -103,7 +103,6 @@ plan puppetsync(
   Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
-  Sensitive[String[1]] $gitlab_token           = Sensitive(system::env('GITLAB_API_TOKEN')),
   Hash                 $options                = {},
 ) {
 
@@ -434,40 +433,6 @@ plan puppetsync(
         "cd '${repo.vars['repo_path']}'; git push '${repo.vars['remote_name']}' '${feature_branch}' -f",
         $repo,
         "Push branch '${feature_branch}' to forked repository",
-        { '_catch_errors' => true }
-      )
-      $results.first
-    }
-  }
-
-
-  $repos.puppetsync::pipeline_stage(
-    # --------------------------------------------------------------------------
-    'ensure_gitlab_remote',
-    # --------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    $results = run_task_with(
-      'puppetsync::ensure_git_remote', $ok_repos, '_catch_errors' => true,
-    ) |$repo| {
-      {
-        'repo_path'     => $repo.vars['repo_path'],
-        'remote_url'    => $repo.vars['user_repo_fork']['ssh_url'].regsubst($puppetsync_config['github']['pr_user'],'simp').regsubst('github','gitlab'),
-        'remote_name'   => 'gitlab_repo',
-      }
-    }
-  }
-  $repos.puppetsync::pipeline_stage(
-    # --------------------------------------------------------------------------
-    'git_push_to_gitlab',
-    # --------------------------------------------------------------------------
-    $opts
-  ) |$ok_repos, $stage_name| {
-    $ok_repos.map |$repo| {
-      $results = run_command(
-        "cd '${repo.vars['repo_path']}'; git push 'gitlab_repo' '${feature_branch}:${feature_branch}' -f",
-        $repo,
-        "Push branch '${feature_branch}' to gitlab repository",
         { '_catch_errors' => true }
       )
       $results.first
