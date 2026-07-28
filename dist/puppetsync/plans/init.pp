@@ -353,7 +353,7 @@ plan puppetsync(
     $opts
   ) |$ok_repos, $stage_name| {
     $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
-    run_task_with(
+    $results = run_task_with(
       'puppetsync::git_commit',
       $ok_repos,
       '_catch_errors'  => true,
@@ -363,6 +363,17 @@ plan puppetsync(
         'commit_message' => puppetsync::template_git_commit_message($repo,$puppetsync_config),
       }
     }
+
+    # Flag repos that needed no changes so later stages can skip them
+    # (see 'skip_unchanged_targets' in puppetsync::pipeline_stage)
+    $ok_repos.each |$repo| {
+      $result = $results.filter |$r| { $r.target.name == $repo.name }[0]
+      if $result and $result.ok and $result.value['changed'] == false {
+        $repo.set_var('puppetsync_unchanged', true)
+        out::message( "-- ${repo.name}: no changes to commit; skipping GitHub stages" )
+      }
+    }
+    $results
   }
 
 
@@ -370,7 +381,7 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     'ensure_github_fork',
     # --------------------------------------------------------------------------
-    $opts
+    $opts + { 'skip_unchanged_targets' => true }
   ) |$ok_repos, $stage_name| {
     $results = run_task_with(
       'puppetsync::ensure_github_fork', $ok_repos, '_catch_errors' => true
@@ -396,7 +407,7 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     'ensure_git_remote',
     # --------------------------------------------------------------------------
-    $opts
+    $opts + { 'skip_unchanged_targets' => true }
   ) |$ok_repos, $stage_name| {
     $ok_repos.each |$repo| {$repo.set_var('remote_name', 'user_forked_repo')}
     $results = run_task_with(
@@ -427,7 +438,7 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     'git_push_to_remote',
     # --------------------------------------------------------------------------
-    $opts
+    $opts + { 'skip_unchanged_targets' => true }
   ) |$ok_repos, $stage_name| {
     $ok_repos.map |$repo| {
       $results = run_command(
@@ -481,7 +492,7 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     'ensure_github_pr',
     # --------------------------------------------------------------------------
-    $opts
+    $opts + { 'skip_unchanged_targets' => true }
   ) |$ok_repos, $stage_name| {
     $ok_repos.map |$repo| {
       $results = run_task( 'puppetsync::ensure_github_pr', $repo,

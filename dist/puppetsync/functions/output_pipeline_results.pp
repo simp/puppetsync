@@ -22,6 +22,21 @@ function puppetsync::output_pipeline_results(
 
   out::message("\n${repos.puppetsync::summarize_repos_pipeline_results(true)}\n\n")
 
+  $buckets = $repos.map |$repo| {
+    $all_ok = $repo.vars['puppetsync_stage_results'].all |$k,$v| { $v['ok'] }
+    $all_ok ? {
+      false   => 'failed',
+      default => $repo.vars['puppetsync_unchanged'] ? { true => 'unchanged', default => 'ok' },
+    }
+  }
+  out::message( sprintf(
+    "===== %d ok / %d unchanged / %d failed (%d total)\n",
+    $buckets.filter |$x| { $x == 'ok' }.size,
+    $buckets.filter |$x| { $x == 'unchanged' }.size,
+    $buckets.filter |$x| { $x == 'failed' }.size,
+    $buckets.size,
+  ))
+
   $failures = $repos.map |$k,$x| { $x.vars['puppetsync_stage_results'].filter |$x, $y| { $y['ok'] == false } }
   unless $failures.all |$x| { $x.empty } {
     $f_hashes = $failures.map |$k,$v| {

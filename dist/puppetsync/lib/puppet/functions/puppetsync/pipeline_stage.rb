@@ -26,6 +26,15 @@ Puppet::Functions.create_function(:'puppetsync::pipeline_stage') do
     Puppet.warning("== Preparing stage '#{stage_name}'")
     ok_targets = targets.select { |repo| repo.vars['puppetsync_stage_results'].all? { |k,v| v['ok']}}
 
+    # Skip targets whose repos needed no changes (see the git_commit task),
+    # so no-change repos pass through fork/push/PR stages cleanly
+    if opts['skip_unchanged_targets']
+      unchanged, ok_targets = ok_targets.partition { |t| t.vars['puppetsync_unchanged'] }
+      unless unchanged.empty?
+        call_function('out::message', "===== SKIPPING #{unchanged.size} UNCHANGED TARGET(S) FOR STAGE: #{stage_name}")
+      end
+    end
+
     # Run stage block
     Puppet.warning('filtered ok stages before running')
     results = yield(ok_targets, stage_name)

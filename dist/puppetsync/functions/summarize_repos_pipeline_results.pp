@@ -10,14 +10,24 @@ function puppetsync::summarize_repos_pipeline_results(
     rows  => $repos.map |$repo| {
       $all_ok = $repo.vars['puppetsync_stage_results'].all |$k,$v| { $v['ok'] }
       $stage = $repo.vars['puppetsync_stage_results'].keys[-1].lest || {  $repo.vars['puppetsync_stage_results'].count }
+      $status = $all_ok ? {
+        false   => 'failed',
+        default => $repo.vars['puppetsync_unchanged'] ? { true => 'unchanged', default => 'ok' },
+      }
       if $colorize {
-        [
-          $all_ok ? { true => $repo.name, default => format::colorize( $repo.name, 'warning' ) },
-          $all_ok ? { true => format::colorize('ok', 'good'), default => format::colorize('failed','fatal') },
-          $all_ok ? { true =>  $stage, default => format::colorize($stage, 'warning') },
-        ]
+        case $status {
+          'failed': {
+            [ format::colorize( $repo.name, 'warning' ), format::colorize('failed','fatal'), format::colorize($stage, 'warning') ]
+          }
+          'unchanged': {
+            [ $repo.name, 'unchanged', $stage ]
+          }
+          default: {
+            [ $repo.name, format::colorize('ok', 'good'), $stage ]
+          }
+        }
       } else {
-        [ $repo.name, $all_ok ? { true => 'ok', default => 'failed' }, $stage ]
+        [ $repo.name, $status, $stage ]
       }
     }
   })
