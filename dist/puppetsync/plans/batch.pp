@@ -10,7 +10,6 @@ plan puppetsync::batch(
   String[1]            $jira_username          = system::env('JIRA_USER'),
   Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
-  Sensitive[String[1]] $gitlab_token           = Sensitive(system::env('GITLAB_API_TOKEN')),
   Hash                 $options                = {},
 ) {
   $results = $batches_config['repolists'].map |$repolist| {
@@ -25,7 +24,6 @@ plan puppetsync::batch(
         'jira_username'     => $jira_username,
         'jira_token'        => $jira_token,
         'github_token'      => $github_token,
-        'gitlab_token'      => $gitlab_token,
         'options'           => $options,
         '_catch_errors'     => true,
       },

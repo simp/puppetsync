@@ -37,6 +37,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
+- Removed the remaining GitLab support, completing the GLCI removal (#51):
+  - `GITLAB_API_TOKEN` is no longer required to run any plan
+  - Removed the `ensure_gitlab_remote` and `git_push_to_gitlab` pipeline
+    stages, the `profile::pupmod::gitlab_ci` class (its templates were
+    already gone), the `role::pupmod_gitlabci_only` role, and the `gitlab`
+    gem
 - Removed `puppet-lint-empty_string-check` from pupmod Gemfiles so they can
   install simp-rake-helpers 5.20.0
 

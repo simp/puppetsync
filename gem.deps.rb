@@ -16,7 +16,6 @@ gem 'terminal-table', '~> 1.8'
 gem 'facter', '~> 4.0'
 #gem 'puppet-lint'
 #gem 'yamllint'
-gem 'gitlab'
 gem 'rubocop'
 gem 'jsonlint'
 gem 'puppet', "~> #{ENV.fetch('PUPPET_VERSION', '7')}"
