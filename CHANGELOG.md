@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- CI for puppetsync itself (`.github/workflows/ci.yml`, #54):
+  - rspec unit tests for Bolt tasks (run as standalone scripts) plus sanity
+    checks over Hiera data, task metadata, and the `latest.yaml` symlinks
+  - Puppet syntax validation and a Bolt plan smoke test using openbolt
+
 - New GHA workflow, `add_new_issue_to_triage_project.yml`
 - New task, `generate_reference_md`
   - Generates up-to-date `REFERENCE.md`
