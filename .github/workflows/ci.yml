@@ -22,7 +22,7 @@ jobs:
     name: 'Unit tests (tasks & project files)'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with:
           # Match the Ruby bundled with openbolt, which runs the tasks in production
@@ -34,7 +34,7 @@ jobs:
     name: 'Bolt plan smoke test'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install openbolt (OpenVox Bolt)
         run: |
