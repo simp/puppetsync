@@ -40,6 +40,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- `checkout_git_feature_branch_in_each_repo` branch-existence detection was
+  broken on systems where `/bin/sh` is not bash (e.g. Ubuntu/dash): the old
+  backticks + `&>` check always reported the branch as existing, so checkout
+  failed on the first run. Found by the new idempotency e2e test in CI.
 - Rubygem GHA workflow bug that prevented tagged releases/pre-releases (x2)
 
 ### Removed

@@ -8,8 +8,12 @@ def checkout_modules_to_branch(branch, repo_paths)
     status = 'created'
     Dir.chdir dir
     warn "== #{dir}"
-    `git branch --contains #{branch} &> /dev/null`
-    if $CHILD_STATUS.success?
+    # NOTE: no shell here — the old backticks + `&> /dev/null` silently always
+    # "succeeded" on systems where /bin/sh is not bash (dash parses `&>` as
+    # backgrounding), making every checkout take the branch-exists path
+    branch_exists = system('git', 'rev-parse', '--verify', '--quiet', "refs/heads/#{branch}",
+                           out: File::NULL, err: File::NULL)
+    if branch_exists
       status = 'checked_out'
       warn "NOTICE: branch '#{branch}' already exists; checking it out"
       pid = spawn 'git', 'checkout', branch, '-q'
