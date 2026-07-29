@@ -1,5 +1,5 @@
 {
-  "description": "Commit current changes in a git repo",
+  "description": "Commit current changes in a git repo (idempotent: returns changed=false when there is nothing to commit; amends when re-running with the same commit message)",
   "input_method": "stdin",
   "parameters": {
     "repo_path": {

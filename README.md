@@ -366,6 +366,9 @@ It will then execute the following pipeline stages for each repo (in parallel):
 If an individual repo encounters failures during a stage, it will be held back
 while the other repos proceed with their workflows.
 
+Repos that need no changes are safe to sync: they are reported as
+`unchanged` and skip the GitHub fork/push/PR stages.
+
 All failures are summarized after the full plan finishes executing.
 
 #### `puppetsync::approve_github_prs`

@@ -26,6 +26,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- The `puppetsync` plan is now fully idempotent: repos that need no changes
+  pass through cleanly instead of failing at the PR stage (#49)
+  - The `git_commit` task reports `changed: false` when there is nothing to
+    commit (and now propagates real `git` failures instead of swallowing
+    them; amend detection also works for single-line commit messages)
+  - Unchanged repos skip the GitHub fork/push/PR stages
+  - The final summary reports three buckets: ok / unchanged / failed
 - Update GHA ruby tag deploy workflows to use `$GITHUB_OUTPUT`, Ruby 2.7
 - `puppetsync::pipeline_stage` now raises a clear error when a stage block
   returns something other than Bolt results, instead of dropping into an
@@ -33,6 +40,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- `checkout_git_feature_branch_in_each_repo` branch-existence detection was
+  broken on systems where `/bin/sh` is not bash (e.g. Ubuntu/dash): the old
+  backticks + `&>` check always reported the branch as existing, so checkout
+  failed on the first run. Found by the new idempotency e2e test in CI.
 - Rubygem GHA workflow bug that prevented tagged releases/pre-releases (x2)
 
 ### Removed
