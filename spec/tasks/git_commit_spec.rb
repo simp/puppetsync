@@ -68,6 +68,23 @@ describe 'task: git_commit' do
     expect(git('rev-parse', 'HEAD')).to eq(head_before)
   end
 
+  it 'commits normally in a repo with no commits yet (no HEAD to amend)' do
+    Dir.mktmpdir do |empty_repo|
+      out, status = Open3.capture2e('git', '-C', empty_repo, 'init', '-b', 'main')
+      raise out unless status.success?
+      Open3.capture2e('git', '-C', empty_repo, 'config', 'user.email', 'ci@example.com')
+      Open3.capture2e('git', '-C', empty_repo, 'config', 'user.name', 'CI')
+      File.write(File.join(empty_repo, 'first_file'), "content\n")
+
+      stdout, stderr, status = run_task('git_commit.rb', 'repo_path' => empty_repo, 'commit_message' => 'first commit')
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)).to eq('changed' => true, 'amended' => false)
+      count, = Open3.capture2e('git', '-C', empty_repo, 'rev-list', '--count', 'HEAD')
+      expect(count.strip).to eq('1')
+    end
+  end
+
   it 'fails when the commit itself fails' do
     File.write(File.join(@repo, 'new_file'), "content\n")
 

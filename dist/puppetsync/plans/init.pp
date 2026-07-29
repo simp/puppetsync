@@ -367,7 +367,7 @@ plan puppetsync(
     # Flag repos that needed no changes so later stages can skip them
     # (see 'skip_unchanged_targets' in puppetsync::pipeline_stage)
     $ok_repos.each |$repo| {
-      $result = $results.filter |$r| { $r.target.name == $repo.name }[0]
+      $result = $results.find($repo.name)
       if $result and $result.ok and $result.value['changed'] == false {
         $repo.set_var('puppetsync_unchanged', true)
         out::message( "-- ${repo.name}: no changes to commit; skipping GitHub stages" )

@@ -10,22 +10,34 @@ def git(*args)
   out
 end
 
+# `git diff --cached --quiet` exits 0 when nothing is staged and 1 when
+# something is; anything else is a real error and must not be misread
+def staged_changes?
+  out, status = Open3.capture2e('git', 'diff', '--cached', '--quiet')
+  case status.exitstatus
+  when 0 then false
+  when 1 then true
+  else raise("ERROR: 'git diff --cached --quiet' failed in #{Dir.pwd}:\n#{out}")
+  end
+end
+
 def git_commit(repo_path, commit_message)
   Dir.chdir repo_path
 
   warn "NOTICE: Running 'git add -A' in #{repo_path}"
   git('add', '-A')
 
-  # `git diff --cached --quiet` exits 0 when nothing is staged
-  if system('git', 'diff', '--cached', '--quiet')
+  unless staged_changes?
     warn "== #{File.basename(repo_path)} : nothing to commit in #{repo_path}"
     return { 'changed' => false }
   end
 
   # Amend instead of piling up commits when re-running the same session
   # (compare with trailing whitespace stripped: `git log --pretty=%B` output
-  # carries trailing newlines that the commit_message parameter may not have)
-  amend = git('log', '-1', '--pretty=%B').rstrip == commit_message.rstrip
+  # carries trailing newlines that the commit_message parameter may not have).
+  # A repo with no commits yet has no HEAD to compare — never amend there.
+  head_message, head_status = Open3.capture2e('git', 'log', '-1', '--pretty=%B')
+  amend = head_status.success? && head_message.rstrip == commit_message.rstrip
 
   Tempfile.create('commit_msg_file') do |commit_msg_file|
     commit_msg_file.write(commit_message)
