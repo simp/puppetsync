@@ -1,12 +1,17 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+**This changelog is frozen.** puppetsync has no versioned releases, so
+per-PR changelog entries only created merge conflicts without a release to
+collect them. Ongoing history lives in the [git log] and [merged pull
+requests], whose squash-merge titles serve as the changelog.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+The entries below are historical. Section headings are either Jira-era
+session tags or the date the entries were recorded.
 
+[git log]: https://github.com/simp/puppetsync/commits/main/
+[merged pull requests]: https://github.com/simp/puppetsync/pulls?q=is%3Apr+is%3Amerged
 
-
-## [Unreleased]
+## [2026-07-29] (previously Unreleased)
 
 ### Added
 
@@ -14,15 +19,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - rspec unit tests for Bolt tasks (run as standalone scripts) plus sanity
     checks over Hiera data, task metadata, and the `latest.yaml` symlinks
   - Puppet syntax validation and a Bolt plan smoke test using openbolt
-
-- New GHA workflow, `add_new_issue_to_triage_project.yml`
-- New task, `generate_reference_md`
-  - Generates up-to-date `REFERENCE.md`
-  - If changed: stages and commits to git IMMEDIATELY
-- New task and plan, `release_pupmods`
- - Clone, tag, and push GitHub release for each repo in the repolist
-- New GHA PR tests workflow override for pupmod simp/simp
-  - Parallelizes spec tests so they don't take three hours to run
 
 ### Changed
 
@@ -38,7 +34,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     them; amend detection also works for single-line commit messages)
   - Unchanged repos skip the GitHub fork/push/PR stages
   - The final summary reports three buckets: ok / unchanged / failed
-- Update GHA ruby tag deploy workflows to use `$GITHUB_OUTPUT`, Ruby 2.7
 - `puppetsync::pipeline_stage` now raises a clear error when a stage block
   returns something other than Bolt results, instead of dropping into an
   interactive `binding.pry` debugger that would hang unattended runs (#52)
@@ -49,7 +44,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   broken on systems where `/bin/sh` is not bash (e.g. Ubuntu/dash): the old
   backticks + `&>` check always reported the branch as existing, so checkout
   failed on the first run. Found by the new idempotency e2e test in CI.
-- Rubygem GHA workflow bug that prevented tagged releases/pre-releases (x2)
 
 ### Removed
 
@@ -59,8 +53,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     stages, the `profile::pupmod::gitlab_ci` class (its templates were
     already gone), the `role::pupmod_gitlabci_only` role, and the `gitlab`
     gem
+
+## [2023-08-03] (previously Unreleased)
+
+### Added
+
+- New task, `generate_reference_md`
+  - Generates up-to-date `REFERENCE.md`
+  - If changed: stages and commits to git IMMEDIATELY
+- New task and plan, `release_pupmods`
+  - Clone, tag, and push GitHub release for each repo in the repolist
+- New GHA PR tests workflow override for pupmod simp/simp
+  - Parallelizes spec tests so they don't take three hours to run
+
+### Fixed
+
+- Rubygem GHA workflow bug that prevented tagged releases/pre-releases (x2)
+
+### Removed
+
 - Removed `puppet-lint-empty_string-check` from pupmod Gemfiles so they can
   install simp-rake-helpers 5.20.0
+
+## [2023-04-17] (previously Unreleased)
+
+### Added
+
+- New GHA workflow, `add_new_issue_to_triage_project.yml`
+
+### Changed
+
+- Update GHA ruby tag deploy workflows to use `$GITHUB_OUTPUT`, Ruby 2.7
 
 ## [issue_3] - 2023-03-27
 
@@ -464,4 +487,3 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [SIMP-10392]: https://github.com/op-ct/puppetsync/compare/SIMP-10580...SIMP-10392
 [SIMP-10633]: https://github.com/op-ct/puppetsync/compare/SIMP-10392...SIMP-10633
 [issue_3]: https://github.com/op-ct/puppetsync/compare/SIMP-10633...issue_3
-[Unreleased]: https://github.com/op-ct/puppetsync/compare/issue_3...HEAD

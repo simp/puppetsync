@@ -58,7 +58,7 @@ Three layers, all data-driven via Hiera (`hiera.yaml` defines two separate hiera
 1. Create or reuse a repolist in `data/sync/repolists/` and a config in `data/sync/configs/` (copy a recent dated one; the naming convention is `YYYYMMDD-description.yaml`).
 2. Point the `latest.yaml` symlinks at them (optional, but lets you omit `config=`/`repolist=`).
 3. If the change needs new behavior, add/modify a task (one-off transformations) or a profile (persistent baseline files), and list any new stage in the config.
-4. Record notable changes in `CHANGELOG.md` (Keep a Changelog format; helper tasks in `rakelib/`).
+4. Do **not** update `CHANGELOG.md` — it is frozen (no versioned releases to collect entries, and per-PR edits conflicted with every in-flight PR). Descriptive squash-merge PR titles are the changelog.
 
 ## Current context
 
