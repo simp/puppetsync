@@ -44,7 +44,7 @@ Three layers, all data-driven via Hiera (`hiera.yaml` defines two separate hiera
 
 2. **The baseline — `modules/role/` and `modules/profile/`**
    - One stage (`apply_puppet_role`) applies a `role::*` class to each cloned repo's working tree. The role is chosen per repo via Hiera's `classes` key, keyed off the `project_type` fact (see `data/project_types/*.yaml`).
-   - `role::*` classes are thin lists of `profile::*` includes. Each profile manages a specific slice of the baseline (Gemfile, git files, GitHub Actions workflows, lint configs, ...), writing into `$::repo_path`.
+   - `role::*` classes are thin lists of `profile::*` includes. Each profile manages a specific slice of the baseline (Gemfile, git files, GitHub Actions workflows, lint configs, ...), writing into `$::repo_path` via the `profile::managed_file` define. Files have two management modes (Hiera-overridable `mode` param per profile): `enforce` (content fully managed, the default) and `bootstrap` (complete file laid down only when missing — used for files whose values Renovate maintains in place, like the Gemfile).
    - Static file sources live in `modules/profile/files/`, templates in `modules/profile/templates/`. Dotfiles are stored with a leading underscore (`_gitignore` → `.gitignore`). Profiles use fallback lookup chains so a repo-specific override (`_gitignore.<repo_name>`, or `_github/workflows/<action>.<repo_name>.yml`) beats the generic file.
 
 3. **Data — `data/`**
