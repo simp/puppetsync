@@ -53,15 +53,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-- Removed the remaining interactive-debugger hazards (follow-up to #52):
-  - `debug::break()` at the end of the `puppetsync::batch` plan
-  - `debug::break()` in `puppetsync::record_stage_results`, replaced with a
-    hard failure (unrecorded results would let failed targets pass later
-    stages' filters)
-  - The `nwops/debug` module dependency
-- Removed the stale rspec-puppet scaffolding in `dist/puppetsync/spec/`,
-  which tested a function (`puppetsync::parse_puppetfile`) that no longer
-  exists
 - Removed the remaining GitLab support, completing the GLCI removal (#51):
   - `GITLAB_API_TOKEN` is no longer required to run any plan
   - Removed the `ensure_gitlab_remote` and `git_push_to_gitlab` pipeline
