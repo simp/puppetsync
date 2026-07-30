@@ -1,0 +1,19 @@
+{
+  "description": "Build a puppetsync repos_config hash from the GitHub API: list an org's repos and filter them (archived, forks with an include_forks escape hatch, name globs, topics). Branches come from each repo's default_branch.",
+  "input_method": "stdin",
+  "parameters": {
+    "source": {
+      "description": "Filter configuration: {org, include, exclude, include_forks, include_topics, exclude_topics, exclude_archived, exclude_forks}",
+      "type": "Hash"
+    },
+    "github_authtoken": {
+      "description": "GitHub API token (optional but strongly recommended: unauthenticated requests are heavily rate-limited)",
+      "type": "Optional[String[1]]",
+      "sensitive": true
+    },
+    "repos": {
+      "description": "Repo objects to filter instead of querying the API (for testing)",
+      "type": "Optional[Array[Hash]]"
+    }
+  }
+}

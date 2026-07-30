@@ -1,0 +1,104 @@
+#!/opt/puppetlabs/bolt/bin/ruby
+#
+# Build a puppetsync repos_config hash dynamically from the GitHub API
+# (simp/puppetsync#55), so repolists don't have to be hand-maintained.
+#
+# Filtering (all driven by the `source` parameter):
+#
+#   - Archived repos are excluded (`exclude_archived`, default true)
+#   - Forks are excluded (`exclude_forks`, default true) UNLESS the repo
+#     matches an `include_forks` glob — the escape hatch for forks the org
+#     actively maintains (e.g. rubygem-simp-rspec-puppet-facts,
+#     pupmod-voxpupuli-selinux)
+#   - Repos with any topic in `exclude_topics` are excluded (default:
+#     ['puppetsync-ignore'] — set that topic on a repo in GitHub to opt it
+#     out without touching puppetsync)
+#   - The repo name must match an `include` glob, or the repo must have a
+#     topic in `include_topics` (defaults: ['*'] / none)
+#   - Repos matching an `exclude` glob are always excluded
+#   - Empty repos (size 0) are excluded — there is nothing to clone
+#
+# Each repo's branch comes from the API's default_branch (e.g.
+# pupmod-voxpupuli-selinux uses 'simp-master').
+#
+# NOTE: this intentionally does NOT decide what kind of project a repo is —
+# `puppetsync::filter_permitted_repos` still applies project_type filtering
+# after the clone, which is the safety net for name-pattern false positives.
+
+require 'json'
+require 'net/http'
+require 'uri'
+
+PER_PAGE = 100
+
+def fetch_org_repos(org, token)
+  repos = []
+  page = 1
+  loop do
+    uri = URI("https://api.github.com/orgs/#{org}/repos?type=all&per_page=#{PER_PAGE}&page=#{page}")
+    request = Net::HTTP::Get.new(uri)
+    request['Accept'] = 'application/vnd.github+json'
+    request['X-GitHub-Api-Version'] = '2022-11-28'
+    request['Authorization'] = "Bearer #{token}" if token && !token.empty?
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+    raise("ERROR: GitHub API returned #{response.code} for #{uri.path}: #{response.body.to_s[0, 300]}") unless response.code == '200'
+
+    batch = JSON.parse(response.body)
+    repos.concat(batch)
+    break if batch.size < PER_PAGE
+
+    page += 1
+  end
+  repos
+end
+
+def glob_match?(name, globs)
+  globs.any? { |glob| File.fnmatch(glob, name) }
+end
+
+def select_repos(repos, source)
+  include_globs    = source.fetch('include', nil) || ['*']
+  exclude_globs    = source.fetch('exclude', nil) || []
+  include_topics   = source.fetch('include_topics', nil) || []
+  exclude_topics   = source.fetch('exclude_topics', nil) || ['puppetsync-ignore']
+  exclude_archived = source.fetch('exclude_archived', true)
+  exclude_forks    = source.fetch('exclude_forks', true)
+  include_forks    = source.fetch('include_forks', nil) || []
+
+  repos.select do |repo|
+    name = repo['name']
+    topics = repo['topics'] || []
+    next false if exclude_archived && repo['archived']
+    next false if repo['size'].to_i.zero?
+    next false if glob_match?(name, exclude_globs)
+    next false if topics.any? { |topic| exclude_topics.include?(topic) }
+    next false if repo['fork'] && exclude_forks && !glob_match?(name, include_forks)
+
+    glob_match?(name, include_globs) || topics.any? { |topic| include_topics.include?(topic) }
+  end
+end
+
+def repos_config(repos)
+  repos.sort_by { |repo| repo['name'] }.each_with_object({}) do |repo, config|
+    config["https://github.com/#{repo['full_name']}"] = { 'branch' => repo['default_branch'] }
+  end
+end
+
+stdin = STDIN.read
+params = JSON.parse(stdin)
+
+source = params['source']
+raise('No source given') unless source.is_a?(Hash)
+
+# `repos` bypasses the API for testing; normal runs fetch the org listing
+repos = params['repos']
+if repos.nil?
+  org = source['org']
+  raise("No org given in source") unless org
+
+  repos = fetch_org_repos(org, params['github_authtoken'])
+end
+
+selected = select_repos(repos, source)
+warn "== selected #{selected.size} of #{repos.size} repos"
+puts JSON.generate({ 'repos_config' => repos_config(selected), 'count' => selected.size })

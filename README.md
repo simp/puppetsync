@@ -332,6 +332,33 @@ puppetsync::repos_config:
   # ... and so on
 ```
 
+#### Dynamic repolists (GitHub org inventory)
+
+Instead of hand-maintaining the repo list, a repolist file can define
+`puppetsync::repos_source` to build it from the GitHub API at run time (see
+`data/sync/repolists/github-org.yaml` for a ready-to-use example):
+
+```yaml
+puppetsync::repos_source:
+  org: simp
+  include: ['pupmod-*', 'puppet-*', 'rubygem-*']  # name globs
+  include_forks:                                  # forks the org maintains
+    - rubygem-simp-rspec-puppet-facts
+    - pupmod-voxpupuli-selinux
+```
+
+* Archived and empty repos are excluded; forks are excluded unless they
+  match `include_forks`
+* Repos with the `puppetsync-ignore` GitHub topic are excluded — set the
+  topic to opt a repo out without touching puppetsync
+* Each repo's branch comes from the API's default branch (so e.g.
+  `pupmod-voxpupuli-selinux` syncs `simp-master` automatically)
+* The generated list is snapshotted to
+  `data/sync/repolists/generated-{CONFIG_NAME}.yaml`; run the
+  approve/merge plans with `repolist=generated-{CONFIG_NAME}` so they use
+  the exact inventory the sync ran against (commit the snapshot if the
+  session is handed off)
+
 ### Plans
 
 Each plan:
