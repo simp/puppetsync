@@ -1,6 +1,6 @@
 # Baseline Gemfile for Puppet modules
 #
-# @param mode
+# @param strategy
 #   `bootstrap` (default): the Gemfile is only laid down when it doesn't
 #   exist, so Renovate-managed gem pins in existing repos are never
 #   clobbered. Set to `enforce` (e.g. per project_type in Hiera) to
@@ -8,10 +8,10 @@
 class profile::pupmod::gemfile(
   Stdlib::Absolutepath        $gemfile_path = "${::repo_path}/Gemfile",
   Optional[String[1]]         $target_module_name = $facts.dig('module_metadata','name'),
-  Enum['enforce','bootstrap'] $mode = 'bootstrap',
+  Enum['enforce','bootstrap'] $strategy = 'bootstrap',
 ){
   profile::managed_file{ $gemfile_path:
-    mode    => $mode,
+    strategy => $strategy,
     content => file(
       "${module_name}/pupmod/Gemfile.${target_module_name}",
       "${module_name}/pupmod/Gemfile",

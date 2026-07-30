@@ -1,16 +1,16 @@
 # Manages .gitignore and .gitattributes
 #
-# @param mode
+# @param strategy
 #   `enforce` (default): these files carry no externally-managed values, so
 #   their content is fully managed
 class profile::pupmod::git_files(
   Stdlib::Absolutepath        $gitignore_path = "${::repo_path}/.gitignore",
   Stdlib::Absolutepath        $gitattributes_path = "${::repo_path}/.gitattributes",
   Optional[String[1]]         $target_module_name = $facts.dig('module_metadata','name'),
-  Enum['enforce','bootstrap'] $mode = 'enforce',
+  Enum['enforce','bootstrap'] $strategy = 'enforce',
 ){
   profile::managed_file{ $gitignore_path:
-    mode    => $mode,
+    strategy => $strategy,
     content => file(
       "${module_name}/pupmod/_gitignore.${target_module_name}",
       "${module_name}/pupmod/_gitignore",
@@ -19,7 +19,7 @@ class profile::pupmod::git_files(
   }
 
   profile::managed_file{ $gitattributes_path:
-    mode    => $mode,
+    strategy => $strategy,
     content => file(
       "${module_name}/pupmod/_gitattributes.${target_module_name}",
       "${module_name}/pupmod/_gitattributes",

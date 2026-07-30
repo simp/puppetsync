@@ -3,7 +3,7 @@
 # @param content
 #   Full file content
 #
-# @param mode
+# @param strategy
 #   How the file is managed:
 #
 #   * `enforce` (default) ― content is fully managed; local changes are
@@ -18,11 +18,11 @@
 #   Absolute path of the file to manage (defaults to the resource title)
 define profile::managed_file (
   String                      $content,
-  Enum['enforce','bootstrap'] $mode = 'enforce',
+  Enum['enforce','bootstrap'] $strategy = 'enforce',
   Stdlib::Absolutepath        $path = $title,
 ) {
   file { $path:
     content => $content,
-    replace => $mode ? { 'bootstrap' => false, default => true },
+    replace => $strategy ? { 'bootstrap' => false, default => true },
   }
 }
