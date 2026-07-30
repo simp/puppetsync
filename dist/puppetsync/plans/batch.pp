@@ -33,6 +33,5 @@ plan puppetsync::batch(
     ctrl::sleep( $delay )
     next($result)
   }
-  debug::break()
   return( $results )
 }
