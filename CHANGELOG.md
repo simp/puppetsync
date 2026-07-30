@@ -10,16 +10,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- New GHA workflow for pupmod repos, `create_release_tag.yml`
-  - Manually-dispatched (`workflow_dispatch`) release tagging
-  - Reads the version from `metadata.json`, validates it
-    (`pkg:check_version`, `pkg:compare_latest_tag`, `metadata_lint`),
-    generates the tag annotation from the CHANGELOG
-    (`pkg:create_tag_changelog`), and pushes the annotated tag
-  - The pushed tag triggers `tag_deploy.yml` (requires the
-    `SIMP_AUTO_GITHUB_TOKEN__REPO_SCOPE` PAT secret to push)
-  - Supports a `dry_run` input that validates and prints the tag
-    annotation without pushing
 - New GHA workflow, `add_new_issue_to_triage_project.yml`
 - New task, `generate_reference_md`
   - Generates up-to-date `REFERENCE.md`
