@@ -38,8 +38,8 @@ function puppetsync::record_stage_results(
     }
 
     default: {
-      out::message("+++++++ DEFAULT puppetsync::record_stage_results (\$result = Tuple?)")
-      debug::break()
+      # Unrecorded results would let failed targets pass later stages' filters
+      fail( "puppetsync::record_stage_results('${stage_name}'): cannot record results of unexpected type '${type($results, 'generalized')}'" )
     }
   }
 }
