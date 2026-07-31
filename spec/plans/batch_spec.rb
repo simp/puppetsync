@@ -12,6 +12,7 @@ describe 'plan: puppetsync::batch' do
     end
 
     result = run_plan('puppetsync::batch', {
+      'project_dir'    => PROJECT_ROOT,
       'batches_config' => { 'repolists' => ['batch-one', 'batch-two'], 'delay' => 0 },
     })
 

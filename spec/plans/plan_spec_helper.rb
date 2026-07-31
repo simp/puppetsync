@@ -6,7 +6,7 @@
 # run via `.rspec`. Run them with:
 #
 #   GEM_HOME=.gems /opt/puppetlabs/bolt/bin/gem install rspec --no-document
-#   GEM_HOME=.gems /opt/puppetlabs/bolt/bin/ruby -S rspec -O /dev/null spec/plans
+#   GEM_HOME=.gems /opt/puppetlabs/bolt/bin/ruby .gems/bin/rspec -O /dev/null spec/plans
 #
 # Conventions learned the hard way:
 #   - Stub matching is last-defined-wins: declare catch-all

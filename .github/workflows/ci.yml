@@ -64,10 +64,12 @@ jobs:
 
       - name: BoltSpec plan specs (under Bolt's Ruby)
         # -O /dev/null skips .rspec, whose exclude-pattern hides spec/plans
-        # from the plain-Ruby spec job (bolt_spec needs Bolt's Ruby)
+        # from the plain-Ruby spec job (bolt_spec needs Bolt's Ruby).
+        # The .gems binstub is invoked explicitly: `ruby -S rspec` only works
+        # when some rspec is already on PATH
         run: |
           GEM_HOME=.gems /opt/puppetlabs/bolt/bin/gem install rspec --no-document
-          GEM_HOME=.gems /opt/puppetlabs/bolt/bin/ruby -S rspec -O /dev/null spec/plans
+          GEM_HOME=.gems /opt/puppetlabs/bolt/bin/ruby .gems/bin/rspec -O /dev/null spec/plans
 
       - name: List pipeline stages (plan dry run)
         env:

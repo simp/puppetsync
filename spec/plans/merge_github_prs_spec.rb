@@ -26,6 +26,7 @@ describe 'plan: puppetsync::merge_github_prs' do
 
   def plan_params
     {
+      'project_dir'       => PROJECT_ROOT,
       'puppetsync_config' => puppetsync_config,
       'repos_config'      => repos_config,
       'pr_user'           => 'bot-user',
