@@ -184,10 +184,34 @@ jobs:
           bundler-cache: true
       - name: Build Puppet module (PDK)
         run: bundle exec pdk build --force
+      - name: Upload module archive as a workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: puppet-module
+          path: pkg/*.tar.gz
+          if-no-files-found: error
+      - name: Attach module archive to the GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${GITHUB_REF_NAME}" pkg/*.tar.gz --clobber
       - name: Deploy to Puppet Forge (skipped when prerelease)
         run: |
-          curl -X POST --silent --show-error --fail \
+          file="$(find "$PWD/pkg" -name '*.tar.gz')"
+          echo "Uploading: ${file}"
+          response="$(mktemp)"
+          http_code="$(curl -X POST --silent --show-error \
             --user-agent "$FORGE_USER_AGENT" \
             --header "Authorization: Bearer ${PUPPETFORGE_API_TOKEN}" \
-            --form "file=@$(find $PWD/pkg -name ''*.tar.gz'')" \
-            "$FORGE_API_URL"
+            --form "file=@${file}" \
+            --write-out '%{http_code}' \
+            --output "$response" \
+            "$FORGE_API_URL")"
+          echo "Forge API response (HTTP ${http_code}):"
+          cat "$response"; echo
+          case "$http_code" in
+            2*) ;;
+            *)
+              echo "::error ::Puppet Forge upload failed with HTTP ${http_code} (see response above)"
+              exit 1
+              ;;
+          esac
