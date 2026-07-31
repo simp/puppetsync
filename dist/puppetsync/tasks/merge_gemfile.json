@@ -1,0 +1,18 @@
+{
+  "description": "Merge the baseline Gemfile template into an existing Gemfile in place: add template gems that are missing (into their matching group), optionally remove gems, and never touch existing gems' version constraints (which Renovate manages). Writes the full template when the file doesn't exist.",
+  "input_method": "stdin",
+  "parameters": {
+    "path": {
+      "description": "Path to the target Gemfile",
+      "type": "String[1]"
+    },
+    "template": {
+      "description": "Content of the baseline Gemfile template",
+      "type": "String[1]"
+    },
+    "remove_gems": {
+      "description": "Names of gems to remove from the target (default: none)",
+      "type": "Optional[Array[String[1]]]"
+    }
+  }
+}

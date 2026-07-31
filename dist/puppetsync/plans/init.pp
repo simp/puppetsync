@@ -202,6 +202,40 @@ plan puppetsync(
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
+    'merge_gemfile',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    # Top up existing (bootstrap-mode) Gemfiles in place: add gems the
+    # baseline requires, never touch existing version constraints
+    # (which Renovate manages).  See simp/puppetsync#50.
+    $gemfile_repos = $ok_repos.filter |$repo| {
+      $repo.facts['project_type'] in ['pupmod', 'pupmod_skeleton']
+    }
+    run_task_with('puppetsync::merge_gemfile',
+      $gemfile_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      $gemfile_path = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/Gemfile",
+        default           => "${repo.vars['repo_path']}/Gemfile",
+      }
+      $target_module_name = $repo.facts.dig('module_metadata','name').lest || {
+        $repo.vars['mod_data']['repo_name']
+      }
+      Hash({
+        'path'        => $gemfile_path,
+        'template'    => file(
+          "profile/pupmod/Gemfile.${target_module_name}",
+          'profile/pupmod/Gemfile',
+        ),
+        'remove_gems' => $opts.dig('merge_gemfile', 'remove_gems').lest || {[]},
+      })
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
     'drop_glci_config',
     # --------------------------------------------------------------------------
     $opts
