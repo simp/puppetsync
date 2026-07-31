@@ -1,0 +1,28 @@
+---
+# Dynamic inventory (simp/puppetsync#55): build the repo list from the
+# GitHub API at run time instead of hand-maintaining it. When the sync plan
+# runs with this repolist, it writes a snapshot of the generated list to
+# data/sync/repolists/generated-<config>.yaml — use `repolist=generated-<config>`
+# for the approve/merge plans so they operate on the exact same inventory.
+#
+# Filtering notes:
+#   - Archived repos and empty repos are always excluded (exclude_archived
+#     defaults to true)
+#   - Forks are excluded unless listed in include_forks — the escape hatch
+#     for forks the org actively maintains
+#   - Repos with the 'puppetsync-ignore' topic are excluded by default: set
+#     that topic on a repo in GitHub to opt it out without touching this file
+#   - Names are matched with globs; project_type filtering (the config's
+#     permitted_project_types) still applies after the clone, so a
+#     name-pattern false positive gets culled there
+puppetsync::repos_source:
+  org: simp
+  include:
+    - 'pupmod-*'
+    - 'puppet-*'
+    - 'rubygem-*'
+  exclude: []
+  # Forks that simp actively maintains:
+  include_forks:
+    - rubygem-simp-rspec-puppet-facts
+    - pupmod-voxpupuli-selinux

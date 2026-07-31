@@ -56,6 +56,15 @@
 #   A Hash of repos and branches to to clone, modify, and PR.
 #   By default, this is loaded from Hiera data based on the `config` parameter.
 #
+# @param repos_source
+#   Optional dynamic-inventory configuration (`puppetsync::repos_source` in
+#   the repolist file): build `repos_config` from the GitHub API instead of a
+#   hand-maintained list. See `data/sync/repolists/github-org.yaml` and the
+#   `puppetsync::list_github_repos` task. The generated list is snapshotted
+#   to `data/sync/repolists/generated-<config>.yaml` so the approve/merge
+#   plans can reuse the exact same inventory. Static `repos_config` entries
+#   are merged on top (they win for duplicate repo URLs).
+#
 # @param extra_gem_path
 #   Absolute path to a gem path with extra gems the bolt interpreter will to run
 #   some of the Ruby tasks.  This may be needed to provide rubygems for Jira,
@@ -99,7 +108,8 @@ plan puppetsync(
   String[1]            $config                 = 'latest',
   String[1]            $repolist               = 'latest',
   Hash                 $puppetsync_config      = lookup('puppetsync::plan_config'),
-  Hash                 $repos_config           = lookup('puppetsync::repos_config'),
+  Hash                 $repos_config           = lookup('puppetsync::repos_config', Hash, undef, {}),
+  Optional[Hash]       $repos_source           = lookup('puppetsync::repos_source', Optional[Hash], undef, undef),
   Optional[String[1]]  $puppet_role            = $puppetsync_config.dig('puppetsync','puppet_role'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
@@ -110,7 +120,31 @@ plan puppetsync(
     'clone_git_repos'          => true,
     'github_api_delay_seconds' => 5,
    } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{}} + $options
-  $repos = puppetsync::setup_project_repos( $puppetsync_config, $repos_config, $project_dir, $opts )
+
+  # Dynamic inventory (simp/puppetsync#55): when the repolist file defines
+  # `puppetsync::repos_source`, build the repo list from the GitHub API and
+  # snapshot it so approve/merge plans can reuse the exact same inventory.
+  if $repos_source =~ NotUndef and !$opts.dig('list_pipeline_stages') {
+    $listing = run_task('puppetsync::list_github_repos', 'localhost',
+      "List GitHub org '${repos_source['org']}' repos for dynamic inventory",
+      {
+        'source'           => $repos_source,
+        'github_authtoken' => $github_token.unwrap,
+      }
+    ).first.value
+
+    $effective_repos_config = $listing['repos_config'] + $repos_config
+    $snapshot_path = "${project_dir}/data/sync/repolists/generated-${config}.yaml"
+    file::write($snapshot_path, Hash({'puppetsync::repos_config' => $effective_repos_config}).to_yaml)
+    out::message( sprintf(
+      '== dynamic inventory: %d repos from GitHub org %s (snapshot: %s — use repolist=generated-%s for approve/merge)',
+      $effective_repos_config.size, $repos_source['org'], $snapshot_path, $config,
+    ))
+  } else {
+    $effective_repos_config = $repos_config
+  }
+
+  $repos = puppetsync::setup_project_repos( $puppetsync_config, $effective_repos_config, $project_dir, $opts )
   $feature_branch    = getvar('puppetsync_config.git.feature_branch')
 
   # ----------------------------------------------------------------------------
