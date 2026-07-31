@@ -125,6 +125,9 @@ def merge_gemfile(path, template, remove_gems)
     lines.insert(insert_at, *insert_lines)
     added << name
 
+    # Top-level gems have no group body to source assignments from
+    next if tmeta[:group].nil?
+
     # Ensure any group-local variable assignments the inserted lines
     # reference (e.g. `gem 'puppet', puppet_version`) exist in the target.
     # References are transitive (an assignment may reference an earlier
@@ -159,7 +162,6 @@ end
 
 stdin = STDIN.read
 params = JSON.parse(stdin)
-warn stdin
 
 raise('No path given') unless params['path']
 raise('No template given') unless params['template']

@@ -171,6 +171,33 @@ describe 'task: merge_gemfile' do
       expect(out).to include('EVAL_OK')
     end
 
+    it 'adds a top-level (ungrouped) template gem without raising' do
+      template = <<~GEMFILE
+        source 'https://rubygems.org'
+
+        gem 'rake'
+
+        group :test do
+          gem 'rspec'
+        end
+      GEMFILE
+      File.write(@gemfile, <<~GEMFILE)
+        source 'https://rubygems.org'
+
+        group :test do
+          gem 'rspec'
+        end
+      GEMFILE
+
+      stdout, stderr, status = run_merge(template: template)
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)).to include('changed' => true, 'added' => ['rake'])
+      content = File.read(@gemfile)
+      # Inserted at the top level, before the first group
+      expect(content.index("gem 'rake'")).to be < content.index('group :test')
+    end
+
     it 'is idempotent' do
       File.write(@gemfile, real_template.sub(/^\s*gem 'rake'\n/, ''))
       run_merge(template: real_template)
