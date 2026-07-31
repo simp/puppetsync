@@ -8,6 +8,14 @@
 #   GEM_HOME=.gems /opt/puppetlabs/bolt/bin/gem install rspec --no-document
 #   GEM_HOME=.gems /opt/puppetlabs/bolt/bin/ruby .gems/bin/rspec -O /dev/null spec/plans
 #
+# Why not `bundle exec`: Bundler's load-path isolation hides the packaged
+# openbolt gem, and declaring `gem 'openbolt'` makes bundler install a
+# SECOND bolt from rubygems (vendored, full native-extension dependency
+# closure) and test THAT copy instead of the OS package that runs real
+# syncs — reintroducing the dual-install the README warns against, with
+# silent version drift between Gemfile.lock and the package. The explicit
+# binstub invocation above is deterministic without any of that.
+#
 # Conventions learned the hard way:
 #   - Stub matching is last-defined-wins: declare catch-all
 #     `allow_out_message` BEFORE specific `expect_out_message` stubs
