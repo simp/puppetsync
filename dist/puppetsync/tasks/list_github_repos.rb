@@ -31,19 +31,36 @@ require 'uri'
 
 PER_PAGE = 100
 
-def fetch_org_repos(org, token)
-  repos = []
-  page = 1
-  loop do
-    uri = URI("https://api.github.com/orgs/#{org}/repos?type=all&per_page=#{PER_PAGE}&page=#{page}")
+# Transient failures (network errors, 5xx) are retried with backoff so a
+# GitHub blip doesn't abort a whole (possibly scheduled) run; 4xx fails fast
+def fetch_page(uri, token, attempts: 3)
+  attempt = 0
+  begin
+    attempt += 1
     request = Net::HTTP::Get.new(uri)
     request['Accept'] = 'application/vnd.github+json'
     request['X-GitHub-Api-Version'] = '2022-11-28'
     request['Authorization'] = "Bearer #{token}" if token && !token.empty?
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+    raise Net::HTTPFatalError.new("GitHub API returned #{response.code}", response) if response.code.start_with?('5')
     raise("ERROR: GitHub API returned #{response.code} for #{uri.path}: #{response.body.to_s[0, 300]}") unless response.code == '200'
 
-    batch = JSON.parse(response.body)
+    response.body
+  rescue Net::HTTPFatalError, SocketError, SystemCallError, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError => e
+    raise("ERROR: GitHub API request for #{uri.path} failed after #{attempts} attempts: #{e.message}") if attempt >= attempts
+
+    warn "== retrying #{uri.path} after error (attempt #{attempt}/#{attempts}): #{e.message}"
+    sleep(2 * attempt)
+    retry
+  end
+end
+
+def fetch_org_repos(org, token)
+  repos = []
+  page = 1
+  loop do
+    body = fetch_page(URI("https://api.github.com/orgs/#{org}/repos?type=all&per_page=#{PER_PAGE}&page=#{page}"), token)
+    batch = JSON.parse(body)
     repos.concat(batch)
     break if batch.size < PER_PAGE
 
@@ -72,7 +89,13 @@ def select_repos(repos, source)
     next false if repo['size'].to_i.zero?
     next false if glob_match?(name, exclude_globs)
     next false if topics.any? { |topic| exclude_topics.include?(topic) }
-    next false if repo['fork'] && exclude_forks && !glob_match?(name, include_forks)
+
+    # A fork listed in include_forks is an explicit allow-list entry: it
+    # both clears the fork gate AND bypasses the include filters below
+    # (listing it means "I want this fork", whatever its name)
+    explicitly_included_fork = repo['fork'] && glob_match?(name, include_forks)
+    next false if repo['fork'] && exclude_forks && !explicitly_included_fork
+    next true if explicitly_included_fork
 
     glob_match?(name, include_globs) || topics.any? { |topic| include_topics.include?(topic) }
   end

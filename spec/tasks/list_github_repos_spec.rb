@@ -58,6 +58,19 @@ describe 'task: list_github_repos' do
     expect(urls(result)).not_to include('https://github.com/simp/puppetlabs-apache')
   end
 
+  it 'include_forks alone suffices: listed forks bypass the include globs' do
+    # Mirrors the shipped github-org.yaml shape, but with include globs that
+    # do NOT match one of the fork exceptions
+    result = run_list(
+      'org' => 'simp',
+      'include' => ['pupmod-*'],
+      'include_forks' => ['rubygem-simp-rspec-puppet-facts'],
+    )
+
+    expect(urls(result)).to include('https://github.com/simp/rubygem-simp-rspec-puppet-facts')
+    expect(urls(result)).not_to include('https://github.com/simp/puppet-gpasswd') # non-fork still needs include
+  end
+
   it 'takes each branch from the API default_branch' do
     result = run_list(
       'org' => 'simp',
