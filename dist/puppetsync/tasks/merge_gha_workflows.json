@@ -1,0 +1,14 @@
+{
+  "description": "Refresh GitHub Actions workflow files from their baseline templates, preserving Renovate-managed values (action refs, container image tags, ruby versions, runner images, ...) already present in the repo. Template text is canonical; values are grafted via Psych node coordinates, so comments and formatting are never disturbed.",
+  "input_method": "stdin",
+  "parameters": {
+    "workflows": {
+      "description": "Workflow files to merge: [{path: <target file>, template: <baseline content>}, ...]",
+      "type": "Array[Hash]"
+    },
+    "preserve_keys": {
+      "description": "YAML mapping keys whose scalar values are Renovate-managed and must be preserved from the existing file (default: uses, image, container, ruby-version, runs-on)",
+      "type": "Optional[Array[String[1]]]"
+    }
+  }
+}

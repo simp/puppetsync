@@ -252,6 +252,63 @@ plan puppetsync(
 
   $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
+    'merge_github_workflows',
+    # --------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    # Refresh existing workflow files from their baseline templates while
+    # preserving Renovate-managed values (action refs, image tags, ruby
+    # versions).  Only files that exist in BOTH the repo and the template
+    # chain are merged; creating and removing workflow files remains
+    # profile::github_actions' job.  See simp/puppetsync#50.
+    #
+    # NOTE: this stage only protects Renovate's values when
+    # profile::github_actions runs in bootstrap strategy (set per
+    # project_type in Hiera).  With the profile still enforcing, the apply
+    # stage overwrites each workflow with pure template BEFORE this stage
+    # runs, so there is nothing left to preserve.  The bootstrap flip for
+    # pupmod/pupmod_skeleton ships with this stage.
+    $gha_repos = $ok_repos.filter |$repo| {
+      $repo.facts['project_type'] in ['pupmod', 'pupmod_skeleton']
+    }
+    run_task_with('puppetsync::merge_gha_workflows',
+      $gha_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      $ptype = $repo.facts['project_type'] ? {
+        'pupmod_skeleton' => 'pupmod',
+        default           => $repo.facts['project_type'],
+      }
+      $target_module_name = $repo.facts.dig('module_metadata','name').lest || {
+        $repo.vars['mod_data']['repo_name']
+      }
+      $wf_dir = "${repo.vars['repo_path']}/.github/workflows"
+      $existing_files = file::exists($wf_dir) ? {
+        true    => dir::children($wf_dir).filter |$f| { $f =~ /\.yml$/ },
+        default => [],
+      }
+      $workflows = $existing_files.map |$f| {
+        $action = $f.regsubst(/\.yml$/, '')
+        $template_path = find_file(
+          "profile/${ptype}/_github/workflows/${action}.${target_module_name}.yml",
+          "profile/${ptype}/_github/workflows/${action}.yml",
+          "profile/_github/workflows/${action}.${target_module_name}.yml",
+          "profile/_github/workflows/${action}.yml",
+        )
+        $template_path ? {
+          undef   => undef,
+          default => Hash({ 'path' => "${wf_dir}/${f}", 'template' => file::read($template_path) }),
+        }
+      }.filter |$wf| { $wf =~ NotUndef }
+      Hash({
+        'workflows'     => $workflows,
+        'preserve_keys' => $opts.dig('merge_github_workflows', 'preserve_keys'),
+      })
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # --------------------------------------------------------------------------
     'configure_renovate',
     # --------------------------------------------------------------------------
     $opts
