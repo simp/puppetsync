@@ -207,6 +207,23 @@ describe 'task: merge_gha_workflows' do
     expect(merged).to include("ruby-version: '3.4'")           # preserved
   end
 
+  it 'pairs ported-registry images by everything before the tag colon' do
+    template = <<~YAML
+      jobs:
+        build:
+          container:
+            image: registry.internal:5000/simp/builder:8.0.0
+    YAML
+    bumped = template.sub(':8.0.0', ':9.2.0')
+    File.write(@wf, bumped)
+
+    stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => template }])
+
+    expect(status).to be_success, stderr
+    expect(JSON.parse(stdout)['files'][@wf]['changed']).to be false
+    expect(File.read(@wf)).to eq(bumped)
+  end
+
   it 'is idempotent' do
     stale = real_template.gsub('actions/checkout@v5', 'actions/checkout@v7').sub("name: PR Tests\n", "name: Old Name\n")
     File.write(@wf, stale)

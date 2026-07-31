@@ -11,6 +11,10 @@ profile::obsoletes::files:
   - 'spec/fixtures/manifests/site.pp' # Not required since Puppet 3.x
   - '.pmtignore'                      # Now using .pdkignore
 
+# Bootstrap + merge_github_workflows, same as project_type pupmod
+# (see data/project_types/pupmod.yaml and simp/puppetsync#50)
+profile::github_actions::strategy: bootstrap
+
 profile::github_actions::absent_action_files:
   - pr_glci.yml          # PR-triggered GLCI actions
   - pr_glci_manual.yml   # --> manual trigger for external contributors

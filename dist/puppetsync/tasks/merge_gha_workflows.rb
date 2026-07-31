@@ -50,8 +50,10 @@ end
 def identity(value)
   if value.include?('@')
     value.split('@', 2).first
-  elsif value.match?(%r{\A[\w./-]+:[\w.-]+\z})
-    value.split(':').first
+  elsif value.match?(%r{\A[\w./:-]+:[\w.-]+\z})
+    # image:tag, including ported registries (registry:5000/foo:8) — the
+    # identity is everything before the final (tag) colon
+    value.rpartition(':').first
   end
 end
 
@@ -124,7 +126,6 @@ end
 
 stdin = STDIN.read
 params = JSON.parse(stdin)
-warn stdin
 
 workflows = params['workflows']
 raise('No workflows given') unless workflows.is_a?(Array)

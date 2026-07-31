@@ -227,6 +227,13 @@ plan puppetsync(
     # versions).  Only files that exist in BOTH the repo and the template
     # chain are merged; creating and removing workflow files remains
     # profile::github_actions' job.  See simp/puppetsync#50.
+    #
+    # NOTE: this stage only protects Renovate's values when
+    # profile::github_actions runs in bootstrap strategy (set per
+    # project_type in Hiera).  With the profile still enforcing, the apply
+    # stage overwrites each workflow with pure template BEFORE this stage
+    # runs, so there is nothing left to preserve.  The bootstrap flip for
+    # pupmod/pupmod_skeleton ships with this stage.
     $gha_repos = $ok_repos.filter |$repo| {
       $repo.facts['project_type'] in ['pupmod', 'pupmod_skeleton']
     }
