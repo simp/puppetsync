@@ -30,7 +30,7 @@ bolt plan run puppetsync options='{"list_pipeline_stages": true}' config=... rep
 - `config=` / `repolist=` name YAML files in `data/sync/configs/` and `data/sync/repolists/`; both default to the `latest.yaml` symlink in each directory.
 - Use `--log-level info` to watch progress (the `apply()` step can look hung otherwise).
 - Required environment variables and their purposes are documented in README.md ("Environment variables").
-- Unit tests: `rspec` from the repo root (plain rspec; no bundle needed). The specs in `spec/` run the Bolt tasks as standalone scripts and sanity-check the Hiera data. CI (`.github/workflows/ci.yml`) also validates Puppet syntax and smoke-tests plan loading with `bolt plan show` / `list_pipeline_stages`. End-to-end validation is still running a plan against a test repolist (e.g. the `*_test.yaml` repolists).
+- Unit tests: `rspec` from the repo root (plain rspec; no bundle needed). The specs in `spec/` run the Bolt tasks as standalone scripts and sanity-check the Hiera data. Plan logic is unit-tested with BoltSpec under Bolt's Ruby: `GEM_HOME=.gems /opt/puppetlabs/bolt/bin/ruby .gems/bin/rspec -O /dev/null spec/plans` (excluded from the plain `rspec` run via `.rspec`; conventions in `spec/plans/plan_spec_helper.rb`). CI (`.github/workflows/ci.yml`) also validates Puppet syntax, smoke-tests plan loading, and runs e2e/contract scripts from `scripts/`. End-to-end validation is still running a plan against a test repolist (e.g. the `*_test.yaml` repolists).
 
 ## Architecture
 
