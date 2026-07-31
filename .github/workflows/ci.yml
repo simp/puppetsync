@@ -62,6 +62,13 @@ jobs:
       - name: managed_file bootstrap/enforce contract test
         run: ./scripts/ci-managed-file-contract.sh
 
+      - name: BoltSpec plan specs (under Bolt's Ruby)
+        # -O /dev/null skips .rspec, whose exclude-pattern hides spec/plans
+        # from the plain-Ruby spec job (bolt_spec needs Bolt's Ruby)
+        run: |
+          GEM_HOME=.gems /opt/puppetlabs/bolt/bin/gem install rspec --no-document
+          GEM_HOME=.gems /opt/puppetlabs/bolt/bin/ruby -S rspec -O /dev/null spec/plans
+
       - name: List pipeline stages (plan dry run)
         env:
           # The plan requires these to be set, but nothing calls the APIs in

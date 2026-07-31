@@ -1,0 +1,6 @@
+# The plan specs under spec/plans/ require Bolt's Ruby (bolt_spec ships with
+# the openbolt package) and are run separately — see spec/plans/plan_spec_helper.rb:
+#
+#   GEM_HOME=.gems /opt/puppetlabs/bolt/bin/ruby -S rspec -O /dev/null spec/plans
+#
+--exclude-pattern plans/**/*_spec.rb
