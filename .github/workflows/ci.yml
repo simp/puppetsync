@@ -59,6 +59,9 @@ jobs:
       - name: Idempotency end-to-end test (local fixture repo)
         run: ./scripts/ci-e2e-idempotency.sh
 
+      - name: managed_file bootstrap/enforce contract test
+        run: ./scripts/ci-managed-file-contract.sh
+
       - name: List pipeline stages (plan dry run)
         env:
           # The plan requires these to be set, but nothing calls the APIs in
