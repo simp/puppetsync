@@ -6,7 +6,6 @@
 source 'https://rubygems.org'
 
 gem 'octokit', '~> 4.18'
-gem 'jira-ruby', '~> 2.0'
 #gem 'puppet-debugger', '~> 0.17'
 gem 'puppet-debugger', '~> 0.2'
 gem 'bundler', '~> 2.0'

@@ -39,9 +39,7 @@ RSpec.shared_context 'puppetsync plan specs' do
 
   before(:each) do
     BoltSpec::Plans.init
-    # Sensitive[String[1]] / String[1] params default from these
+    # Sensitive[String[1]] token params default from this
     ENV['GITHUB_API_TOKEN'] ||= 'spec-dummy-token'
-    ENV['JIRA_USER'] ||= 'spec-dummy-user'
-    ENV['JIRA_API_TOKEN'] ||= 'spec-dummy-token'
   end
 end

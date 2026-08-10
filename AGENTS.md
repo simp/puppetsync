@@ -18,7 +18,7 @@ bolt plan show            # Verify the puppetsync:: plans are loadable
 rake -f Rakefile -T       # See all rake tasks (data file inspection, strings docs, clean/clobber)
 rake -f Rakefile data:files   # Show which config/repolist the latest.yaml symlinks point at
 
-# Main workflow (requires GITHUB_API_TOKEN; Jira stages also need JIRA_USER/JIRA_API_TOKEN)
+# Main workflow (requires GITHUB_API_TOKEN)
 bolt plan run puppetsync config=CONFIG_NAME repolist=REPOLIST_NAME
 bolt plan run puppetsync::approve_github_prs
 bolt plan run puppetsync::merge_github_prs

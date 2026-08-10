@@ -73,12 +73,9 @@ jobs:
 
       - name: List pipeline stages (plan dry run)
         env:
-          # The plan requires these to be set, but nothing calls the APIs in
+          # The plan requires this to be set, but nothing calls the API in
           # list_pipeline_stages mode
           GITHUB_API_TOKEN: dummy
-          GITLAB_API_TOKEN: dummy
-          JIRA_USER: dummy
-          JIRA_API_TOKEN: dummy
         run: >-
           /opt/puppetlabs/bolt/bin/bolt plan run puppetsync
           options='{"list_pipeline_stages": true}'
