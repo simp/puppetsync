@@ -299,8 +299,14 @@ plan puppetsync(
         $repo.vars['mod_data']['repo_name']
       }
       $wf_dir = "${repo.vars['repo_path']}/.github/workflows"
+      # Optional session-config scoping: merge only these workflow files
+      # (e.g. a targeted rollout of one template change) instead of every
+      # templated workflow.  puppetsync.plans.sync.merge_github_workflows.files
+      $only_files = $opts.dig('merge_github_workflows', 'files')
       $existing_files = file::exists($wf_dir) ? {
-        true    => dir::children($wf_dir).filter |$f| { $f =~ /\.yml$/ },
+        true    => dir::children($wf_dir).filter |$f| {
+          $f =~ /\.yml$/ and ($only_files =~ Undef or $f in $only_files)
+        },
         default => [],
       }
       $workflows = $existing_files.map |$f| {
