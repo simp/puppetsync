@@ -16,7 +16,6 @@ cd "$(dirname "$0")/.."
 BOLT="${BOLT:-/opt/puppetlabs/bolt/bin/bolt}"
 export BOLT_DISABLE_ANALYTICS=true
 export GITHUB_API_TOKEN="${GITHUB_API_TOKEN:-dummy}"
-export GITLAB_API_TOKEN="${GITLAB_API_TOKEN:-dummy}" # required until #51 merges
 export GIT_AUTHOR_NAME='puppetsync e2e' GIT_AUTHOR_EMAIL='e2e@example.com'
 export GIT_COMMITTER_NAME='puppetsync e2e' GIT_COMMITTER_EMAIL='e2e@example.com'
 

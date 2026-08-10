@@ -34,7 +34,7 @@
 Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastructure-as-code!
 
   * Enforce a "baseline" across multiple GitHub repos, using [Puppet][puppet] and [Bolt][bolt] tasks
-  * Automate the CM/workflow for each change: Jira, git commit messages, GitHub forks & PRs
+  * Automate the CM/workflow for each change: git commit messages, GitHub forks & PRs
   * Separate plans to submit, approve, and merge GitHub PRs, so different roles can run them (if required by CM policy)
 
 
@@ -53,7 +53,7 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
   to handle API authentication (e.g., GitHub)
 * Runtime dependencies (installed by `./Rakefile install`)
   * Puppet modules (defined in bolt project's `bolt-project.yaml`):
-  * Ruby Gems (defined in `gem.deps.rb`): octokit, jira-ruby, etc
+  * Ruby Gems (defined in `gem.deps.rb`): octokit, etc
 
 
 ### Quickstart
@@ -69,8 +69,6 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
    ```
 
 2. Set the [environment variable](#environment-variables) `GITHUB_API_TOKEN`.
-   * Before using the main `puppetsync::` plan, also set `JIRA_USER` and
-     `JIRA_API_TOKEN`
 
 4. At this point, you are ready to run a plan.  The plan to run will depend on your role:
 
@@ -90,8 +88,8 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
    `data/sync/repolists/`
 2. Copy and customize a Puppetsync config file under `data/sync/configs/` to
    fit your workflow
-3. Set [environment variables](#environment-variables) for GITHUB and
-   JIRA API authentication
+3. Set the [environment variable](#environment-variables) for GitHub API
+   authentication
 4. (Optional) Develop Puppet code/Hiera data/Tasks to provide new features
 
 Note: If you are just approving or merging PRs, you will reuse the repolist and
@@ -104,8 +102,6 @@ config files from the puppetsync session you used.
 # (PROTIP: don't actually expose API tokens on the CLI when running commands)
 
 GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
-  JIRA_USER=$JIRA_USER \
-  JIRA_API_TOKEN=$JIRA_API_TOKEN \
     bolt plan run puppetsync config={CONFIG_NAME} repolist={REPOLIST_NAME}
 ```
 
@@ -172,12 +168,11 @@ under the corresponding plan.
 ```sh
 bolt plan run puppetsync \
   options='{"list_pipeline_stages": true}' \
-  github_token=x jira_username=x  jira_token=x
+  github_token=x
 
 #   Starting: plan puppetsync
 #   ===== SKIPPING PIPELINE STAGE DUE TO CONFIGURATION: install_gems
 #   - checkout_git_feature_branch_in_each_repo
-#   - ensure_jira_subtask
 #   - apply_puppet_role
 #   - git_commit_changes
 #   - ensure_github_fork
@@ -199,7 +194,6 @@ puppetsync:
       stages:
         # - install_gems
         - checkout_git_feature_branch_in_each_repo
-        - ensure_jira_subtask
         - apply_puppet_role
         - git_commit_changes
         - ensure_github_fork
@@ -212,13 +206,6 @@ puppetsync:
 ## Reference
 
 ### Environment variables
-
-These environment variables are necessary to create Jira subtasks:
-
-| Env variable | Purpose   |                           |
-| ------------ | -------   | ------------------------- |
-| `JIRA_USER`  | Jira user | Probably an email address |
-| `JIRA_API_TOKEN` | Jira API token | You MUST generate an API token (basic auth no longer works). To do so, you must have Jira instance access rights.  You can generate a token here: https://id.atlassian.com/manage/api-tokens |
 
 These environment variables are necessary to fork GitHub repositories and submit Pull Requests:
 
@@ -258,7 +245,6 @@ puppetsync::plan_config:
       stages:
         - install_gems
         - checkout_git_feature_branch_in_each_repo
-        - ensure_jira_subtask
         - apply_puppet_role
         - git_commit_changes
         - ensure_github_fork
@@ -278,27 +264,13 @@ puppetsync::plan_config:
         - install_gems
         - merge_github_pr_for_each_repo
 
-jira:
-  parent_issue: SIMP-7035
-  project: SIMP
-  jira_site: https://simp-project.atlassian.net
-  subtask_title: 'Update .travis.yml pipeline in %COMPONENT%'
-
-  # optional subtask fields:
-  subtask_story_points: 1
-  subtask_assignee: 'chris.tessmer'
-
 git:
+  feature_branch: SIMP-1234
   commit_message: |
-    (%JIRA_PARENT_ISSUE%) Update to new Travis CI pipeline
+    Update to new CI pipeline
 
-    This patch updates the Travis Pipeline to a static, standardized format
-    that uses project variables for secrets. It includes an optional
-    diagnostic mode to test the project's variables against their respective
-    deployment APIs (GitHub and Puppet Forge).
-
-    [%JIRA_PARENT_ISSUE%] #comment Update to latest pipeline in %COMPONENT%
-    [%JIRA_SUBTASK%] #close
+    This patch updates the CI pipeline in %COMPONENT% to the current
+    standardized baseline.
 
 github:
   pr_user: op-ct  # This should be the account that *submitted* the PRs (Used
@@ -373,7 +345,7 @@ Each plan:
 #### `puppetsync`
 
 The main plan (`puppetsync`) clones and updates each repo in the [Puppetsync `repolist`].
-It (idempotently) ensures a Jira subtask and GitHub PR exists for each change.
+It (idempotently) ensures a GitHub PR exists for each change.
 
 Workflow:
 
@@ -382,13 +354,12 @@ Workflow:
 
 It will then execute the following pipeline stages for each repo (in parallel):
 
-2. Ensure a Jira subtask exists to track the change
-3. Check out a new git feature branch
-4. Apply Puppet manifests to enforce a common repository asset baseline
-5. Commit changes to git with a templated commit message (`git.commit_message`)
-6. Ensure the user has forked repository on GitHub
-7. Push changes up to the user's forked repository
-8. Submit a Pull Request to merge the changes back the original repository and branch
+2. Check out a new git feature branch
+3. Apply Puppet manifests to enforce a common repository asset baseline
+4. Commit changes to git with a templated commit message (`git.commit_message`)
+5. Ensure the user has forked repository on GitHub
+6. Push changes up to the user's forked repository
+7. Submit a Pull Request to merge the changes back the original repository and branch
 
 If an individual repo encounters failures during a stage, it will be held back
 while the other repos proceed with their workflows.
@@ -401,12 +372,12 @@ All failures are summarized after the full plan finishes executing.
 #### `puppetsync::approve_github_prs`
 
 Idempotently approves every open PR from user `github.pr_user` on
-branch `jira.parent_issue` for each repo in the [Puppetsync `repolist`].
+branch `git.feature_branch` for each repo in the [Puppetsync `repolist`].
 
 #### `puppetsync::merge_github_prs`
 
 Idempotently merges every approved PR from user `github.pr_user` on
-branch `jira.parent_issue` for each repo in the [Puppetsync `repolist`].
+branch `git.feature_branch` for each repo in the [Puppetsync `repolist`].
 
 ### Manually installing dependencies
 

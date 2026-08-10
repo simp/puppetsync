@@ -7,8 +7,6 @@ plan puppetsync::batch(
   String[1]            $repolist               = '---',
   Hash                 $batches_config         = lookup('puppetsync::batches_config'),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
-  String[1]            $jira_username          = system::env('JIRA_USER'),
-  Sensitive[String[1]] $jira_token             = Sensitive(system::env('JIRA_API_TOKEN')),
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Hash                 $options                = {},
 ) {
@@ -21,8 +19,6 @@ plan puppetsync::batch(
         'config'            => $config,
         'repolist'          => $repolist,
         'extra_gem_path'    => $extra_gem_path,
-        'jira_username'     => $jira_username,
-        'jira_token'        => $jira_token,
         'github_token'      => $github_token,
         'options'           => $options,
         '_catch_errors'     => true,

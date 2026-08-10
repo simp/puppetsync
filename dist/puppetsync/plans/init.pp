@@ -1,8 +1,6 @@
 # Update assets across multiple git repos using Bolt tasks and Puppet
 #
 # Supports workflow tasks, like:
-#   - Ensuring a Jira subtask exists to track each repo
-#     (requires `$JIRA_USER` and `$JIRA_API_TOKEN`)
 #   - Ensuring the user's GitHub account a has fork of each upstream repo
 #     (requires `$GITHUB_API_TOKEN`)
 #   - Pushing up changes and submitting Pull Requests back to the original GitHub repo
@@ -16,7 +14,7 @@
 #
 # @example
 #
-#   1. Set environment vars: `JIRA_USER`, `JIRA_API_TOKEN`, `GITHUB_API_TOKEN`
+#   1. Set environment vars: `GITHUB_API_TOKEN`
 #   2. Select/create/edit relevant config and repolist files under `data/sync/`
 #   3. Run:
 #
@@ -67,27 +65,14 @@
 #
 # @param extra_gem_path
 #   Absolute path to a gem path with extra gems the bolt interpreter will to run
-#   some of the Ruby tasks.  This may be needed to provide rubygems for Jira,
-#   GitHub, and `puppetsync::output_pipeline_results`
+#   some of the Ruby tasks.  This may be needed to provide rubygems for
+#   GitHub and `puppetsync::output_pipeline_results`
 #
 #   You can quickly install gems into the default extra_gem_path by running:
 #
 #          ./Rakefile install
 #
 #   (Default: `${project_dir}/.plan.gems`)
-#
-# @param jira_username
-#    Jira API username (probably an email address)
-#    (Default: Environment variable `$JIRA_USER`)
-#
-# @param jira_token
-#   Jira API token
-#    (Default: Environment variable `$JIRA_API_TOKEN`)
-#
-#   _NOTES_
-#   - You MUST generate a Jira API token (basic auth no longer works).
-#   - To do so, you must have Jira instance access rights.
-#   - You can generate a token here: https://id.atlassian.com/manage/api-tokens
 #
 # @param github_token
 #   GitHub API token
@@ -150,7 +135,6 @@ plan puppetsync(
   # ----------------------------------------------------------------------------
   # - [x] Install repos from Puppetfile.repos
   # - [x] git checkout -b BRANCHNAME
-  # - [x] ensure jira subtask exists for repo
   # - [x] set up facts
   # --------
   # - [x] puppet apply
@@ -172,10 +156,8 @@ plan puppetsync(
   # - [x] feature flag each step (on, off, noop?)
   # - [ ] support --noop in each pipeline_stage
   # - [ ] push changes using HTTPS basic auth + GitHub token (CI friendly)
-  # - [ ] move templating logic from jira task's ruby code into plan logic
-  # - [ ] spec tests
+  # - [x] spec tests
   # - [ ] enhanced idempotency
-  #   - [ ] detect closed JIRA subtask for same subtask and (by default) refuse to open a new one
   #   - [ ] detect merged PR for same feature and (by default) refuse to open a new one
   # - [x] validate (e.g., gitlab_ci lint, flag obvious disasters) before committing changes
   # ----------------------------------------------------------------------------
@@ -191,7 +173,7 @@ plan puppetsync(
       'Install RubyGems gems on localhost that are required to run tasks',
       {
         'path'          => $extra_gem_path,
-        'gems'          => ['jira-ruby:~> 2.0', 'octokit:~> 4.18'],
+        'gems'          => ['octokit:~> 4.18'],
         '_catch_errors' => false,
       }
     )
