@@ -122,8 +122,8 @@ plan puppetsync(
     $snapshot_path = "${project_dir}/data/sync/repolists/generated-${config}.yaml"
     file::write($snapshot_path, Hash({'puppetsync::repos_config' => $effective_repos_config}).to_yaml)
     out::message( sprintf(
-      '== dynamic inventory: %d repos from GitHub org %s (snapshot: %s — use repolist=generated-%s for approve/merge)',
-      $effective_repos_config.size, $repos_source['org'], $snapshot_path, $config,
+      '== dynamic inventory: %d repos from GitHub org %s (informational snapshot: %s)',
+      $effective_repos_config.size, $repos_source['org'], $snapshot_path,
     ))
   } else {
     $effective_repos_config = $repos_config

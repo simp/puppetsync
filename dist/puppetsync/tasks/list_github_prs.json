@@ -1,0 +1,27 @@
+{
+  "description": "Enumerate a puppetsync session's open PRs from the GitHub API by head branch (and author). The PRs are the ground truth for the approve/merge plans — no inventory snapshot needed.",
+  "input_method": "stdin",
+  "parameters": {
+    "org": {
+      "description": "GitHub organization to search",
+      "type": "String[1]"
+    },
+    "head_branch": {
+      "description": "The session's feature branch (the PRs' head branch)",
+      "type": "String[1]"
+    },
+    "author": {
+      "description": "Only PRs submitted by this user (the session's pr_user)",
+      "type": "Optional[String[1]]"
+    },
+    "github_authtoken": {
+      "description": "GitHub API token",
+      "type": "Optional[String[1]]",
+      "sensitive": true
+    },
+    "prs": {
+      "description": "PR records to use instead of querying the API (for testing)",
+      "type": "Optional[Array[Hash]]"
+    }
+  }
+}

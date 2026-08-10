@@ -92,8 +92,9 @@ Run [Puppet Bolt Plans][bolt] to manage your GitHub repos' code like infrastruct
    authentication
 4. (Optional) Develop Puppet code/Hiera data/Tasks to provide new features
 
-Note: If you are just approving or merging PRs, you will reuse the repolist and
-config files from the puppetsync session you used.
+Note: If you are just approving or merging PRs, you only need the config file
+from the puppetsync session (the plans find the session's open PRs by its
+`git.feature_branch`).
 
 #### Running `puppetsync`
 
@@ -325,11 +326,10 @@ puppetsync::repos_source:
   topic to opt a repo out without touching puppetsync
 * Each repo's branch comes from the API's default branch (so e.g.
   `pupmod-voxpupuli-selinux` syncs `simp-master` automatically)
-* The generated list is snapshotted to
-  `data/sync/repolists/generated-{CONFIG_NAME}.yaml`; run the
-  approve/merge plans with `repolist=generated-{CONFIG_NAME}` so they use
-  the exact inventory the sync ran against (commit the snapshot if the
-  session is handed off)
+* An informational snapshot of the generated list is written to
+  `data/sync/repolists/generated-{CONFIG_NAME}.yaml` (gitignored). The
+  approve/merge plans don't need it — they enumerate the session's open
+  PRs directly by feature branch
 
 ### Plans
 
@@ -372,12 +372,14 @@ All failures are summarized after the full plan finishes executing.
 #### `puppetsync::approve_github_prs`
 
 Idempotently approves every open PR from user `github.pr_user` on
-branch `git.feature_branch` for each repo in the [Puppetsync `repolist`].
+branch `git.feature_branch`, enumerated directly from the GitHub API
+(no repolist needed).
 
 #### `puppetsync::merge_github_prs`
 
 Idempotently merges every approved PR from user `github.pr_user` on
-branch `git.feature_branch` for each repo in the [Puppetsync `repolist`].
+branch `git.feature_branch`, enumerated directly from the GitHub API
+(no repolist needed).
 
 ### Manually installing dependencies
 

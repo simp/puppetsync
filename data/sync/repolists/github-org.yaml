@@ -1,9 +1,10 @@
 ---
 # Dynamic inventory (simp/puppetsync#55): build the repo list from the
-# GitHub API at run time instead of hand-maintaining it. When the sync plan
-# runs with this repolist, it writes a snapshot of the generated list to
-# data/sync/repolists/generated-<config>.yaml — use `repolist=generated-<config>`
-# for the approve/merge plans so they operate on the exact same inventory.
+# GitHub API at run time instead of hand-maintaining it. The sync plan
+# writes an informational snapshot of the generated list to
+# data/sync/repolists/generated-<config>.yaml (gitignored). The
+# approve/merge plans do NOT need it: they enumerate the session's open
+# PRs directly by feature branch.
 #
 # Filtering notes:
 #   - Archived repos and empty repos are always excluded (exclude_archived
