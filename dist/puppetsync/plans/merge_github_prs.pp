@@ -31,7 +31,7 @@ plan puppetsync::merge_github_prs(
   String[1]            $config                 = 'latest',
   String[1]            $repolist               = 'latest',
   Hash                 $puppetsync_config      = lookup('puppetsync::plan_config'),
-  Hash                 $repos_config           = lookup('puppetsync::repos_config'),
+  Hash                 $repos_config           = lookup('puppetsync::repos_config', Hash, undef, {}), # DEPRECATED: unused; PRs are enumerated by feature branch
   String[1]            $pr_user                = $puppetsync_config.dig('github','pr_user').lest || { undef },
   Sensitive[String[1]] $github_token           = Sensitive(system::env('GITHUB_API_TOKEN')),
   Stdlib::Absolutepath $extra_gem_path         = "${project_dir}/.plan.gems",
@@ -43,17 +43,34 @@ plan puppetsync::merge_github_prs(
     'github_api_delay_seconds' => 1,
   } + getvar('puppetsync_config.puppetsync.plans.merge_github_prs').lest || {{}} + $options
 
-  $repos = puppetsync::setup_project_repos(
-    $puppetsync_config,
-    $repos_config,
-    $project_dir,
-    {
-      'clone_git_repos'        => $opts['clone_git_repos'],
-      'filter_permitted_repos' => $opts['filter_permitted_repos'],
-    }
-  )
-
   $feature_branch = getvar('puppetsync_config.git.feature_branch')
+  $github_org = getvar('puppetsync_config.github.org').lest || { 'simp' }
+
+  # The session's open PRs are the ground truth for this plan: enumerate
+  # them by feature branch (+ author) instead of consuming an inventory —
+  # no snapshot handoff needed, and no drift between sync and harvest.
+  if $opts.dig('list_pipeline_stages') {
+    $repos = []
+  } else {
+    $listing = run_task('puppetsync::list_github_prs', 'localhost',
+      "Enumerate open PRs on branch '${feature_branch}' in org '${github_org}'",
+      {
+        'org'              => $github_org,
+        'head_branch'      => $feature_branch,
+        'author'           => $pr_user,
+        'github_authtoken' => $github_token.unwrap,
+      }
+    ).first.value
+
+    $repos = puppetsync::repo_targets_from_prs($listing['prs'])
+    out::message( sprintf(
+      "== %d open PRs by '%s' on branch '%s' in org '%s'",
+      $repos.size, $pr_user, $feature_branch, $github_org,
+    ))
+    if $repos.size == 0 {
+      fail_plan("No open PRs found on branch '${feature_branch}' in org '${github_org}' (author: ${pr_user})")
+    }
+  }
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------

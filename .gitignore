@@ -36,3 +36,4 @@ gem.deps.rb.lock
 /GEMINI.md
 # Cline
 /.clinerules/
+/data/sync/repolists/generated-*.yaml
