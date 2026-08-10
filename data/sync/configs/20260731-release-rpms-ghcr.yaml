@@ -1,0 +1,59 @@
+---
+# Roll out the release_rpms.yml ghcr.io build-container change (PR #48)
+# fleet-wide, scoped to that single workflow file.
+#
+# NOTE: the workflow merge is scoped via merge_github_workflows.files
+# because the pr_tests.yml template is currently BEHIND the deployed fleet
+# (see #41/#46) — an unscoped workflow sync would revert deployed
+# improvements until the template is reconciled.
+#
+# This is the first dynamic-inventory session: run with
+# `repolist=github-org` (or point the repolists latest.yaml there). The
+# generated inventory snapshot lands in
+# data/sync/repolists/generated-20260731-release-rpms-ghcr.yaml — use
+# `repolist=generated-20260731-release-rpms-ghcr` for the approve/merge
+# plans.
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - release_rpms.yml
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260731-release-rpms-ghcr
+    commit_message: |
+      [puppetsync] Pull RPM build containers from ghcr.io/simp/simp-<os>-build
+
+      This patch updates release_rpms.yml to pull its build containers from
+      ghcr.io/simp/simp-<os>-build instead of the retired
+      docker.io/simpproject/simp_build_<os> images, and adds a
+      build_container_tag input (default `latest`) so a dated container tag
+      can be pinned when dispatching the workflow.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
