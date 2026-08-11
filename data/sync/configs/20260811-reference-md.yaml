@@ -3,11 +3,11 @@
 # 'Check REFERENCE.md freshness' job — simp/puppetsync#46) and regenerate
 # each module's REFERENCE.md so the new check starts green (PR #58).
 #
-# The workflow merge is scoped to pr_tests.yml, and preserve_blocks keeps
-# each repo's own `jobs.acceptance` block: acceptance matrices are
-# per-repo territory (simplib/x2go run custom docker suites), so the
-# template's vagrant-based job only lands where a repo has no acceptance
-# job of its own.
+# The workflow merge is scoped to pr_tests.yml, and preserve_blocks makes
+# each repo authoritative for its `jobs.acceptance` block: acceptance is
+# per-repo territory (simplib/x2go run custom docker suites; simp_options
+# and friends have no acceptance suites at all), so a repo's own job is
+# kept as-is and repos without one don't gain the template's.
 #
 # Dynamic-inventory session: run with `repolist=github-org` (or point the
 # repolists latest.yaml there).

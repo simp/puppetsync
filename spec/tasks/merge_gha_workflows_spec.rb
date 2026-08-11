@@ -318,9 +318,10 @@ describe 'task: merge_gha_workflows' do
       expect(Psych.safe_load(merged)['jobs'].keys).to contain_exactly('spec', 'acceptance')
     end
 
-    it 'uses the template block when the existing file lacks the path' do
+    it 'removes the template block when the existing file lacks the path' do
+      # A module with no acceptance suites must not gain a dead acceptance job
       existing = <<~YAML
-        name: PR Tests
+        name: Old Name
         jobs:
           spec:
             steps:
@@ -333,8 +334,17 @@ describe 'task: merge_gha_workflows' do
 
       expect(status).to be_success, stderr
       merged = File.read(@wf)
-      expect(merged).to include('node: [almalinux9, almalinux10]') # template's block
-      expect(JSON.parse(stdout)['files'][@wf]['preserved_blocks']).to eq([])
+      expect(merged).not_to include('acceptance:')
+      expect(Psych.safe_load(merged)['jobs'].keys).to eq(['spec'])
+      expect(JSON.parse(stdout)['files'][@wf]['preserved_blocks']).to eq(['jobs.acceptance'])
+      # Apart from the dropped block, output is byte-identical to the template
+      expect(merged).to eq(template.sub(/^  acceptance:.*\z/m, ''))
+
+      # And the removal is idempotent
+      stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => template }],
+                                         preserve_blocks: ['jobs.acceptance'])
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)['changed']).to be false
     end
 
     it 'is idempotent' do

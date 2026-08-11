@@ -22,11 +22,13 @@
 # template comments and formatting can't be disturbed by construction.
 # See simp/puppetsync#50.
 #
-# `preserve_blocks` extends the same idea to whole mapping subtrees: for
-# each dot-path (e.g. 'jobs.acceptance'), a block present in the EXISTING
-# file replaces the template's block wholesale (or is appended to the
-# parent when the template lacks it) — for sections that are legitimately
-# repo-specific, like per-repo acceptance matrices.
+# `preserve_blocks` extends the same idea to whole mapping subtrees: the
+# EXISTING file is authoritative for each dot-path (e.g. 'jobs.acceptance').
+# Its block replaces the template's wholesale; when the template lacks the
+# block it is appended to the parent; and when the EXISTING file lacks it,
+# the template's block is REMOVED — the template must not introduce a
+# repo-owned section (an acceptance job would be dead weight on a module
+# with no acceptance suites).
 
 require 'json'
 require 'psych'
@@ -96,31 +98,34 @@ def node_at_path(root, path)
   [key_node, node]
 end
 
-# Splice whole blocks from the existing file over the template's (Psych
-# spans: key.start_line ... value.end_line, exclusive)
+# Make the existing file authoritative for whole blocks: splice its version
+# over the template's, append it when the template lacks it, or remove the
+# template's when the existing file has none (Psych spans:
+# key.start_line ... value.end_line, exclusive)
 def preserve_existing_blocks(template, existing_text, paths)
   preserved = []
   existing_lines = existing_text.split("\n", -1)
+  existing_root = root_mapping(existing_text)
 
   paths.each do |path|
-    existing_root = root_mapping(existing_text)
-    next if existing_root.nil?
-
-    existing_pair = node_at_path(existing_root, path)
-    next if existing_pair.nil?
-
-    block = existing_lines[existing_pair[0].start_line...existing_pair[1].end_line]
+    existing_pair = existing_root && node_at_path(existing_root, path)
     template_lines = template.split("\n", -1)
     template_root = root_mapping(template)
     next if template_root.nil?
 
     template_pair = node_at_path(template_root, path)
-    if template_pair
-      target = template_lines[template_pair[0].start_line...template_pair[1].end_line]
-      next if target == block
+    if existing_pair.nil?
+      # Repo has no such block; the template must not introduce one
+      next if template_pair.nil?
+
+      template_lines[template_pair[0].start_line...template_pair[1].end_line] = []
+    elsif template_pair
+      block = existing_lines[existing_pair[0].start_line...existing_pair[1].end_line]
+      next if template_lines[template_pair[0].start_line...template_pair[1].end_line] == block
 
       template_lines[template_pair[0].start_line...template_pair[1].end_line] = block
     else
+      block = existing_lines[existing_pair[0].start_line...existing_pair[1].end_line]
       parent_path = path.split('.')[0..-2].join('.')
       parent_pair = parent_path.empty? ? [nil, template_root] : node_at_path(template_root, parent_path)
       next if parent_pair.nil? || !parent_pair[1].is_a?(Psych::Nodes::Mapping)

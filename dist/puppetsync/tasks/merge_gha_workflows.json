@@ -11,7 +11,7 @@
       "type": "Optional[Array[String[1]]]"
     },
     "preserve_blocks": {
-      "description": "Dot-paths of mapping blocks that are repo-specific: when present in the existing file, the whole block replaces the template's (or is appended when the template lacks it), e.g. ['jobs.acceptance']",
+      "description": "Dot-paths of mapping blocks the EXISTING file is authoritative for (e.g. ['jobs.acceptance']): its block replaces the template's, is appended when the template lacks it, and the template's block is removed when the existing file has none",
       "type": "Optional[Array[String[1]]]"
     }
   }
