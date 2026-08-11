@@ -5,11 +5,13 @@
 # Each repo's *project_type* is determined in the following order of precedence
 # (first match wins:)
 #
-# 1. **`pupmod`** ― when there is a top-level `metadata.json` file that contains
+# 1. **`rubygem`** ― when `*.gemspec` exists (this beats `pupmod`: a gem may
+#    carry a pupmod-shaped `metadata.json` for other purposes, like
+#    rubygem-simp-compliance_engine, but the gemspec makes it a gem)
+# 2. **`pupmod`** ― when there is a top-level `metadata.json` file that contains
 #    the required keys for Puppet module manifests, as documented at [0]
-# 2. **`pupmod_skeleton`** ― when `skeleton/metadata.json.erb` exists
-# 3. **`rubygem`** ― when `*.gemspec` exists
-# 3. **`simp_unknown`** ― when the repo name starts with `simp-`
+# 3. **`pupmod_skeleton`** ― when `skeleton/metadata.json.erb` exists
+# 4. **`simp_unknown`** ― when the repo name starts with `simp-`
 #
 #
 # [0]: https://puppet.com/docs/puppet/latest/modules_metadata.html#modules_metadata_json_keys
@@ -21,6 +23,21 @@ function puppetsync::setup_repos_facts(
 ){
   $repos.each |$target| {
     $target.add_facts( {'project_attributes' => []} )
+
+    # rubygem
+    # ------------------------------------------------------------------------
+    # Detected before pupmod: a gem may carry a pupmod-shaped metadata.json
+    # (rubygem-simp-compliance_engine does), but the gemspec makes it a gem
+    $gemspecs = glob( [ "${target.vars['repo_path']}/*.gemspec" ] )
+    if !$gemspecs.empty {
+      warning( "Repo is a RubyGem (detected ${gemspecs.join(', ')})" )
+      $gemspec_var = file($gemspecs[0]).match(/Gem::Specification\.new *do *\|(.*?)\|/)[1]
+      #$gem_name = file($gemspecs[0]).split(/${gemspec_var}.name *= */)[1].split(/\"/)[1]
+      $gem_name = file($gemspecs[0]).split("${gemspec_var}.name ")[1].split(/ *= *['"]/)[1].split(/['"]/)[0]
+      $target.add_facts( {'gem_name' => $gem_name })
+      unless $target.facts.dig('project_type'){ $target.add_facts({'project_type' => 'rubygem'}) }
+      $target.add_facts( {'project_attributes' => ($target.facts['project_attributes'] << 'rubygem')} )
+    }
 
     # pupmod
     # ------------------------------------------------------------------------
@@ -52,19 +69,6 @@ function puppetsync::setup_repos_facts(
       warning( "Repo is a Puppet module Skeleton (detected ${skeleton_metadata_json})" )
       unless $target.facts.dig('project_type'){ $target.add_facts({'project_type' => 'pupmod_skeleton'} ) }
       $target.add_facts( {'project_attributes' => ($target.facts['project_attributes'] << 'pupmod_skeleton')} )
-    }
-
-    # rubygem
-    # ------------------------------------------------------------------------
-    $gemspecs = glob( [ "${target.vars['repo_path']}/*.gemspec" ] )
-    if !$gemspecs.empty {
-      warning( "Repo is a RubyGem (detected ${gemspecs.join(', ')})" )
-      $gemspec_var = file($gemspecs[0]).match(/Gem::Specification\.new *do *\|(.*?)\|/)[1]
-      #$gem_name = file($gemspecs[0]).split(/${gemspec_var}.name *= */)[1].split(/\"/)[1]
-      $gem_name = file($gemspecs[0]).split("${gemspec_var}.name ")[1].split(/ *= *['"]/)[1].split(/['"]/)[0]
-      $target.add_facts( {'gem_name' => $gem_name })
-      unless $target.facts.dig('project_type'){ $target.add_facts({'project_type' => 'rubygem'}) }
-      $target.add_facts( {'project_attributes' => ($target.facts['project_attributes'] << 'rubygem')} )
     }
 
     # simp_unknown (no type yet, but either:
