@@ -12,6 +12,6 @@ TASKS_DIR = File.join(REPO_ROOT, 'dist', 'puppetsync', 'tasks')
 
 # Run a task script the way Bolt does: parameters as JSON on stdin.
 # @return [Array(String, String, Process::Status)] stdout, stderr, status
-def run_task(task_file, params)
-  Open3.capture3(RbConfig.ruby, File.join(TASKS_DIR, task_file), stdin_data: JSON.generate(params))
+def run_task(task_file, params, env = {})
+  Open3.capture3(env, RbConfig.ruby, File.join(TASKS_DIR, task_file), stdin_data: JSON.generate(params))
 end

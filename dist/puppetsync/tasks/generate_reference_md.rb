@@ -1,86 +1,48 @@
 #!/opt/puppetlabs/bolt/bin/ruby
+#
+# Regenerate a Puppet module's REFERENCE.md from its strings docs:
+#
+#   bundle install && bundle exec rake strings:generate:reference
+#
+# Gems install into a bundle path shared across repos (default:
+# <repo>/../../.vendor/bundle, i.e. the puppetsync project's .vendor) so a
+# fleet run only downloads each gem once. The commit belongs to the
+# git_commit_changes stage, like every other transformation — this task
+# only changes the working tree and reports whether REFERENCE.md moved.
 
-require 'fileutils'
 require 'json'
+require 'open3'
 
-require 'tempfile'
-require 'tmpdir'
+BUNDLER_EXE = ENV['BUNDLER_EXE'] || '/opt/puppetlabs/bolt/bin/bundle'
 
-BUNDLER_EXE=ENV['BUNDLER_EXE'] || "/opt/puppetlabs/bolt/bin/bundle"
-RAKE_EXE=ENV['RAKE_EXE'] || "/opt/puppetlabs/bolt/bin/rake"
-BUNDLE_PATH=ENV['BUNDLE_PATH']||'../../.vendor/bundle'
+def run(cmd, chdir:, env: {})
+  out, status = Open3.capture2e(env, *cmd, chdir: chdir)
+  raise("ERROR: '#{cmd.join(' ')}' failed in #{chdir}:\n#{out[-2000..] || out}") unless status.success?
 
-def tmp_bundle_rake_execs(repo_path, tasks, save_rake_stdout: false)
-  Dir.mktmpdir('tmp_bundle_rake_execs') do |tmp_dir|
-    Dir.chdir repo_path
-    gemfile_lock = false
-    if File.exist?('Gemfile.lock')
-      gemfile_lock = File.expand_path('Gemfile.lock',tmp_dir)
-      FileUtils.cp File.join(repo_path, 'Gemfile.lock'), gemfile_lock
-    end
-    results = []
-    rake_stdout_files={}
-    require 'bundler'
-    require 'rake'
-    Bundler.with_unbundled_env do
-      #sh "#{BUNDLER_EXE} config path .vendor/bundle &> /dev/null"
-      sh "#{BUNDLER_EXE} install --path '#{BUNDLE_PATH}'  &> /dev/null"
-      tasks.each do |task|
-        puts
-        cmd = ">&2 #{BUNDLER_EXE} exec #{RAKE_EXE} #{task}  "
-        if save_rake_stdout
-          out_file = "_rake__stdout.#{task}"
-          cmd += " > #{out_file}"
-          rake_stdout_files[task] = out_file
-        end
-        results << sh(cmd)
-      end
-      if gemfile_lock
-        FileUtils.cp gemfile_lock, File.join(repo_path, 'Gemfile.lock')
-      else
-        FileUtils.rm('Gemfile.lock')
-      end
-    end
-    unless results.all?{ |x| x }
-      warn 'bad result'
-    end
-    return rake_stdout_files if save_rake_stdout
+  out
+end
+
+def generate_reference(repo_path, bundle_path)
+  require 'bundler'
+  Bundler.with_unbundled_env do
+    env = { 'BUNDLE_PATH' => bundle_path, 'BUNDLE_JOBS' => '4' }
+    run([BUNDLER_EXE, 'install', '--quiet'], chdir: repo_path, env: env)
+    run([BUNDLER_EXE, 'exec', 'rake', 'strings:generate:reference'], chdir: repo_path, env: env)
   end
+
+  raise("ERROR: no REFERENCE.md at #{repo_path} after strings:generate:reference") \
+    unless File.exist?(File.join(repo_path, 'REFERENCE.md'))
+
+  status_out, = Open3.capture2e('git', '-C', repo_path, 'status', '--porcelain', '--', 'REFERENCE.md')
+  { 'changed' => !status_out.strip.empty? }
 end
 
+stdin = STDIN.read
+params = JSON.parse(stdin)
 
-# ARGF hack to allow use run the task directly as a ruby script while testing
-metadata_json_path = false
-if ARGF.filename == '-'
-  stdin = ''
-  warn "ARGF.file.lineno: '#{ARGF.file.lineno}'"
-  stdin = ARGF.file.read
-  warn "== stdin: '#{stdin}'"
-  params = JSON.parse(stdin)
-  metadata_json_path = params['filename']
-else
-  metadata_json_path = ARGF.filename
-end
+repo_path = params['repo_path']
+raise('No repo_path given') unless repo_path
 
-# Read content from metadata.json metadata_json_path
-warn "metadata_json_path: '#{metadata_json_path}'"
-raise('No metadata.json path given') unless metadata_json_path
-pupmod_metadata = JSON.parse File.read(metadata_json_path)
-repo_path = File.dirname metadata_json_path
+bundle_path = params['bundle_path'] || File.expand_path(File.join(repo_path, '..', '..', '.vendor', 'bundle'))
 
-unless ENV['UPDATE_NON_SIMP_MODULES'] == 'yes'
-  if pupmod_metadata['name'] !~ %r{\Asimp[-/]}
-    warn("\n\n\n== WARNING: SKIPPING update of non-simp module (#{content['name']}) (force with `UPDATE_NON_SIMP_MODULES=yes`)\n\n\n")
-  else
-    task_output_files = tmp_bundle_rake_execs(repo_path, ['strings:generate:reference'])
-
-    Dir.chdir(repo_path) do |dir|
-      fail "ERROR: no file at REFERENCE.md" unless File.exist?('REFERENCE.md')
-      sh "git add REFERENCE.md"
-      sh ">&2 git commit -m 'Update REFERENCE.md' || :"
-    end
-    exit 0
-  end
-end
-
-warn "\n\nFINIS: #{__FILE__}"
+puts JSON.generate(generate_reference(repo_path, bundle_path))

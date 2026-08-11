@@ -1,16 +1,14 @@
 {
-  "description": "Generate REFERENCE.md for pupmod",
+  "description": "Regenerate a Puppet module's REFERENCE.md (bundle install + bundle exec rake strings:generate:reference). Reports changed: true when REFERENCE.md differs from git HEAD; committing belongs to the git_commit_changes stage.",
   "input_method": "stdin",
   "parameters": {
-    "filename": {
-      "description": "Absolute path to modue's metadata.json file",
-      "type": "Stdlib::Absolutepath"
+    "repo_path": {
+      "description": "Path to the module repository",
+      "type": "String[1]"
     },
-    "auto_commit": {
-      "description": "Add REFERENCE.md git and commit it",
-      "type": "Boolean",
-      "default": false
+    "bundle_path": {
+      "description": "Bundle install path, shared across repos for speed (default: <repo>/../../.vendor/bundle)",
+      "type": "Optional[String[1]]"
     }
   }
 }
-
