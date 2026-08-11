@@ -24,6 +24,8 @@ puppetsync::repos_source:
     - 'rubygem-*'
   exclude: []
   # Forks that simp actively maintains:
+  # (pupmod-voxpupuli-selinux is deliberately absent for now: its CI isn't
+  # green yet, and puppetsync can't open PRs from a fork-network sibling
+  # like silug/puppet-selinux until simp/puppetsync#83 is fixed)
   include_forks:
     - rubygem-simp-rspec-puppet-facts
-    - pupmod-voxpupuli-selinux
