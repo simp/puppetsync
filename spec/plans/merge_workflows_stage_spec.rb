@@ -74,4 +74,10 @@ describe 'plan: puppetsync (merge_github_workflows stage)' do
     files = params['workflows'].map { |wf| File.basename(wf['path']) }
     expect(files).to contain_exactly('release_rpms.yml')
   end
+
+  it 'passes the session-configured preserve_blocks through to the task' do
+    params = run_merge_stage('merge_github_workflows' => { 'preserve_blocks' => ['jobs.acceptance'] })
+
+    expect(params['preserve_blocks']).to eq(['jobs.acceptance'])
+  end
 end
