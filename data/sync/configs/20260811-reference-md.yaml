@@ -1,0 +1,61 @@
+---
+# Roll out the reconciled pr_tests.yml template (now including a
+# 'Check REFERENCE.md freshness' job — simp/puppetsync#46) and regenerate
+# each module's REFERENCE.md so the new check starts green (PR #58).
+#
+# The workflow merge is scoped to pr_tests.yml, and preserve_blocks keeps
+# each repo's own `jobs.acceptance` block: acceptance matrices are
+# per-repo territory (simplib/x2go run custom docker suites), so the
+# template's vagrant-based job only lands where a repo has no acceptance
+# job of its own.
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point the
+# repolists latest.yaml there).
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - pr_tests.yml
+          preserve_blocks:
+            - jobs.acceptance
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - generate_reference_md
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260811-reference-md
+    commit_message: |
+      [puppetsync] Add a REFERENCE.md freshness check to PR tests
+
+      This patch updates pr_tests.yml from the reconciled puppetsync
+      template, whose `reference` job now fails when REFERENCE.md is out
+      of sync with the module's strings docs (`rake validate:strings`),
+      and regenerates REFERENCE.md so the new check starts green.
+
+      Repo-specific `jobs.acceptance` blocks are preserved as-is.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
