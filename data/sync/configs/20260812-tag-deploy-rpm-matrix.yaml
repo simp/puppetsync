@@ -1,0 +1,73 @@
+---
+# Roll out the reworked tag-and-release workflows (PR #44 + issue #84):
+#
+#   - tag_deploy.yml: surface the Forge API response on failed publishes,
+#     preserve the built module archive (workflow artifact + release
+#     asset), and dispatch release_rpms.yml ONCE with no build-OS
+#     override (the hardcoded centos7/centos8 matrix was overriding
+#     #80's el8 default and failing every tag-triggered RPM build)
+#   - release_rpms.yml: the build-OS matrix now lives here
+#     (build_container_oses, default el8/el9/el10), with per-release
+#     work split into a resolve-release job so parallel per-OS legs
+#     can't race on release creation or asset wipes
+#
+# Scoped to those two files; both are fleet-uniform, so no
+# preserve_blocks are needed (Renovate-managed scalars are preserved as
+# always).
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point
+# the repolists latest.yaml there). NOTE: the simp-* asset repos
+# (simp-doc, simp-utils, ...) also carry affected tag_deploy variants
+# but are not in the dynamic inventory or permitted types -- they need
+# a separate follow-up pass.
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - tag_deploy.yml
+            - release_rpms.yml
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260812-tag-deploy-rpm-matrix
+    commit_message: |
+      [puppetsync] Fix tag-triggered RPM builds and harden tag_deploy
+
+      Every tag push has been dispatching two release_rpms.yml runs
+      hardcoded to the retired centos7/centos8 build containers, so all
+      tag-triggered RPM builds fail. tag_deploy.yml now dispatches once
+      with no OS override, and release_rpms.yml builds el8/el9/el10 from
+      a single build_container_oses input (narrowable on manual runs),
+      with release resolution split into its own job so the parallel
+      per-OS legs cannot race on release creation or asset wipes.
+
+      tag_deploy.yml also now surfaces the Puppet Forge API response when
+      a publish fails (instead of curl --fail discarding it) and keeps
+      the built module archive as a workflow artifact and release asset.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
