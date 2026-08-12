@@ -74,4 +74,29 @@ describe 'plan: puppetsync (merge_github_workflows stage)' do
     files = params['workflows'].map { |wf| File.basename(wf['path']) }
     expect(files).to contain_exactly('release_rpms.yml')
   end
+
+  it 'passes the session-configured preserve_blocks through to the task' do
+    params = run_merge_stage('merge_github_workflows' => { 'preserve_blocks' => ['jobs.acceptance'] })
+
+    expect(params['preserve_blocks']).to eq(['jobs.acceptance'])
+  end
+
+  it 'classifies a repo with a gemspec as a rubygem, excluding it from the merge' do
+    # A gem can carry a pupmod-shaped metadata.json (compliance_engine does);
+    # the gemspec must win or the gem's custom workflows get flattened
+    File.write(File.join(@project_dir, '_repos', 'repo-a', 'repo-a.gemspec'), <<~GEMSPEC)
+      Gem::Specification.new do |s|
+        s.name = 'repo-a'
+      end
+    GEMSPEC
+    allow_out_message
+
+    # No merge_gha_workflows stub: the plan must not call it for a rubygem
+    result = run_plan('puppetsync', {
+      'project_dir'       => @project_dir,
+      'puppetsync_config' => puppetsync_config,
+      'repos_config'      => repos_config,
+    })
+    expect(result.ok?).to be(true), result.value.to_s
+  end
 end

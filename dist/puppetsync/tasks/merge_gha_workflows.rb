@@ -21,6 +21,14 @@
 # Psych's node line/column info, so this needs no YAML re-serialization:
 # template comments and formatting can't be disturbed by construction.
 # See simp/puppetsync#50.
+#
+# `preserve_blocks` extends the same idea to whole mapping subtrees: the
+# EXISTING file is authoritative for each dot-path (e.g. 'jobs.acceptance').
+# Its block replaces the template's wholesale; when the template lacks the
+# block it is appended to the parent; and when the EXISTING file lacks it,
+# the template's block is REMOVED — the template must not introduce a
+# repo-owned section (an acceptance job would be dead weight on a module
+# with no acceptance suites).
 
 require 'json'
 require 'psych'
@@ -68,7 +76,71 @@ def existing_values(text, keys)
   end
 end
 
-def merge_workflow(template, existing_text, keys)
+# The document root mapping of a YAML text (nil when empty/scalar)
+def root_mapping(text)
+  doc = Psych.parse(text)
+  root = doc && doc.root
+  root.is_a?(Psych::Nodes::Mapping) ? root : nil
+end
+
+# [key_node, value_node] at a dot-path of mapping keys, or nil
+def node_at_path(root, path)
+  key_node = nil
+  node = root
+  path.split('.').each do |segment|
+    return nil unless node.is_a?(Psych::Nodes::Mapping)
+
+    pair = node.children.each_slice(2).find { |k, _v| k.is_a?(Psych::Nodes::Scalar) && k.value == segment }
+    return nil unless pair
+
+    key_node, node = pair
+  end
+  [key_node, node]
+end
+
+# Make the existing file authoritative for whole blocks: splice its version
+# over the template's, append it when the template lacks it, or remove the
+# template's when the existing file has none (Psych spans:
+# key.start_line ... value.end_line, exclusive)
+def preserve_existing_blocks(template, existing_text, paths)
+  preserved = []
+  existing_lines = existing_text.split("\n", -1)
+  existing_root = root_mapping(existing_text)
+
+  paths.each do |path|
+    existing_pair = existing_root && node_at_path(existing_root, path)
+    template_lines = template.split("\n", -1)
+    template_root = root_mapping(template)
+    next if template_root.nil?
+
+    template_pair = node_at_path(template_root, path)
+    if existing_pair.nil?
+      # Repo has no such block; the template must not introduce one
+      next if template_pair.nil?
+
+      template_lines[template_pair[0].start_line...template_pair[1].end_line] = []
+    elsif template_pair
+      block = existing_lines[existing_pair[0].start_line...existing_pair[1].end_line]
+      next if template_lines[template_pair[0].start_line...template_pair[1].end_line] == block
+
+      template_lines[template_pair[0].start_line...template_pair[1].end_line] = block
+    else
+      block = existing_lines[existing_pair[0].start_line...existing_pair[1].end_line]
+      parent_path = path.split('.')[0..-2].join('.')
+      parent_pair = parent_path.empty? ? [nil, template_root] : node_at_path(template_root, parent_path)
+      next if parent_pair.nil? || !parent_pair[1].is_a?(Psych::Nodes::Mapping)
+
+      template_lines.insert(parent_pair[1].end_line, *block)
+    end
+    preserved << path
+    template = template_lines.join("\n")
+  end
+
+  [template, preserved]
+end
+
+def merge_workflow(template, existing_text, keys, blocks)
+  template, preserved_blocks = preserve_existing_blocks(template, existing_text, blocks)
   existing = existing_values(existing_text, keys)
   lines = template.split("\n", -1)
   updated = []
@@ -95,10 +167,10 @@ def merge_workflow(template, existing_text, keys)
     updated << "#{key}: #{value.split(/\s+#/).first}"
   end
 
-  [lines.join("\n"), updated]
+  [lines.join("\n"), updated, preserved_blocks]
 end
 
-def merge_gha_workflows(workflows, keys)
+def merge_gha_workflows(workflows, keys, blocks)
   results = {}
   workflows.each do |wf|
     path = wf.fetch('path')
@@ -111,13 +183,13 @@ def merge_gha_workflows(workflows, keys)
     end
 
     existing_text = File.read(path)
-    merged, updated = merge_workflow(template, existing_text, keys)
+    merged, updated, preserved_blocks = merge_workflow(template, existing_text, keys, blocks)
 
     if merged == existing_text
       results[path] = { 'changed' => false }
     else
       File.write(path, merged)
-      results[path] = { 'changed' => true, 'preserved_values' => updated }
+      results[path] = { 'changed' => true, 'preserved_values' => updated, 'preserved_blocks' => preserved_blocks }
     end
   end
 
@@ -130,5 +202,6 @@ params = JSON.parse(stdin)
 workflows = params['workflows']
 raise('No workflows given') unless workflows.is_a?(Array)
 keys = params.fetch('preserve_keys', nil) || DEFAULT_PRESERVE_KEYS
+blocks = params.fetch('preserve_blocks', nil) || []
 
-puts JSON.generate(merge_gha_workflows(workflows, keys))
+puts JSON.generate(merge_gha_workflows(workflows, keys, blocks))

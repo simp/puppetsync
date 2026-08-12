@@ -323,8 +323,9 @@ plan puppetsync(
         }
       }.filter |$wf| { $wf =~ NotUndef }
       Hash({
-        'workflows'     => $workflows,
-        'preserve_keys' => $opts.dig('merge_github_workflows', 'preserve_keys'),
+        'workflows'       => $workflows,
+        'preserve_keys'   => $opts.dig('merge_github_workflows', 'preserve_keys'),
+        'preserve_blocks' => $opts.dig('merge_github_workflows', 'preserve_blocks'),
       })
     }
   }
@@ -445,15 +446,18 @@ plan puppetsync(
     # --------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    $commit_message = $puppetsync_config.dig('git','commit_message').lest || {''}
+    # REFERENCE.md only exists for Puppet modules; the resulting change is
+    # picked up by the git_commit_changes stage like any other.
+    $pupmod_repos = $ok_repos.filter |$repo| {
+      $repo.facts['project_type'] == 'pupmod'
+    }
     run_task_with(
       'puppetsync::generate_reference_md',
-      $ok_repos,
+      $pupmod_repos,
       '_catch_errors'  => true,
     ) |$repo| {
       {
-        'filename'    => "${repo.vars['repo_path']}/metadata.json",
-        'auto_commit' => true,
+        'repo_path' => $repo.vars['repo_path'],
       }
     }
   }

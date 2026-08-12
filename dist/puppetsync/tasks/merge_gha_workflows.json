@@ -9,6 +9,10 @@
     "preserve_keys": {
       "description": "YAML mapping keys whose scalar values are Renovate-managed and must be preserved from the existing file (default: uses, image, container, ruby-version, runs-on)",
       "type": "Optional[Array[String[1]]]"
+    },
+    "preserve_blocks": {
+      "description": "Dot-paths of mapping blocks the EXISTING file is authoritative for (e.g. ['jobs.acceptance']): its block replaces the template's, is appended when the template lacks it, and the template's block is removed when the existing file has none",
+      "type": "Optional[Array[String[1]]]"
     }
   }
 }
