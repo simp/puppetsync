@@ -309,7 +309,13 @@ plan puppetsync(
         },
         default => [],
       }
-      $workflows = $existing_files.map |$f| {
+      # Optional: templated workflow files to CREATE when a repo lacks them
+      # (the task writes the full template for missing paths) — for rolling
+      # out a brand-new workflow without an apply_puppet_role session.
+      # puppetsync.plans.sync.merge_github_workflows.ensure_files
+      $ensure_files = $opts.dig('merge_github_workflows', 'ensure_files').lest || { [] }
+      $candidate_files = ($existing_files + $ensure_files).unique
+      $workflows = $candidate_files.map |$f| {
         $action = $f.regsubst(/\.yml$/, '')
         $template_path = find_file(
           "profile/${ptype}/_github/workflows/${action}.${target_module_name}.yml",

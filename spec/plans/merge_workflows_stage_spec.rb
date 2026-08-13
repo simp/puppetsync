@@ -75,6 +75,18 @@ describe 'plan: puppetsync (merge_github_workflows stage)' do
     expect(files).to contain_exactly('release_rpms.yml')
   end
 
+  it 'includes ensure_files workflows that do not exist in the repo yet' do
+    params = run_merge_stage('merge_github_workflows' => {
+                               'files'        => ['create_release_tag.yml'],
+                               'ensure_files' => ['create_release_tag.yml'],
+                             })
+
+    files = params['workflows'].map { |wf| File.basename(wf['path']) }
+    expect(files).to contain_exactly('create_release_tag.yml')
+    templated = params['workflows'].first
+    expect(templated['template']).to include('simp/gha-workflows')
+  end
+
   it 'passes the session-configured preserve_blocks through to the task' do
     params = run_merge_stage('merge_github_workflows' => { 'preserve_blocks' => ['jobs.acceptance'] })
 
