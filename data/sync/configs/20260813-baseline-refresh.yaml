@@ -1,0 +1,70 @@
+---
+# Re-assert the reconciled pupmod baseline fleet-wide (PR #42, closes #88).
+#
+# This is the first blanket apply_puppet_role session since the enforce-
+# strategy templates were reconciled with deployed reality. Expected
+# per-repo changes:
+#
+#   - spec/spec_helper.rb: normalized to the fleet-majority voxpupuli-test
+#     variant (~49 repos get the one-line manifest_dir/heredoc stragglers
+#     fixed; 20 are already identical)
+#   - .puppet-lint.rc: gains --no-strict_indent-check (the workaround 16
+#     repos already carry; strict_indent 5.0.0 crashes puppet-lint)
+#   - .gitignore/.pdkignore: only the 3-7 repos off the majority variant
+#   - Gemfile + workflow files are bootstrap-strategy: untouched where
+#     they exist (Renovate manages their values)
+#
+# Repos already matching the baseline everywhere come out "unchanged"
+# and get no PR.
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point
+# the repolists latest.yaml there).
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - apply_puppet_role
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260813-baseline-refresh
+    commit_message: |
+      [puppetsync] Re-assert the refreshed pupmod baseline
+
+      This patch re-asserts the puppetsync-managed baseline files after
+      reconciling the templates with the deployed fleet (the templates
+      now describe the OpenVox-era reality — voxpupuli-test spec_helper,
+      current dotfiles):
+
+      - spec/spec_helper.rb: normalized to the fleet-majority variant
+      - .puppet-lint.rc: disable the strict_indent check fleet-wide
+        (puppet-lint-strict_indent-check 5.0.0 crashes on some valid
+        manifests; 16 repos already carried this workaround)
+      - .gitignore/.pdkignore/.gitattributes/.rspec: majority variants
+
+      Gemfiles and workflow files are bootstrap-strategy and are not
+      touched by this sync (Renovate manages their versions in place).
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
