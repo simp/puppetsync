@@ -1,0 +1,70 @@
+---
+# Roll out create_release_tag.yml to all pupmod repos (PR #43 + #85 pilot).
+#
+# The file is a thin workflow_dispatch shim calling the reusable workflow
+# in simp/gha-workflows@v1.0.0. It doesn't exist in any repo yet, so the
+# merge stage's ensure_files creates it from the template; the session
+# deliberately does NOT run apply_puppet_role — several enforce-strategy
+# templates are behind the deployed fleet (see the follow-up issue), so a
+# blanket apply would revert fleet improvements like the voxpupuli-test
+# spec_helper migration.
+#
+# pupmod-simp-mockup already has the shim (SHA-pinned from the pilot,
+# simp/pupmod-simp-mockup#104); the merge preserves its existing pin
+# (uses refs are Renovate-managed values) and Renovate moves it forward.
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point
+# the repolists latest.yaml there).
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - create_release_tag.yml
+          ensure_files:
+            - create_release_tag.yml
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260813-create-release-tag
+    commit_message: |
+      [puppetsync] Add a create-release-tag workflow
+
+      This patch adds create_release_tag.yml, a manually-dispatched
+      workflow that validates the release (SemVer version from
+      metadata.json, tag doesn't already exist, pkg:check_version,
+      pkg:compare_latest_tag, metadata_lint) BEFORE tagging, generates
+      the tag annotation from the CHANGELOG, and pushes the annotated
+      tag — triggering the existing tag_deploy.yml release pipeline. A
+      dry_run input reports the would-be annotation without pushing.
+
+      The file is a thin shim: the logic lives in the reusable workflow
+      simp/gha-workflows/.github/workflows/puppet_create_release_tag.yml
+      (pinned to v1.0.0, managed by Renovate), so fixes land there as a
+      tag bump instead of a fleet-wide sync. See simp/puppetsync#85.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
