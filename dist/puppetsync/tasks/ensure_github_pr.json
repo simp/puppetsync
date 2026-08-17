@@ -26,7 +26,14 @@
     "extra_gem_path": {
       "description": "Additional gem path to look for ruby gems (e.g., `octokit`)",
       "type": "Optional[Stdlib::Absolutepath]"
+    },
+    "draft": {
+      "description": "Create the PR as a draft (applies at creation time only; existing PRs keep their state \u2014 use the puppetsync::set_github_pr_state plan to flip them)",
+      "type": "Optional[Boolean]"
     }
   },
-  "files": ["puppetsync/files/github_pr_forker.rb",  "ruby_task_helper/files/task_helper.rb" ]
+  "files": [
+    "puppetsync/files/github_pr_forker.rb",
+    "ruby_task_helper/files/task_helper.rb"
+  ]
 }

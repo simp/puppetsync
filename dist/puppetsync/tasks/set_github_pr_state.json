@@ -1,0 +1,36 @@
+{
+  "description": "Flip an open GitHub PR between draft and ready-for-review (idempotent; uses the GraphQL mutations, since REST only supports draft at creation)",
+  "input_method": "stdin",
+  "parameters": {
+    "target_repo": {
+      "description": "GitHub repo that received the PR (e.g., 'simp/pupmod-simp-simplib')",
+      "type": "String[1]"
+    },
+    "target_branch": {
+      "description": "Base branch of the PR in target_repo",
+      "type": "String[1]"
+    },
+    "fork_user": {
+      "description": "GitHub user whose fork provides the PR's head branch",
+      "type": "String[1]"
+    },
+    "fork_branch": {
+      "description": "Head branch of the PR (the session's feature branch)",
+      "type": "String[1]"
+    },
+    "state": {
+      "description": "Desired PR state",
+      "type": "Enum['draft','ready']"
+    },
+    "github_authtoken": {
+      "description": "GitHub API token",
+      "type": "String[1]",
+      "sensitive": true
+    },
+    "extra_gem_path": {
+      "description": "Additional gem path to look for ruby gems (e.g., `octokit`)",
+      "type": "Optional[Stdlib::Absolutepath]"
+    }
+  },
+  "files": ["puppetsync/files/github_pr_forker.rb", "ruby_task_helper/files/task_helper.rb"]
+}
