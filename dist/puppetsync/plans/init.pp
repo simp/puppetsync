@@ -584,6 +584,9 @@ plan puppetsync(
           'target_branch'    => $repo.vars['mod_data']['branch'],
           'fork_branch'      => $feature_branch,
           'commit_message'   => puppetsync::template_git_commit_message($repo,$puppetsync_config),
+          # Applies at creation time only; flip existing PRs with the
+          # puppetsync::set_github_pr_state plan
+          'draft'            => getvar('puppetsync_config.github.draft').lest || { false },
           'github_authtoken' => $github_token.unwrap,
           'extra_gem_path'   => $extra_gem_path,
           '_catch_errors'    => true,

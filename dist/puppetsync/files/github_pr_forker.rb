@@ -43,7 +43,7 @@ class GitHubPRForker
     prs.first
   end
 
-  def create_pr(upstream_reponame, target_branch, fork_branch, commit_message)
+  def create_pr(upstream_reponame, target_branch, fork_branch, commit_message, draft = false)
     repo_fork = user_fork_of_repo(upstream_reponame)
     unless repo_fork
       raise("ERROR: no fork of '#{upstream_reponame}' found for user #{@client.login}")
@@ -52,8 +52,8 @@ class GitHubPRForker
     title = commit_msg_lines.shift
     body  = commit_msg_lines.join("\n").strip
     head  = "#{repo_fork.owner.login}:#{fork_branch}"
-    warn("=== Creating PR #{head} -> #{upstream_reponame}:#{target_branch}")
-    pr = @client.create_pull_request(upstream_reponame, target_branch, head, title, body)
+    warn("=== Creating PR #{head} -> #{upstream_reponame}:#{target_branch}#{draft ? ' (draft)' : ''}")
+    pr = @client.create_pull_request(upstream_reponame, target_branch, head, title, body, draft: draft)
     @created_pr = true
     pr
   end
@@ -70,14 +70,38 @@ class GitHubPRForker
   # Idempotently creates or updates a PR
   #
   # @return object of created/updated PR
+  # NOTE: `draft` only applies at creation time (the REST API cannot flip
+  # an existing PR's draft state) — use set_pr_draft_state/the
+  # puppetsync::set_github_pr_state plan to change existing PRs
   def ensure_pr(upstream_reponame, opts)
     fork_branch = opts[:fork_branch]
     target_branch = opts[:target_branch]
     commit_message = opts[:commit_message]
+    draft = opts[:draft] ? true : false
     pr = existing_pr(upstream_reponame, target_branch, @client.login, fork_branch)
-    return(create_pr(upstream_reponame, target_branch, fork_branch, commit_message)) unless pr
+    return(create_pr(upstream_reponame, target_branch, fork_branch, commit_message, draft)) unless pr
     warn("--- PR ##{pr.number} already exists for: #{fork_branch} -> #{upstream_reponame}:#{target_branch}; updating")
     update_pr(pr, commit_message)
+  end
+
+  # Flip an existing PR's draft state (idempotent). Draft<->ready is only
+  # exposed through the GraphQL API, so this posts the relevant mutation.
+  #
+  # @return [Boolean] true when the state was changed, false when already there
+  def set_pr_draft_state(pr, draft)
+    raise 'No PR exists to update' unless pr
+    return false if pr.draft == draft
+
+    mutation = draft ? 'convertPullRequestToDraft' : 'markPullRequestReadyForReview'
+    warn("== #{mutation}: PR ##{pr.number} #{pr.html_url}")
+    response = @client.post('/graphql', {
+      query: "mutation($id: ID!) { #{mutation}(input: {pullRequestId: $id}) { pullRequest { isDraft } } }",
+      variables: { id: pr.node_id },
+    }.to_json)
+    if response.respond_to?(:errors) && response.errors && !response.errors.empty?
+      raise "GraphQL #{mutation} failed for PR ##{pr.number}: #{response.errors.map(&:message).join('; ')}"
+    end
+    true
   end
 
   # @return [Array] Approvals that already exist for this PR

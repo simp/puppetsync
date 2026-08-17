@@ -21,6 +21,7 @@ class MyTask < TaskHelper
       target_branch:  kwargs[:target_branch],
       fork_branch:    kwargs[:fork_branch],
       commit_message: kwargs[:commit_message],
+      draft:          kwargs[:draft] ? true : false,
     }
     repo_pr = forker.ensure_pr(kwargs[:target_repo], opts)
     {
@@ -31,6 +32,7 @@ class MyTask < TaskHelper
       upstream_branch:  repo_pr.base.ref,
       user_repo:        repo_pr.head.repo.full_name,
       user_branch:      repo_pr.head.ref,
+      pr_draft:         repo_pr.draft,
     }
   end
 end

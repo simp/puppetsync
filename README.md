@@ -11,6 +11,7 @@
     * [Running `puppetsync`](#running-puppetsync)
     * [Running `puppetsync::approve_github_prs`](#running-puppetsyncapprove_github_prs)
     * [Running `puppetsync::merge_github_prs`](#running-puppetsyncmerge_github_prs)
+    * [Running `puppetsync::set_github_pr_state`](#running-puppetsyncset_github_pr_state)
 * [Usage](#usage)
   * [Syncing repos](#syncing-repos)
   * [Inspecting pipeline stages](#inspecting-pipeline-stages)
@@ -22,6 +23,7 @@
     * [`puppetsync`](#puppetsync)
     * [`puppetsync::approve_github_prs`](#puppetsyncapprove_github_prs)
     * [`puppetsync::merge_github_prs`](#puppetsyncmerge_github_prs)
+    * [`puppetsync::set_github_pr_state`](#puppetsyncset_github_pr_state)
   * [Manually installing dependencies](#manually-installing-dependencies)
 * [Troubleshooting](#troubleshooting)
   * [Error: `Ignoring <x> because its extensions are not built.`](#error-ignoring-x-because-its-extensions-are-not-built)
@@ -126,6 +128,15 @@ GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
 ```
 
 See the [`puppetsync::merge_github_prs`](#puppetsyncmerge_github_prs) reference for details.
+
+#### Running `puppetsync::set_github_pr_state`
+
+```sh
+GITHUB_API_TOKEN=$GITHUB_API_TOKEN \
+    bolt plan run puppetsync::set_github_pr_state state=draft   # or state=ready
+```
+
+See the [`puppetsync::set_github_pr_state`](#puppetsyncset_github_pr_state) reference for details.
 
 
 ## Usage
@@ -277,6 +288,9 @@ github:
   pr_user: op-ct  # This should be the account that *submitted* the PRs (Used
                   # by idempotency checks when approving/merging PRs)
   approval_message: ':+1: lgtm'
+  draft: true     # (optional) create the session's PRs as drafts. Applies at
+                  # creation time only; flip existing PRs with the
+                  # puppetsync::set_github_pr_state plan
 ```
 
 ### Puppetsync `repolist`
@@ -380,6 +394,14 @@ branch `git.feature_branch`, enumerated directly from the GitHub API
 Idempotently merges every approved PR from user `github.pr_user` on
 branch `git.feature_branch`, enumerated directly from the GitHub API
 (no repolist needed).
+
+#### `puppetsync::set_github_pr_state`
+
+Idempotently marks every open PR from user `github.pr_user` on branch
+`git.feature_branch` as `draft` or `ready` (required `state` parameter),
+enumerated directly from the GitHub API (no repolist needed). Pairs with
+the config key `github.draft`, which controls the state PRs are *created*
+with during a sync.
 
 ### Manually installing dependencies
 
