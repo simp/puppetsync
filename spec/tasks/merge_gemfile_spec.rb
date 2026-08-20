@@ -42,8 +42,8 @@ describe 'task: merge_gemfile' do
     it 'never touches an existing gem version constraint' do
       # Simulate Renovate having bumped a pinned constraint
       munged = real_template.sub(
-        "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', ['>= 5.21.0', '< 6'])",
-        "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', ['>= 5.24.0', '< 7'])",
+        "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 6.0')",
+        "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 7.0')",
       )
       raise 'munge failed' if munged == real_template
       File.write(@gemfile, munged)
@@ -52,7 +52,7 @@ describe 'task: merge_gemfile' do
 
       expect(status).to be_success, stderr
       expect(JSON.parse(stdout)['changed']).to be false
-      expect(File.read(@gemfile)).to include("['>= 5.24.0', '< 7']")
+      expect(File.read(@gemfile)).to include("'~> 7.0'")
     end
 
     it 'adds a template gem missing from its group, at the end of that group' do
@@ -150,13 +150,13 @@ describe 'task: merge_gemfile' do
       stdout, stderr, status = run_merge(template: real_template)
 
       expect(status).to be_success, stderr
-      expect(JSON.parse(stdout)['added']).to include('puppet', 'pdk')
+      expect(JSON.parse(stdout)['added']).to include('openvox')
       content = File.read(@gemfile)
       test_group = content[/^group :test do.*?^end/m]
-      # `gem 'puppet', puppet_version` requires puppet_version; the pdk line
-      # requires major_puppet_version, which itself requires puppet_version
-      expect(test_group.index('puppet_version =')).to be < test_group.index('major_puppet_version =')
-      expect(test_group.index('major_puppet_version =')).to be < test_group.index("gem 'puppet'")
+      # `gem 'openvox', openvox_version` requires openvox_version, which
+      # itself requires puppet_version
+      expect(test_group.index('puppet_version =')).to be < test_group.index('openvox_version =')
+      expect(test_group.index('openvox_version =')).to be < test_group.index("gem 'openvox'")
 
       # The merged result must actually evaluate (undefined locals raise)
       evaluator = <<~RUBY
