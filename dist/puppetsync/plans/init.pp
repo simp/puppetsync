@@ -411,21 +411,27 @@ plan puppetsync(
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
-    'modernize_metadata_json',
+    'update_metadata_deps',
     # ---------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    run_task_with('puppetsync::modernize_metadata_json',
-      $ok_repos,
-      '_catch_errors'  => true,
-    ) |$repo| {
-      $file_path = $repo.facts['project_type'] ? {
-        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/metadata.json.erb",
-        default           => "${repo.vars['repo_path']}/metadata.json",
-      }
-      Hash.new({
-        'filename' => $file_path,
-      })
+    # A SINGLE task invocation over every repo, so the Forge API is queried
+    # once per unique module slug instead of once per repo (#68). Only
+    # Puppet modules have a metadata.json worth updating.
+    $pupmod_repos = $ok_repos.filter |$repo| {
+      $repo.facts['project_type'] == 'pupmod'
+    }
+    if $pupmod_repos.empty {
+      []
+    } else {
+      run_task( 'puppetsync::update_metadata_deps',
+        'localhost',
+        'Update metadata.json dependencies from the Forge API',
+        {
+          'repo_paths'    => $pupmod_repos.map |$repo| { $repo.vars['repo_path'] },
+          '_catch_errors' => true,
+        }
+      )
     }
   }
 
