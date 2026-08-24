@@ -12,8 +12,9 @@
 # fleet-wide.
 #
 # Repos whose dependencies are all current come out "unchanged" and get
-# no PR. Module version bumps/releases are deliberately NOT part of this
-# sync — releases stay per-module via create_release_tag.yml.
+# no PR. Changed repos get a patch version bump + CHANGELOG entry (any
+# metadata.json change fails RELENG's pkg:compare_latest_tag otherwise);
+# actual releases stay per-module via create_release_tag.yml.
 #
 # Dynamic-inventory session: run with `repolist=github-org` (or point
 # the repolists latest.yaml there).
@@ -27,10 +28,16 @@ puppetsync::plan_config:
         github_api_delay_seconds: 1
         # update_metadata_deps:
         #   apply_renames: true  # renames are report-only by default; see #95
+        bump_module_version:
+          bump: patch  # a dependency-range update changes no functionality
+          author: Steven Pritchard
+          email: steve@sicura.us
+          changelog_message: '[puppetsync] Update metadata.json dependency ranges from the Forge'
         stages:
           - install_gems
           - checkout_git_feature_branch_in_each_repo
           - update_metadata_deps
+          - bump_module_version
           - git_commit_changes
           - ensure_github_fork
           - ensure_git_remote
