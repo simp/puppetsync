@@ -101,8 +101,11 @@ def process_dependency(dep, resolver)
 
   change = {}
   if info['slug'] != slug
-    change['renamed'] = { 'from' => dep['name'], 'to' => info['slug'] }
-    dep['name'] = info['slug']
+    # Preserve the repo's separator style ('owner/module' vs 'owner-module');
+    # a Forge slug's first dash is always the owner/module separator
+    new_name = dep['name'].include?('/') ? info['slug'].sub('-', '/') : info['slug']
+    change['renamed'] = { 'from' => dep['name'], 'to' => new_name }
+    dep['name'] = new_name
   end
 
   if dep.key?('version_requirement')

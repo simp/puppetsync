@@ -106,7 +106,7 @@ describe 'task: update_metadata_deps' do
     expect(a['dependencies'][1]['version_requirement']).to eq('>= 4.0.2 < 9.0.0')  # bumped upper only
 
     b = JSON.parse(File.read(File.join(repo_b, 'metadata.json')))
-    expect(b['dependencies'][0]['name']).to eq('puppet-augeasproviders_grub')      # renamed
+    expect(b['dependencies'][0]['name']).to eq('puppet/augeasproviders_grub')      # renamed, slash style kept
     expect(b['dependencies'][0]['version_requirement']).to eq('>= 3.0.0 < 6.0.0')  # and bumped
     expect(b['simp']['optional_dependencies'][0]['version_requirement']).to eq('>= 4.0.2 < 9.0.0')
 
@@ -114,6 +114,18 @@ describe 'task: update_metadata_deps' do
     # stdlib, systemd, herculesteam-..., puppet-augeasproviders_grub
     expect(@forge.requests.length).to eq(4)
     expect(@forge.requests.tally.values).to all(eq(1))
+  end
+
+  it 'keeps dash-style dependency names dash-style through a rename' do
+    repo = write_metadata(@dir, 'repo-dash', [
+      { 'name' => 'herculesteam-augeasproviders_grub', 'version_requirement' => '>= 3.0.0 < 4.0.0' },
+    ])
+
+    _stdout, stderr, status = run_update([repo])
+
+    expect(status).to be_success, stderr
+    metadata = JSON.parse(File.read(File.join(repo, 'metadata.json')))
+    expect(metadata['dependencies'][0]['name']).to eq('puppet-augeasproviders_grub')
   end
 
   it 'leaves a fully in-range repo untouched and reports changed: false for it' do
