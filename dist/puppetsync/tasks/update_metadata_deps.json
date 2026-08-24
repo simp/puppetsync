@@ -1,0 +1,14 @@
+{
+  "description": "Update metadata.json dependencies (incl. simp.optional_dependencies) across ALL repos in one pass: follow Forge superseded_by renames and bump upper version bounds to '< next major' when the current release is out of range. One Forge API request per unique module slug.",
+  "input_method": "stdin",
+  "parameters": {
+    "repo_paths": {
+      "description": "Paths to every repo to process (a single invocation shares the Forge lookup cache across all of them)",
+      "type": "Array[String[1]]"
+    },
+    "forge_api_url": {
+      "description": "Base URL of the Forge API (default: https://forgeapi.puppet.com/v3)",
+      "type": "Optional[String[1]]"
+    }
+  }
+}
