@@ -9,6 +9,10 @@
     "forge_api_url": {
       "description": "Base URL of the Forge API (default: https://forgeapi.puppet.com/v3)",
       "type": "Optional[String[1]]"
+    },
+    "apply_renames": {
+      "description": "Apply superseded_by renames (default false: renames are DETECTED and reported as skips, but not written \u2014 SIMP fixtures are git repos, so a rename needs .fixtures.yml sorted by a human first; see simp/puppetsync#95)",
+      "type": "Optional[Boolean]"
     }
   }
 }

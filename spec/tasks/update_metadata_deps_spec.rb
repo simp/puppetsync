@@ -80,8 +80,9 @@ describe 'task: update_metadata_deps' do
     @forge.stop
   end
 
-  def run_update(repo_paths)
-    run_task('update_metadata_deps.rb', 'repo_paths' => repo_paths, 'forge_api_url' => @forge.url)
+  def run_update(repo_paths, apply_renames: true)
+    run_task('update_metadata_deps.rb',
+             'repo_paths' => repo_paths, 'forge_api_url' => @forge.url, 'apply_renames' => apply_renames)
   end
 
   it 'bumps only the out-of-range upper bound, renames superseded modules, and shares lookups' do
@@ -168,6 +169,22 @@ describe 'task: update_metadata_deps' do
 
     expect(status).to be_success, stderr
     expect(JSON.parse(stdout)['repos']['repo-e']).to include('changed' => false, 'skip' => 'no metadata.json')
+  end
+
+  it 'withholds renames by default, reporting the supersede as a skip' do
+    repo = write_metadata(@dir, 'repo-hold', [
+      { 'name' => 'herculesteam/augeasproviders_grub', 'version_requirement' => '>= 3.0.0 < 4.0.0' },
+    ])
+    before = File.read(File.join(repo, 'metadata.json'))
+
+    stdout, stderr, status = run_update([repo], apply_renames: false)
+
+    expect(status).to be_success, stderr
+    result = JSON.parse(stdout)
+    expect(result['repos']['repo-hold']['changed']).to be false
+    expect(result['repos']['repo-hold']['skips'].join).to include('superseded by puppet-augeasproviders_grub')
+    expect(result['repos']['repo-hold']['skips'].join).to include('rename withheld')
+    expect(File.read(File.join(repo, 'metadata.json'))).to eq(before) # untouched, incl. the range
   end
 
   it 'fails when repo_paths is missing' do

@@ -25,6 +25,8 @@ puppetsync::plan_config:
     plans:
       sync:
         github_api_delay_seconds: 1
+        # update_metadata_deps:
+        #   apply_renames: true  # renames are report-only by default; see #95
         stages:
           - install_gems
           - checkout_git_feature_branch_in_each_repo

@@ -92,7 +92,7 @@ def nextmajor(current_version)
 end
 
 # Mutates dep in place; returns a change record, a skip record, or nil
-def process_dependency(dep, resolver)
+def process_dependency(dep, resolver, apply_renames)
   return nil unless dep.is_a?(Hash) && dep.key?('name')
 
   slug = dep['name'].tr('/', '-')
@@ -101,6 +101,13 @@ def process_dependency(dep, resolver)
 
   change = {}
   if info['slug'] != slug
+    # Renames are withheld by default: SIMP fixtures point at git repos
+    # (usually simp forks), so following a supersede needs a human decision
+    # about .fixtures.yml (fork the successor? retarget an existing fork?)
+    # BEFORE the metadata rename lands, or the repo's specs fail. See #95.
+    unless apply_renames
+      return { 'skip' => "#{slug}: superseded by #{info['slug']} — rename withheld "                          '(sort out .fixtures.yml, then set update_metadata_deps.apply_renames)' }
+    end
     # Preserve the repo's separator style ('owner/module' vs 'owner-module');
     # a Forge slug's first dash is always the owner/module separator
     new_name = dep['name'].include?('/') ? info['slug'].sub('-', '/') : info['slug']
@@ -130,7 +137,7 @@ def process_dependency(dep, resolver)
   change.empty? ? nil : change
 end
 
-def process_repo(repo_path, resolver)
+def process_repo(repo_path, resolver, apply_renames)
   metadata_path = File.join(repo_path, 'metadata.json')
   return { 'changed' => false, 'skip' => 'no metadata.json' } unless File.exist?(metadata_path)
 
@@ -143,7 +150,7 @@ def process_repo(repo_path, resolver)
   dep_lists.each do |deps|
     deps.each do |dep|
       warn "Checking #{File.basename(repo_path)}: #{dep['name']} #{dep['version_requirement']}"
-      result = process_dependency(dep, resolver)
+      result = process_dependency(dep, resolver, apply_renames)
       next if result.nil?
 
       result.key?('skip') ? skips << result['skip'] : updates << result
@@ -162,10 +169,11 @@ repo_paths = params['repo_paths']
 raise('No repo_paths given') unless repo_paths.is_a?(Array) && !repo_paths.empty?
 
 resolver = ForgeResolver.new(params['forge_api_url'] || DEFAULT_FORGE_API)
+apply_renames = params['apply_renames'] ? true : false
 
 repos = {}
 repo_paths.each do |repo_path|
-  repos[File.basename(repo_path)] = process_repo(repo_path, resolver)
+  repos[File.basename(repo_path)] = process_repo(repo_path, resolver, apply_renames)
 end
 
 puts JSON.generate({

@@ -429,6 +429,9 @@ plan puppetsync(
         'Update metadata.json dependencies from the Forge API',
         {
           'repo_paths'    => $pupmod_repos.map |$repo| { $repo.vars['repo_path'] },
+          # Renames are report-only unless the session opts in (see #95:
+          # a supersede rename needs .fixtures.yml sorted by a human first)
+          'apply_renames' => $opts.dig('update_metadata_deps', 'apply_renames'),
           '_catch_errors' => true,
         }
       )
