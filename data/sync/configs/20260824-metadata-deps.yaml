@@ -55,7 +55,8 @@ puppetsync::plan_config:
       releases: modules that moved are renamed per their superseded_by
       chain, and upper version bounds are raised to '< next major' where
       the current release fell outside the declared range. Lower bounds
-      and in-range requirements are untouched.
+      and in-range requirements are untouched. The module version is
+      bumped (with a matching CHANGELOG entry) so RELENG checks pass.
 
   github:
     pr_user: silug  # This should be the account that *submitted* the PRs

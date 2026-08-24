@@ -1,0 +1,26 @@
+{
+  "description": "Bump metadata.json's version and prepend a matching RPM-style CHANGELOG entry — only when the repo's working tree is dirty (i.e. an earlier stage changed something worth releasing). Skips (without bumping) repos with no CHANGELOG or a non-X.Y.Z version.",
+  "input_method": "stdin",
+  "parameters": {
+    "repo_path": {
+      "description": "Path to the module repository",
+      "type": "String[1]"
+    },
+    "bump": {
+      "description": "Version component to bump: 'patch' (default) or 'minor'",
+      "type": "Optional[Enum['patch','minor']]"
+    },
+    "changelog_message": {
+      "description": "CHANGELOG entry body (lines are '- '-prefixed unless they already start with '-' or whitespace)",
+      "type": "String[1]"
+    },
+    "author": {
+      "description": "CHANGELOG entry author name",
+      "type": "String[1]"
+    },
+    "email": {
+      "description": "CHANGELOG entry author email",
+      "type": "String[1]"
+    }
+  }
+}

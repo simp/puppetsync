@@ -439,6 +439,32 @@ plan puppetsync(
   }
 
   $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'bump_module_version',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    # RELENG requires a version bump (and matching CHANGELOG entry) for any
+    # change to release artifacts; the task self-gates on a dirty working
+    # tree, so only repos an earlier stage actually changed are bumped.
+    $pupmod_repos = $ok_repos.filter |$repo| {
+      $repo.facts['project_type'] == 'pupmod'
+    }
+    run_task_with('puppetsync::bump_module_version',
+      $pupmod_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      {
+        'repo_path'         => $repo.vars['repo_path'],
+        'bump'              => $opts.dig('bump_module_version', 'bump'),
+        'changelog_message' => $opts.dig('bump_module_version', 'changelog_message'),
+        'author'            => $opts.dig('bump_module_version', 'author'),
+        'email'             => $opts.dig('bump_module_version', 'email'),
+      }
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
     # --------------------------------------------------------------------------
     'run_spec_tests',
     # --------------------------------------------------------------------------

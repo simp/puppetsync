@@ -20,6 +20,12 @@ describe 'plan: puppetsync (update_metadata_deps stage)' do
             'clone_git_repos'        => false,
             'filter_permitted_repos' => false,
             'stages'                 => ['update_metadata_deps'],
+            'bump_module_version'    => {
+              'bump'              => 'minor',
+              'changelog_message' => '[puppetsync] specs',
+              'author'            => 'Spec Author',
+              'email'             => 'spec@example.com',
+            },
           },
         },
       },
@@ -71,5 +77,32 @@ describe 'plan: puppetsync (update_metadata_deps stage)' do
     expect(calls.first['targets']).to eq(['localhost'])
     repo_paths = calls.first['params']['repo_paths']
     expect(repo_paths.map { |p| File.basename(p) }).to contain_exactly('repo-a') # rubygem excluded
+  end
+
+  it 'passes the session bump options through to bump_module_version' do
+    config = puppetsync_config
+    config['puppetsync']['plans']['sync']['stages'] = ['bump_module_version']
+    bumps = []
+    expect_task('puppetsync::bump_module_version').return do |targets:, task:, params:|
+      bumps << params.transform_values { |v| v.respond_to?(:unwrap) ? v.unwrap : v }
+      Bolt::ResultSet.new(targets.map { |t| Bolt::Result.new(t, value: { 'changed' => false }, action: 'task', object: task) })
+    end
+    allow_out_message
+
+    result = run_plan('puppetsync', {
+      'project_dir'       => @project_dir,
+      'puppetsync_config' => config,
+      'repos_config'      => repos_config,
+    })
+
+    expect(result.ok?).to be(true), result.value.to_s
+    expect(bumps.length).to eq(1) # pupmod repo-a only; rubygem repo-b excluded
+    expect(bumps.first).to include(
+      'bump'              => 'minor',
+      'changelog_message' => '[puppetsync] specs',
+      'author'            => 'Spec Author',
+      'email'             => 'spec@example.com',
+    )
+    expect(File.basename(bumps.first['repo_path'])).to eq('repo-a')
   end
 end
