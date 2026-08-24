@@ -1,0 +1,61 @@
+---
+# Roll out the spec_helper.rb hiera.yaml write-race fix (PR #91, closes
+# #90) to all pupmod repos.
+#
+# Every parallel_spec worker's before(:all) hook truncate-rewrites the
+# shared spec/fixtures/hieradata/hiera.yaml; a catalogue compile in
+# another worker during the truncation window sees an empty hiera config
+# and silently drops all custom hieradata — the source of the fleet's
+# random hieradata-not-applied spec failures. The fix writes atomically
+# (write + rename). Validated on pupmod-simp-simplib#363 (merged).
+#
+# spec/spec_helper.rb is enforce-strategy, and the fleet baseline was
+# just re-asserted (#42), so each repo's diff is exactly the atomic-write
+# hunk. simplib already carries the fix and will come out "unchanged".
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point
+# the repolists latest.yaml there).
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - apply_puppet_role
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260820-spec-helper-race
+    commit_message: |
+      [puppetsync] Fix hiera.yaml write race in spec_helper
+
+      Every parallel_spec worker's before(:all) hook rewrote the shared
+      spec/fixtures/hieradata/hiera.yaml in place; a catalogue compile in
+      another worker during the truncation window saw an empty hiera
+      config and silently dropped all custom hieradata, producing random
+      hieradata-not-applied spec failures across the fleet. hiera.yaml is
+      now written atomically (write + rename).
+
+      See simp/puppetsync#90; validated on simp/pupmod-simp-simplib#363.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
