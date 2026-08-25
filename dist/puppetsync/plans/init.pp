@@ -411,21 +411,56 @@ plan puppetsync(
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
-    'modernize_metadata_json',
+    'update_metadata_deps',
     # ---------------------------------------------------------------------------
     $opts
   ) |$ok_repos, $stage_name| {
-    run_task_with('puppetsync::modernize_metadata_json',
-      $ok_repos,
+    # A SINGLE task invocation over every repo, so the Forge API is queried
+    # once per unique module slug instead of once per repo (#68). Only
+    # Puppet modules have a metadata.json worth updating.
+    $pupmod_repos = $ok_repos.filter |$repo| {
+      $repo.facts['project_type'] == 'pupmod'
+    }
+    if $pupmod_repos.empty {
+      []
+    } else {
+      run_task( 'puppetsync::update_metadata_deps',
+        'localhost',
+        'Update metadata.json dependencies from the Forge API',
+        {
+          'repo_paths'    => $pupmod_repos.map |$repo| { $repo.vars['repo_path'] },
+          # Renames are report-only unless the session opts in (see #95:
+          # a supersede rename needs .fixtures.yml sorted by a human first)
+          'apply_renames' => $opts.dig('update_metadata_deps', 'apply_renames'),
+          '_catch_errors' => true,
+        }
+      )
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
+    'bump_module_version',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    # RELENG requires a version bump (and matching CHANGELOG entry) for any
+    # change to release artifacts; the task self-gates on a dirty working
+    # tree, so only repos an earlier stage actually changed are bumped.
+    $pupmod_repos = $ok_repos.filter |$repo| {
+      $repo.facts['project_type'] == 'pupmod'
+    }
+    run_task_with('puppetsync::bump_module_version',
+      $pupmod_repos,
       '_catch_errors'  => true,
     ) |$repo| {
-      $file_path = $repo.facts['project_type'] ? {
-        'pupmod_skeleton' => "${repo.vars['repo_path']}/skeleton/metadata.json.erb",
-        default           => "${repo.vars['repo_path']}/metadata.json",
+      {
+        'repo_path'         => $repo.vars['repo_path'],
+        'bump'              => $opts.dig('bump_module_version', 'bump'),
+        'changelog_message' => $opts.dig('bump_module_version', 'changelog_message'),
+        'author'            => $opts.dig('bump_module_version', 'author'),
+        'email'             => $opts.dig('bump_module_version', 'email'),
       }
-      Hash.new({
-        'filename' => $file_path,
-      })
     }
   }
 

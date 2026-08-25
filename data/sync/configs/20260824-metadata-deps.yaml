@@ -1,0 +1,71 @@
+---
+# Update every pupmod's metadata.json dependencies from the Forge API
+# (PR for #68).
+#
+# The update_metadata_deps stage runs ONCE over all repos (one Forge
+# lookup per unique module slug): it follows superseded_by renames and
+# bumps out-of-range UPPER bounds to '< next major' (lower bounds and
+# in-range requirements are never touched; non-two-bound ranges are
+# skipped with a warning). This clears warnings like pupmod-simp-ssh's
+#   assert_optional_dependency(): 'vox_selinux-6.0.0' does not satisfy
+#   '>= 3.1.0 < 4.0.0'
+# fleet-wide.
+#
+# Repos whose dependencies are all current come out "unchanged" and get
+# no PR. Changed repos get a patch version bump + CHANGELOG entry (any
+# metadata.json change fails RELENG's pkg:compare_latest_tag otherwise);
+# actual releases stay per-module via create_release_tag.yml.
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point
+# the repolists latest.yaml there).
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        # update_metadata_deps:
+        #   apply_renames: true  # renames are report-only by default; see #95
+        bump_module_version:
+          bump: patch  # a dependency-range update changes no functionality
+          author: Steven Pritchard
+          email: steve@sicura.us
+          changelog_message: '[puppetsync] Update metadata.json dependency ranges from the Forge'
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - update_metadata_deps
+          - bump_module_version
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260824-metadata-deps
+    commit_message: |
+      [puppetsync] Update metadata.json dependency ranges from the Forge
+
+      This patch updates the module's dependency version ranges (including
+      simp.optional_dependencies) against the Puppet Forge's current
+      releases: modules that moved are renamed per their superseded_by
+      chain, and upper version bounds are raised to '< next major' where
+      the current release fell outside the declared range. Lower bounds
+      and in-range requirements are untouched. The module version is
+      bumped (with a matching CHANGELOG entry) so RELENG checks pass.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
