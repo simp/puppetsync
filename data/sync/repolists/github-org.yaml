@@ -29,3 +29,6 @@ puppetsync::repos_source:
     # stages can't use a fork-network sibling like silug/puppet-selinux
     # until simp/puppetsync#83 is fixed
     - pupmod-voxpupuli-selinux
+    # Never received the new baseline, and likely to be archived soon
+    # (archival will make this entry redundant)
+    - pupmod-simp-haveged
