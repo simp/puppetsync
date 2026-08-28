@@ -9,8 +9,10 @@
 # Filtering notes:
 #   - Archived repos and empty repos are always excluded (exclude_archived
 #     defaults to true)
-#   - Forks are excluded unless listed in include_forks — the escape hatch
-#     for forks the org actively maintains
+#   - Repos with issues OR pull requests disabled are excluded: the org
+#     disables both on every fork that exists only as a mirror, so those
+#     two flags are the signal separating maintained repos (forks
+#     included) from mirrors — no fork allow-list needed
 #   - Repos with the 'puppetsync-ignore' topic are excluded by default: set
 #     that topic on a repo in GitHub to opt it out without touching this file
 #   - Names are matched with globs; project_type filtering (the config's
@@ -22,10 +24,8 @@ puppetsync::repos_source:
     - 'pupmod-*'
     - 'puppet-*'
     - 'rubygem-*'
-  exclude: []
-  # Forks that simp actively maintains:
-  # (pupmod-voxpupuli-selinux is deliberately absent for now: its CI isn't
-  # green yet, and puppetsync can't open PRs from a fork-network sibling
-  # like silug/puppet-selinux until simp/puppetsync#83 is fixed)
-  include_forks:
-    - rubygem-simp-rspec-puppet-facts
+  exclude:
+    # Not ready for puppetsync yet: CI isn't green, and the GitHub PR
+    # stages can't use a fork-network sibling like silug/puppet-selinux
+    # until simp/puppetsync#83 is fixed
+    - pupmod-voxpupuli-selinux
