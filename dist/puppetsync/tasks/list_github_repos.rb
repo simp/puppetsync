@@ -6,10 +6,12 @@
 # Filtering (all driven by the `source` parameter):
 #
 #   - Archived repos are excluded (`exclude_archived`, default true)
-#   - Forks are excluded (`exclude_forks`, default true) UNLESS the repo
-#     matches an `include_forks` glob — the escape hatch for forks the org
-#     actively maintains (e.g. rubygem-simp-rspec-puppet-facts,
-#     pupmod-voxpupuli-selinux)
+#   - Repos with issues OR pull requests DISABLED are excluded:
+#     puppetsync's whole output is a PR, and the simp org disables
+#     issues+PRs on every fork that exists only as a mirror — so either
+#     flag being off separates mirrors from maintained repos (forks
+#     included). (The old `exclude_forks`/`include_forks` allow-list is
+#     retired.)
 #   - Repos with any topic in `exclude_topics` are excluded (default:
 #     ['puppetsync-ignore'] — set that topic on a repo in GitHub to opt it
 #     out without touching puppetsync)
@@ -79,23 +81,24 @@ def select_repos(repos, source)
   include_topics   = source.fetch('include_topics', nil) || []
   exclude_topics   = source.fetch('exclude_topics', nil) || ['puppetsync-ignore']
   exclude_archived = source.fetch('exclude_archived', true)
-  exclude_forks    = source.fetch('exclude_forks', true)
-  include_forks    = source.fetch('include_forks', nil) || []
+  if source.key?('exclude_forks') || source.key?('include_forks')
+    warn '== WARNING: exclude_forks/include_forks are retired and ignored — ' \
+         'inventory now includes any repo with issues+PRs enabled ' \
+         '(mirrors have them disabled org-wide)'
+  end
 
   repos.select do |repo|
     name = repo['name']
     topics = repo['topics'] || []
     next false if exclude_archived && repo['archived']
     next false if repo['size'].to_i.zero?
+    # puppetsync's whole output is a PR; a repo with PRs (or issues)
+    # disabled is a mirror (the org turns both off on mirror forks).
+    # Absent fields => include, so older API responses/fixtures don't
+    # silently empty the inventory.
+    next false unless repo.fetch('has_pull_requests', true) && repo.fetch('has_issues', true)
     next false if glob_match?(name, exclude_globs)
     next false if topics.any? { |topic| exclude_topics.include?(topic) }
-
-    # A fork listed in include_forks is an explicit allow-list entry: it
-    # both clears the fork gate AND bypasses the include filters below
-    # (listing it means "I want this fork", whatever its name)
-    explicitly_included_fork = repo['fork'] && glob_match?(name, include_forks)
-    next false if repo['fork'] && exclude_forks && !explicitly_included_fork
-    next true if explicitly_included_fork
 
     glob_match?(name, include_globs) || topics.any? { |topic| include_topics.include?(topic) }
   end

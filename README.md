@@ -329,13 +329,13 @@ Instead of hand-maintaining the repo list, a repolist file can define
 puppetsync::repos_source:
   org: simp
   include: ['pupmod-*', 'puppet-*', 'rubygem-*']  # name globs
-  include_forks:                                  # forks the org maintains
-    - rubygem-simp-rspec-puppet-facts
-    - pupmod-voxpupuli-selinux
 ```
 
-* Archived and empty repos are excluded; forks are excluded unless they
-  match `include_forks`
+* Archived and empty repos are excluded
+* Repos with **issues or pull requests disabled** are excluded: the org
+  disables both on every fork that exists only as a mirror, so those flags
+  separate maintained repos (forks included) from mirrors — no fork
+  allow-list needed
 * Repos with the `puppetsync-ignore` GitHub topic are excluded — set the
   topic to opt a repo out without touching puppetsync
 * Each repo's branch comes from the API's default branch (so e.g.
