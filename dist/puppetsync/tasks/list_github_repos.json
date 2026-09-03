@@ -1,5 +1,5 @@
 {
-  "description": "Build a puppetsync repos_config hash from the GitHub API: list an org's repos and keep those that are live, non-empty, match the include/exclude globs or topics, and accept contributions (issues AND pull requests enabled -- the org turns both off on mirror forks). The full rule, its edges (archived repos, force_include, missing flags) and the reasoning are in the header of tasks/list_github_repos.rb. Branches come from each repo's default_branch. Unknown or retired source keys (include_forks, exclude_forks) are rejected.",
+  "description": "Build a puppetsync repos_config hash from the GitHub API: list an org's repos and keep the ones puppetsync can sync (live, non-empty, matching the include/exclude filters, and accepting contributions). The selection rule and its edges are stated once, in the header of tasks/list_github_repos.rb. Branches come from each repo's default_branch. Unknown or retired source keys are rejected.",
   "input_method": "stdin",
   "parameters": {
     "source": {

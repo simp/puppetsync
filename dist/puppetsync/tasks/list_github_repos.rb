@@ -28,16 +28,23 @@
 #   - It is skipped for ARCHIVED repos. Archival turns the flags off too, so
 #     gating them would make `exclude_archived: false` silently drop most of
 #     what it exists to include.
-#   - `force_include` globs bypass it (rules 1-5 still apply). This is the
-#     lever for a maintained repo whose flags are off -- GitHub creates forks
-#     with issues disabled, and admins turn issues off as a pre-archival step.
+#   - `force_include` globs bypass it AND rule 5 (rules 1-4 still apply):
+#     listing a name means "I want this repo, whatever its name or flags",
+#     which is what the retired include_forks meant. This is the lever for a
+#     maintained repo whose flags are off -- GitHub creates forks with issues
+#     disabled, and admins turn issues off as a pre-archival step. A
+#     force_include glob that matches nothing in the org is reported, so a
+#     typo cannot no-op silently.
 #   - A repo whose API record LACKS the flags (or carries null) is included,
 #     and reported: the gate must never silently become a no-op or silently
 #     empty the inventory because the response shape changed.
 #
-# Everything the gate excludes among include-matching repos is reported by
-# name, so convention drift (a maintained repo that lost its flags) is
-# visible immediately rather than surfacing as a missing PR months later.
+# Everything the gate excludes among repos that passed the include filters
+# is reported by name, so convention drift (a maintained repo that lost its
+# flags) is visible immediately rather than surfacing as a missing PR months
+# later. Every repo gets exactly one verdict (kept?, reason), and both the
+# selection and the reports are derived from those verdicts, so the two
+# cannot disagree.
 #
 # Reports go to stderr AND into the result's `warnings` array; the plan
 # prints the latter, because a plan run does not show task stderr.
@@ -126,54 +133,60 @@ def contributions_enabled?(repo)
   flags.all?
 end
 
+# One verdict per repo: [kept?, reason]. The rule numbers are the header's.
+def verdict(repo, opts)
+  name   = repo['name']
+  topics = repo['topics'] || []
+  return [false, :archived]  if opts[:exclude_archived] && repo['archived']          # 1
+  return [false, :empty]     if repo['size'].to_i.zero?                               # 2
+  return [false, :excluded]  if glob_match?(name, opts[:exclude_globs])               # 3
+  return [false, :opted_out] if topics.any? { |t| opts[:exclude_topics].include?(t) } # 4
+  return [true,  :forced]    if glob_match?(name, opts[:force_include])               # bypasses 5 + 6
+  return [false, :unmatched] unless glob_match?(name, opts[:include_globs]) ||        # 5
+                                    topics.any? { |t| opts[:include_topics].include?(t) }
+  return [true,  :archived_unchecked] if repo['archived']                             # 6 skipped: see header
+
+  case contributions_enabled?(repo)                                                   # 6
+  when nil   then [true,  :flags_unknown]
+  when false then [false, :gated]
+  else            [true,  :accepted]
+  end
+end
+
 # Returns [selected_repos, warnings]
 def select_repos(repos, source)
-  include_globs    = source.fetch('include', nil) || ['*']
-  exclude_globs    = source.fetch('exclude', nil) || []
-  force_include    = source.fetch('force_include', nil) || []
-  include_topics   = source.fetch('include_topics', nil) || []
-  exclude_topics   = source.fetch('exclude_topics', nil) || ['puppetsync-ignore']
-  exclude_archived = source.fetch('exclude_archived', true)
+  opts = {
+    include_globs:    source.fetch('include', nil) || ['*'],
+    exclude_globs:    source.fetch('exclude', nil) || [],
+    force_include:    source.fetch('force_include', nil) || [],
+    include_topics:   source.fetch('include_topics', nil) || [],
+    exclude_topics:   source.fetch('exclude_topics', nil) || ['puppetsync-ignore'],
+    exclude_archived: source.fetch('exclude_archived', true),
+  }
 
-  gated_out     = []
-  unknown_flags = []
-
-  selected = repos.select do |repo|
-    name   = repo['name']
-    topics = repo['topics'] || []
-    next false if exclude_archived && repo['archived']
-    next false if repo['size'].to_i.zero?
-    next false if glob_match?(name, exclude_globs)
-    next false if topics.any? { |topic| exclude_topics.include?(topic) }
-    next false unless glob_match?(name, include_globs) || topics.any? { |topic| include_topics.include?(topic) }
-
-    # Rule 6 (see header): applied only to live repos, and only to those
-    # that passed every other rule, so the report below names exactly the
-    # repos this gate alone removed.
-    next true if repo['archived'] || glob_match?(name, force_include)
-
-    case contributions_enabled?(repo)
-    when nil
-      unknown_flags << name
-      true
-    when false
-      gated_out << name
-      false
-    else
-      true
-    end
+  verdicts = repos.map do |repo|
+    kept, reason = verdict(repo, opts)
+    { repo: repo, kept: kept, reason: reason }
   end
+  names_with = ->(reason) { verdicts.select { |v| v[:reason] == reason }.map { |v| v[:repo]['name'] }.sort }
 
   warnings = []
+  unknown_flags = names_with.call(:flags_unknown)
   unless unknown_flags.empty?
     warnings << "#{unknown_flags.size} repo(s) carry no has_issues/has_pull_requests fields, so the contributions " \
-                "gate could not be applied and they were INCLUDED: #{unknown_flags.sort.join(', ')}"
+                "gate could not be applied and they were INCLUDED: #{unknown_flags.join(', ')}"
   end
+  gated_out = names_with.call(:gated)
   unless gated_out.empty?
-    warnings << "#{gated_out.size} repo(s) matching the include globs were excluded because issues or pull " \
-                "requests are disabled (the mirror signal; force_include overrides it): #{gated_out.sort.join(', ')}"
+    warnings << "#{gated_out.size} repo(s) matching the include filters were excluded because issues or pull " \
+                "requests are disabled (the mirror signal; force_include overrides it): #{gated_out.join(', ')}"
   end
-  [selected, warnings]
+  dead_forces = opts[:force_include].reject { |glob| repos.any? { |repo| File.fnmatch(glob, repo['name']) } }
+  unless dead_forces.empty?
+    warnings << "force_include glob(s) matched no repo in the org listing (typo?): #{dead_forces.join(', ')}"
+  end
+
+  [verdicts.select { |v| v[:kept] }.map { |v| v[:repo] }, warnings]
 end
 
 def repos_config(repos)

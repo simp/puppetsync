@@ -78,11 +78,11 @@ describe 'plan: puppetsync (dynamic inventory, #55)' do
     allow_task('puppetsync::list_github_repos').return do |targets:, task:, params:|
       Bolt::ResultSet.new(targets.map do |t|
         Bolt::Result.new(t, value: { 'repos_config' => generated_config, 'count' => 2,
-                                     'warnings' => ['1 repo(s) matching the include globs were excluded because issues or pull requests are disabled: pupmod-simp-x'] },
+                                     'warnings' => ['1 repo(s) matching the include filters were excluded because issues or pull requests are disabled: pupmod-simp-x'] },
                                     action: 'task', object: task)
       end)
     end
-    expect_out_message.with_params('== WARNING (dynamic inventory): 1 repo(s) matching the include globs were excluded because issues or pull requests are disabled: pupmod-simp-x')
+    expect_out_message.with_params('== WARNING (dynamic inventory): 1 repo(s) matching the include filters were excluded because issues or pull requests are disabled: pupmod-simp-x')
 
     result = run_sync
 

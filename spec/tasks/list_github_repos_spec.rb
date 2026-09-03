@@ -102,7 +102,7 @@ describe 'task: list_github_repos' do
     expect(urls(result)).not_to include('https://github.com/simp/puppetlabs-apache')     # both off
   end
 
-  it 'reports, by name, the include-matching repos the contributions gate alone removed' do
+  it 'reports, by name, the repos that passed the include filters but the contributions gate removed' do
     result = run_list('org' => 'simp', 'include' => PUPMOD_GLOBS)
 
     gate_warning = result['warnings'].find { |w| w.include?('issues or pull requests are disabled') }
@@ -122,13 +122,23 @@ describe 'task: list_github_repos' do
     expect(stderr).to include('could not be applied') # visible on a direct task run too
   end
 
-  it 'lets force_include bypass the contributions gate but nothing else' do
-    result = run_list('org' => 'simp', 'force_include' => ['pupmod-simp-prsoff', 'empty-repo', 'pupmod-simp-optout'])
+  it 'lets force_include bypass the include filters and the contributions gate, but nothing else' do
+    result = run_list('org' => 'simp', 'include' => PUPMOD_GLOBS,
+                      'force_include' => ['pupmod-simp-prsoff', 'unrelated-mirror', 'empty-repo', 'pupmod-simp-optout'])
 
-    expect(urls(result)).to include('https://github.com/simp/pupmod-simp-prsoff')
+    expect(urls(result)).to include('https://github.com/simp/pupmod-simp-prsoff')     # flags off: gate bypassed
+    expect(urls(result)).to include('https://github.com/simp/unrelated-mirror')       # matches no include glob: still in
     expect(urls(result)).not_to include('https://github.com/simp/empty-repo')         # still empty
     expect(urls(result)).not_to include('https://github.com/simp/pupmod-simp-optout') # still opted out
     expect(result['warnings'].join).not_to include('pupmod-simp-prsoff')              # not reported as gated
+  end
+
+  it 'reports a force_include glob that matches nothing in the org (a typo would otherwise no-op)' do
+    result = run_list('org' => 'simp', 'force_include' => ['pupmod-simp-prsoff', 'pupmod-simp-typo'])
+
+    dead = result['warnings'].find { |w| w.include?('matched no repo') }
+    expect(dead).to include('pupmod-simp-typo')
+    expect(dead).not_to include('pupmod-simp-prsoff')
   end
 
   it 'does not apply the contributions gate to archived repos, so an archived sweep sees all of them' do
