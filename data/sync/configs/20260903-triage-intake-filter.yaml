@@ -1,0 +1,77 @@
+---
+# Roll out the triage-board intake filter (simp/puppetsync#97): stop
+# auto-adding Renovate and [puppetsync] PRs to the Org Triage board.
+#
+# The only file touched is add_new_issue_to_triage_project.yml, refreshed
+# in place by the merge stage from the (project-type-independent)
+# template. The session deliberately does NOT run apply_puppet_role.
+#
+# The merge is widened beyond pupmods: rubygem and simp_unknown repos
+# carry the same workflow (they are enforce-strategy for the profile, but
+# a scoped merge of this one shared template is safe and avoids a blanket
+# apply). ensure_files also lays it down where it is missing, so any
+# in-scope repo that never received it gets it now (#96, partially).
+#
+# Sibling changes #98 (`community` label) and #99 (`needs-attention`) live
+# in the org reconciler in simp/gha-workflows, not in this template: the
+# event payload's author_association misreports private org members.
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point
+# the repolists latest.yaml there).
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+      - rubygem
+      - simp_unknown
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          project_types:
+            - pupmod
+            - pupmod_skeleton
+            - rubygem
+            - simp_unknown
+          files:
+            - add_new_issue_to_triage_project.yml
+          ensure_files:
+            - add_new_issue_to_triage_project.yml
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260903-triage-intake-filter
+    commit_message: |
+      [puppetsync] Stop auto-adding Renovate and sync PRs to the triage board
+
+      This patch adds a job-level filter to
+      add_new_issue_to_triage_project.yml so that PRs opened by Renovate
+      (or Dependabot) and puppetsync's own `[puppetsync]`-titled sync PRs
+      are no longer added to the Org Triage board. Neither needs triage,
+      and together they were filling the New column faster than it could
+      be emptied, burying the issues and outside contributions that do
+      need a human. Issues and all other PRs are still added.
+
+      See simp/puppetsync#97.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'

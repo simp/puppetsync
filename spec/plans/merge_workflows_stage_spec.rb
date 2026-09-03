@@ -111,4 +111,23 @@ describe 'plan: puppetsync (merge_github_workflows stage)' do
     })
     expect(result.ok?).to be(true), result.value.to_s
   end
+
+  it 'merges into a rubygem when the session widens project_types to a shared template' do
+    File.write(File.join(@project_dir, '_repos', 'repo-a', 'repo-a.gemspec'), <<~GEMSPEC)
+      Gem::Specification.new do |s|
+        s.name = 'repo-a'
+      end
+    GEMSPEC
+    File.write(File.join(@project_dir, '_repos', 'repo-a', '.github', 'workflows', 'add_new_issue_to_triage_project.yml'),
+               "name: stale\n")
+
+    params = run_merge_stage('merge_github_workflows' => {
+                               'project_types' => %w[pupmod pupmod_skeleton rubygem],
+                               'files'         => ['add_new_issue_to_triage_project.yml'],
+                             })
+
+    files = params['workflows'].map { |wf| File.basename(wf['path']) }
+    expect(files).to contain_exactly('add_new_issue_to_triage_project.yml') # scoped: pr_tests.yml untouched
+    expect(params['workflows'].first['template']).to include('orgs/simp/projects/11')
+  end
 end
