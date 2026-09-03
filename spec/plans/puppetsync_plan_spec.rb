@@ -73,6 +73,22 @@ describe 'plan: puppetsync (dynamic inventory, #55)' do
     expect(YAML.load_file(snapshot)).to eq('puppetsync::repos_config' => generated_config)
   end
 
+  it 'prints the listing task warnings, which a plan run would otherwise never show' do
+    allow_out_message
+    allow_task('puppetsync::list_github_repos').return do |targets:, task:, params:|
+      Bolt::ResultSet.new(targets.map do |t|
+        Bolt::Result.new(t, value: { 'repos_config' => generated_config, 'count' => 2,
+                                     'warnings' => ['1 repo(s) matching the include globs were excluded because issues or pull requests are disabled: pupmod-simp-x'] },
+                                    action: 'task', object: task)
+      end)
+    end
+    expect_out_message.with_params('== WARNING (dynamic inventory): 1 repo(s) matching the include globs were excluded because issues or pull requests are disabled: pupmod-simp-x')
+
+    result = run_sync
+
+    expect(result.ok?).to be(true), result.value.to_s
+  end
+
   it 'merges static repos_config entries on top of the generated list (static wins)' do
     allow_out_message
     allow_task('puppetsync::list_github_repos').return do |targets:, task:, params:|
