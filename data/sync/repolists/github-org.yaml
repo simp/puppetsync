@@ -6,26 +6,28 @@
 # approve/merge plans do NOT need it: they enumerate the session's open
 # PRs directly by feature branch.
 #
-# Filtering notes:
-#   - Archived repos and empty repos are always excluded (exclude_archived
-#     defaults to true)
-#   - Forks are excluded unless listed in include_forks — the escape hatch
-#     for forks the org actively maintains
-#   - Repos with the 'puppetsync-ignore' topic are excluded by default: set
-#     that topic on a repo in GitHub to opt it out without touching this file
-#   - Names are matched with globs; project_type filtering (the config's
-#     permitted_project_types) still applies after the clone, so a
-#     name-pattern false positive gets culled there
+# The selection rule (archived/empty, globs, topics, and the
+# issues+PRs "accepts contributions" gate that keeps mirror forks out) is
+# stated once, in the header of dist/puppetsync/tasks/list_github_repos.rb.
+# Two things worth knowing from here:
+#   - the 'puppetsync-ignore' topic opts a repo out without touching this
+#     file, and `force_include` pulls in a maintained repo whose flags are off
+#   - project_type filtering (the config's permitted_project_types) still
+#     applies after the clone, so a name-pattern false positive gets culled
+#     there
 puppetsync::repos_source:
   org: simp
   include:
     - 'pupmod-*'
     - 'puppet-*'
     - 'rubygem-*'
-  exclude: []
-  # Forks that simp actively maintains:
-  # (pupmod-voxpupuli-selinux is deliberately absent for now: its CI isn't
-  # green yet, and puppetsync can't open PRs from a fork-network sibling
-  # like silug/puppet-selinux until simp/puppetsync#83 is fixed)
-  include_forks:
-    - rubygem-simp-rspec-puppet-facts
+  exclude:
+    # Not ready for puppetsync yet: CI isn't green, and the GitHub PR
+    # stages can't use a fork-network sibling like silug/puppet-selinux
+    # until simp/puppetsync#83 is fixed
+    - pupmod-voxpupuli-selinux
+    # Never received the new baseline, and likely to be archived soon.
+    # Held here rather than via the puppetsync-ignore topic deliberately,
+    # so the hold is reviewable next to selinux's; drop this line when the
+    # repo is archived (exclude_archived then covers it)
+    - pupmod-simp-haveged
