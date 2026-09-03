@@ -6,11 +6,11 @@
 # in place by the merge stage from the (project-type-independent)
 # template. The session deliberately does NOT run apply_puppet_role.
 #
-# The merge is widened beyond pupmods: rubygem and simp_unknown repos
-# carry the same workflow (they are enforce-strategy for the profile, but
-# a scoped merge of this one shared template is safe and avoids a blanket
-# apply). ensure_files also lays it down where it is missing, so any
-# in-scope repo that never received it gets it now (#96, partially).
+# Pupmods only. The rubygem-simp-* repos carry the same workflow, but no
+# puppetsync baseline has been established for them yet, so they are out
+# of scope for this session (the merge stage's project_types option is
+# how a later session widens it). ensure_files lays the file down where a
+# pupmod is missing it.
 #
 # Sibling changes #98 (`community` label) and #99 (`needs-attention`) live
 # in the org reconciler in simp/gha-workflows, not in this template: the
@@ -23,17 +23,10 @@ puppetsync::plan_config:
     permitted_project_types:
       - pupmod
       - pupmod_skeleton
-      - rubygem
-      - simp_unknown
     plans:
       sync:
         github_api_delay_seconds: 1
         merge_github_workflows:
-          project_types:
-            - pupmod
-            - pupmod_skeleton
-            - rubygem
-            - simp_unknown
           files:
             - add_new_issue_to_triage_project.yml
           ensure_files:
