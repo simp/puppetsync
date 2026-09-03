@@ -30,6 +30,7 @@
 # repo-owned section (an acceptance job would be dead weight on a module
 # with no acceptance suites).
 
+require 'fileutils'
 require 'json'
 require 'psych'
 
@@ -177,6 +178,8 @@ def merge_gha_workflows(workflows, keys, blocks)
     template = wf.fetch('template')
 
     unless File.exist?(path)
+      # ensure_files can target a repo with no .github/workflows/ at all
+      FileUtils.mkdir_p(File.dirname(path))
       File.write(path, template)
       results[path] = { 'changed' => true, 'created' => true }
       next
