@@ -284,8 +284,17 @@ plan puppetsync(
     # stage overwrites each workflow with pure template BEFORE this stage
     # runs, so there is nothing left to preserve.  The bootstrap flip for
     # pupmod/pupmod_skeleton ships with this stage.
+    #
+    # Other project types are excluded by default (a gem's hand-written
+    # workflows must not be flattened by the pupmod templates), but a
+    # session that scopes the merge to a template every project type
+    # shares -- e.g. the triage workflow -- can widen the set:
+    # puppetsync.plans.sync.merge_github_workflows.project_types
+    $merge_ptypes = $opts.dig('merge_github_workflows', 'project_types').lest || {
+      ['pupmod', 'pupmod_skeleton']
+    }
     $gha_repos = $ok_repos.filter |$repo| {
-      $repo.facts['project_type'] in ['pupmod', 'pupmod_skeleton']
+      $repo.facts['project_type'] in $merge_ptypes
     }
     run_task_with('puppetsync::merge_gha_workflows',
       $gha_repos,

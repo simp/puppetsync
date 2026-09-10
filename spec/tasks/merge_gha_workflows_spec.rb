@@ -27,6 +27,18 @@ describe 'task: merge_gha_workflows' do
     expect(File.read(@wf)).to eq(real_template)
   end
 
+  it 'creates .github/workflows/ when the repo has none (ensure_files on a bare repo)' do
+    Dir.mktmpdir do |repo|
+      path = File.join(repo, '.github', 'workflows', 'add_new_issue_to_triage_project.yml')
+
+      stdout, stderr, status = run_merge([{ 'path' => path, 'template' => real_template }])
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)['files'][path]).to include('changed' => true, 'created' => true)
+      expect(File.read(path)).to eq(real_template)
+    end
+  end
+
   it 'is a no-op when the target matches the template' do
     File.write(@wf, real_template)
 
