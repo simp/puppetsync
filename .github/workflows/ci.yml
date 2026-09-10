@@ -26,7 +26,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           # Match the Ruby bundled with openbolt, which runs the tasks in production
-          ruby-version: '3.2'
+          ruby-version: '4.0.6'
       - run: gem install rspec --no-document
       - run: rspec
 
