@@ -1,9 +1,9 @@
 {
-  "description": "Build a puppetsync repos_config hash from the GitHub API: list an org's repos and filter them (archived, forks with an include_forks escape hatch, name globs, topics). Branches come from each repo's default_branch.",
+  "description": "Build a puppetsync repos_config hash from the GitHub API: list an org's repos and keep the ones puppetsync can sync (live, non-empty, matching the include/exclude filters, and accepting contributions). The selection rule and its edges are stated once, in the header of tasks/list_github_repos.rb. Branches come from each repo's default_branch. Unknown or retired source keys are rejected.",
   "input_method": "stdin",
   "parameters": {
     "source": {
-      "description": "Filter configuration: {org, include, exclude, include_forks, include_topics, exclude_topics, exclude_archived, exclude_forks}",
+      "description": "Filter configuration: {org, include, exclude, force_include, include_topics, exclude_topics, exclude_archived}",
       "type": "Hash"
     },
     "github_authtoken": {
