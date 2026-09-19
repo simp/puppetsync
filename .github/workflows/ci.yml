@@ -20,7 +20,7 @@ env:
 jobs:
   spec:
     name: 'Unit tests (tasks & project files)'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
@@ -32,7 +32,7 @@ jobs:
 
   bolt:
     name: 'Bolt plan smoke test'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
 
