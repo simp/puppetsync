@@ -118,6 +118,13 @@ plan puppetsync(
       }
     ).first.value
 
+    # A plan run does not show task stderr, so the task also returns its
+    # notices (repos the contributions gate removed, records missing the
+    # flags) in the result for the plan to print.
+    ($listing['warnings'].lest || { [] }).each |$warning| {
+      out::message("== WARNING (dynamic inventory): ${warning}")
+    }
+
     $effective_repos_config = $listing['repos_config'] + $repos_config
     $snapshot_path = "${project_dir}/data/sync/repolists/generated-${config}.yaml"
     file::write($snapshot_path, Hash({'puppetsync::repos_config' => $effective_repos_config}).to_yaml)

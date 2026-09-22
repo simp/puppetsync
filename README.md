@@ -329,15 +329,19 @@ Instead of hand-maintaining the repo list, a repolist file can define
 puppetsync::repos_source:
   org: simp
   include: ['pupmod-*', 'puppet-*', 'rubygem-*']  # name globs
-  include_forks:                                  # forks the org maintains
-    - rubygem-simp-rspec-puppet-facts
-    - pupmod-voxpupuli-selinux
 ```
 
-* Archived and empty repos are excluded; forks are excluded unless they
-  match `include_forks`
+* Archived and empty repos are excluded
+* Repos that don't accept contributions (**issues or pull requests
+  disabled**) are excluded — that's how the org marks its mirror forks. The
+  full rule, its edges (`force_include`, archived repos, records missing
+  the flags) and the reasoning live in one place: the header of
+  `dist/puppetsync/tasks/list_github_repos.rb`. Repos the gate removes are
+  named in the plan output
 * Repos with the `puppetsync-ignore` GitHub topic are excluded — set the
   topic to opt a repo out without touching puppetsync
+* Unknown or retired `repos_source` keys (`include_forks`, `exclude_forks`)
+  fail the run rather than being silently ignored
 * Each repo's branch comes from the API's default branch (so e.g.
   `pupmod-voxpupuli-selinux` syncs `simp-master` automatically)
 * An informational snapshot of the generated list is written to
