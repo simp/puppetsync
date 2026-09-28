@@ -1,0 +1,95 @@
+---
+# Roll out the reworked Ruby/OpenVox test matrix to the pupmod fleet.
+#
+# pr_tests.yml / tag_deploy.yml (merge_github_workflows):
+#   - Jobs that just need a Ruby (syntax, lint, rubocop, file checks,
+#     REFERENCE.md, RELENG, tag_deploy) move to Ruby 4.0.7, and their
+#     steps are named 'Install Ruby' so the name can't go stale again.
+#   - The spec matrix becomes the two shipped pairings: OpenVox 8 on Ruby
+#     3.2.11 with openfact pinned to '~> 5.0' (openvox 8 accepts openfact
+#     6, which no OpenVox 8 AIO agent ships), and the OpenVox 9 release
+#     candidate on Ruby 4.0.7 (experimental until 9.0.0 ships). The
+#     OpenVox 8 / Ruby 3.4 row and the "OpenVox 8 gem on Ruby 4.0"
+#     preview row are dropped.
+#   - Matrix Ruby versions are exact and tagged for Renovate's patch-only
+#     rule (simp/renovate-config#7).
+#
+# `ruby-version` is deliberately left OUT of preserve_keys for this
+# session: the whole point is to change it, and the default preserve_keys
+# would keep every repo's current value. Action refs, images and runners
+# are still preserved. jobs.acceptance stays repo-owned, as in the
+# 20260811 session, so acceptance jobs keep their current Ruby.
+#
+# Gemfile (merge_gemfile): adds the `openfact` gem line that reads
+# OPENFACT_VERSION. Existing version constraints are untouched (Renovate
+# manages them); the template's '< 10' openvox default and '~> 6.2'
+# simp-rake-helpers default only reach new repos. CI always sets
+# PUPPET_VERSION, and '~> 6.0' already resolves simp-rake-helpers 6.2.0,
+# which is the release that allows openvox 9.
+#
+# This supersedes the ~45 open "Update dependency ruby to v3.4.10"
+# Renovate PRs (renovate/ruby-3.x), which also moved the Puppet
+# syntax/lint jobs from Ruby 3.2.11 to 3.4.10.
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point
+# the repolists latest.yaml there).
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - pr_tests.yml
+            - tag_deploy.yml
+          preserve_keys:
+            - uses
+            - image
+            - container
+            - runs-on
+          preserve_blocks:
+            - jobs.acceptance
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - merge_gemfile
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20260928-ruby-matrix-openvox9
+    commit_message: |
+      [puppetsync] Rework the Ruby/OpenVox test matrix for OpenVox 9
+
+      This patch updates pr_tests.yml, tag_deploy.yml and the Gemfile from
+      the puppetsync baseline:
+
+      - Jobs that only need a Ruby now use Ruby 4.0.7, and their setup
+        steps are named 'Install Ruby' instead of naming a version.
+      - The spec matrix tests the two pairings that actually ship: OpenVox
+        8 on Ruby 3.2.11 with openfact pinned to 5.x, and the OpenVox 9
+        release candidate on Ruby 4.0.7 (non-blocking until 9.0.0 ships).
+      - The Gemfile gains an `openfact` gem line that honors
+        OPENFACT_VERSION, which the OpenVox 8 row uses for the pin.
+
+      Repo-specific `jobs.acceptance` blocks are preserved as-is.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'

@@ -1,6 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
-  ]
+    "config:recommended",
+    "github>simp/renovate-config:ruby.json"
+  ],
+  "github-actions": {
+    "description": "Also update the workflow templates puppetsync syncs to other repos",
+    "managerFilePatterns": [
+      "/(^|/)_github/workflows/[^/]+\\.ya?ml$/"
+    ]
+  }
 }
