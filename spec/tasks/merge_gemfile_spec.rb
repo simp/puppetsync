@@ -42,7 +42,7 @@ describe 'task: merge_gemfile' do
     it 'never touches an existing gem version constraint' do
       # Simulate Renovate having bumped a pinned constraint
       munged = real_template.sub(
-        "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 6.0')",
+        "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 6.2')",
         "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 7.0')",
       )
       raise 'munge failed' if munged == real_template
