@@ -110,7 +110,7 @@ jobs:
       # The build-OS matrix lives in release_rpms.yml (one dispatch builds
       # every supported EL version) -- see simp/puppetsync#84
       - name: Trigger RPM release workflow
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           TARGET_TAG: ${{ needs.create-github-release.outputs.tag }}
