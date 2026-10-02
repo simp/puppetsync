@@ -105,4 +105,29 @@ describe 'plan: puppetsync (update_metadata_deps stage)' do
     )
     expect(File.basename(bumps.first['repo_path'])).to eq('repo-a')
   end
+
+  it 'runs update_metadata_requirements per pupmod repo with the session requirements' do
+    config = puppetsync_config
+    config['puppetsync']['plans']['sync']['stages'] = ['update_metadata_requirements']
+    config['puppetsync']['plans']['sync']['update_metadata_requirements'] = {
+      'requirements' => { 'openvox' => '>= 8.0.0 < 10.0.0' },
+    }
+    calls = []
+    expect_task('puppetsync::update_metadata_requirements').return do |targets:, task:, params:|
+      calls << params.transform_values { |v| v.respond_to?(:unwrap) ? v.unwrap : v }
+      Bolt::ResultSet.new(targets.map { |t| Bolt::Result.new(t, value: { 'changed' => true }, action: 'task', object: task) })
+    end
+    allow_out_message
+
+    result = run_plan('puppetsync', {
+      'project_dir'       => @project_dir,
+      'puppetsync_config' => config,
+      'repos_config'      => repos_config,
+    })
+
+    expect(result.ok?).to be(true), result.value.to_s
+    expect(calls.length).to eq(1) # pupmod repo-a only; rubygem repo-b excluded
+    expect(File.basename(calls.first['repo_path'])).to eq('repo-a')
+    expect(calls.first['requirements']).to eq('openvox' => '>= 8.0.0 < 10.0.0')
+  end
 end

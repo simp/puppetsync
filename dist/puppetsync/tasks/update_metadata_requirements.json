@@ -1,0 +1,14 @@
+{
+  "description": "Set the version_requirement of named metadata.json `requirements` entries (e.g. openvox). Only existing entries are rewritten; repos that don't declare a named requirement are left alone and reported.",
+  "input_method": "stdin",
+  "parameters": {
+    "repo_path": {
+      "description": "Path to the repo to process",
+      "type": "String[1]"
+    },
+    "requirements": {
+      "description": "Requirement name => new version_requirement, e.g. {\"openvox\": \">= 8.0.0 < 10.0.0\"}",
+      "type": "Hash[String[1], String[1]]"
+    }
+  }
+}
