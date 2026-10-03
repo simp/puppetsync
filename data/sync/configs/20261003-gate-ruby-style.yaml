@@ -1,0 +1,74 @@
+---
+# Make the pupmod 'Ruby Style' (rubocop) job gating.
+#
+# pr_tests.yml (merge_github_workflows): drop the job-level
+# `continue-on-error: true` from `ruby-style`. The spec matrix's
+# `continue-on-error: ${{matrix.puppet.experimental}}` is a different
+# mechanism and stays.
+#
+# spec/spec_helper.rb (apply_puppet_role): the shared before(:all) hook's
+# `# rubocop:disable` / `# rubocop:enable RSpec/BeforeAfterAll` pair
+# becomes an inline disable. rubocop 1.91 (voxpupuli-test 15) flags the
+# pair as Style/DirectiveScope in 70 modules (the only offense in 49).
+# profile::github_actions runs in bootstrap strategy for pupmod, so the
+# apply stage doesn't overwrite existing workflows; review each repo's
+# diff for any other baseline drift the role re-asserts.
+#
+# Prerequisites, or the sync PRs go red:
+#   - a simp-rake-helpers release that allows voxpupuli-test 15 and pins
+#     json < 3. Until then the Ruby Style job can't even bundle (the
+#     modules' rubocop-performance ~> 1.27 needs rubocop >= 1.89, while
+#     voxpupuli-test 14 pins 1.85.1), which continue-on-error has hidden;
+#   - per-module fixes for the remaining rubocop 1.91 offenses.
+#
+# No version bump: spec/ and .github/ changes don't affect release
+# artifacts.
+#
+# Dynamic-inventory session: run with `repolist=github-org`.
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - pr_tests.yml
+          preserve_blocks:
+            - jobs.acceptance
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - apply_puppet_role
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20261003-gate-ruby-style
+    commit_message: |
+      [puppetsync] Make the Ruby Style (rubocop) job gating
+
+      The Ruby Style job ran with `continue-on-error: true`, so rubocop
+      failures never failed a PR. This patch removes it, and replaces the
+      spec_helper's disable/enable directive pair around the before(:all)
+      hook with an inline disable, which rubocop 1.91 requires
+      (Style/DirectiveScope).
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'
