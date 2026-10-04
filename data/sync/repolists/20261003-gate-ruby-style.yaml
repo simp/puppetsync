@@ -1,0 +1,44 @@
+---
+# Repolist for the 20261003-gate-ruby-style session: the github-org
+# dynamic inventory (see github-org.yaml for the selection rule), minus the
+# 23 modules that make the same change themselves in per-module PRs.
+#
+# Those 23 have rubocop 1.91 offenses beyond the shared spec_helper one, so
+# each gets a PR that fixes its offenses and drops the Ruby Style job's
+# continue-on-error in the same change. Skipping them here keeps the sync
+# from opening a second, conflicting PR that would go red until their
+# offenses are fixed.
+puppetsync::repos_source:
+  org: simp
+  include:
+    - 'pupmod-*'
+    - 'puppet-*'
+    - 'rubygem-*'
+  exclude:
+    # Held out of every session; see github-org.yaml
+    - pupmod-voxpupuli-selinux
+    - pupmod-simp-haveged
+    # Gated by their own per-module rubocop PRs
+    - pupmod-simp-compliance_markup
+    - pupmod-simp-crypto_policy
+    - pupmod-simp-deferred_resources
+    - pupmod-simp-ds389
+    - pupmod-simp-iptables
+    - pupmod-simp-krb5
+    - pupmod-simp-nfs
+    - pupmod-simp-openscap
+    - pupmod-simp-pki
+    - pupmod-simp-postfix
+    - pupmod-simp-pupmod
+    - pupmod-simp-rngd
+    - pupmod-simp-rsync
+    - pupmod-simp-simp
+    - pupmod-simp-simp_ds389
+    - pupmod-simp-simp_gitlab
+    - pupmod-simp-simp_grub
+    - pupmod-simp-simpkv
+    - pupmod-simp-simplib
+    - pupmod-simp-ssh
+    - pupmod-simp-sssd
+    - pupmod-simp-tlog
+    - puppet-gpasswd
