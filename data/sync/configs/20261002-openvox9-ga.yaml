@@ -1,0 +1,89 @@
+---
+# OpenVox 9.0.0 is released: declare support for it across the pupmod
+# fleet and make the OpenVox 9 spec row blocking.
+#
+# metadata.json:
+#   - update_metadata_requirements raises every module's `openvox`
+#     requirement to '< 10.0.0'. Modules that don't declare `openvox`
+#     (only pupmod-simp-haveged, which is being retired) are left alone.
+#   - update_metadata_deps refreshes dependency upper bounds against the
+#     Forge, as in the 20260824 session. Several SIMP modules have shipped
+#     majors since then (iptables 9, rsyslog 10, auditd 11, dconf 3,
+#     simp_firewalld 3, useradd 4, simp_options 3, ...) that their
+#     consumers' ranges still exclude, so a consistent release set can't
+#     be pinned without this.
+#   - bump_module_version: minor, since the release adds support for a
+#     new OpenVox major.
+#
+# pr_tests.yml (merge_github_workflows): the OpenVox 9 row moves from the
+# release candidate ('>= 9.0.0.pre.rc1', experimental) to '~> 9.0' with
+# openfact '~> 6.0', blocking. This also stops the experimental row
+# reporting success when no specs ran. The default preserve_keys apply;
+# jobs.acceptance stays repo-owned.
+#
+# Dynamic-inventory session: run with `repolist=github-org` (or point
+# the repolists latest.yaml there).
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - pr_tests.yml
+          preserve_blocks:
+            - jobs.acceptance
+        update_metadata_requirements:
+          requirements:
+            openvox: '>= 8.0.0 < 10.0.0'
+        bump_module_version:
+          bump: minor
+          author: Steven Pritchard
+          email: steve@sicura.us
+          changelog_message: |
+            Add support for OpenVox 9
+            Update metadata.json dependency ranges from the Forge
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - update_metadata_requirements
+          - update_metadata_deps
+          - bump_module_version
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20261002-openvox9-ga
+    commit_message: |
+      [puppetsync] Add support for OpenVox 9
+
+      OpenVox 9.0.0 is released. This patch:
+
+      - raises the module's `openvox` requirement to '< 10.0.0';
+      - updates metadata.json dependency upper bounds against the Puppet
+        Forge's current releases, so the module accepts the latest
+        releases of the modules it depends on (lower bounds and in-range
+        requirements are untouched);
+      - makes the OpenVox 9 spec test row blocking, testing '~> 9.0' with
+        openfact '~> 6.0' instead of the release candidate;
+      - bumps the module's minor version, with a matching CHANGELOG entry.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+                    # (Used by idempotency checks when approving/merging PRs)
+    approval_message: ':+1: :ghost:'

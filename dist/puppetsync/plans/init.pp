@@ -427,6 +427,29 @@ plan puppetsync(
 
   $repos.puppetsync::pipeline_stage(
     # ---------------------------------------------------------------------------
+    'update_metadata_requirements',
+    # ---------------------------------------------------------------------------
+    $opts
+  ) |$ok_repos, $stage_name| {
+    # Rewrites named metadata.json `requirements` entries (e.g. the openvox
+    # range when a new OpenVox major ships). Only Puppet modules have a
+    # metadata.json worth updating.
+    $pupmod_repos = $ok_repos.filter |$repo| {
+      $repo.facts['project_type'] == 'pupmod'
+    }
+    run_task_with('puppetsync::update_metadata_requirements',
+      $pupmod_repos,
+      '_catch_errors'  => true,
+    ) |$repo| {
+      {
+        'repo_path'    => $repo.vars['repo_path'],
+        'requirements' => $opts.dig('update_metadata_requirements', 'requirements'),
+      }
+    }
+  }
+
+  $repos.puppetsync::pipeline_stage(
+    # ---------------------------------------------------------------------------
     'update_metadata_deps',
     # ---------------------------------------------------------------------------
     $opts
