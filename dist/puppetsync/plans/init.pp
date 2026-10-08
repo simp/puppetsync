@@ -101,10 +101,25 @@ plan puppetsync(
   Hash                 $options                = {},
 ) {
 
-  $opts = {
+  $session_opts = {
     'clone_git_repos'          => true,
     'github_api_delay_seconds' => 5,
    } + getvar('puppetsync_config.puppetsync.plans.sync').lest || {{}} + $options
+
+  # Every session that commits also refreshes REFERENCE.md, whether or not
+  # its config lists the generate_reference_md stage: openvox-strings
+  # releases change the generated output, and the pupmod PR tests fail any
+  # PR whose REFERENCE.md is stale. Run implicitly, the stage only touches
+  # modules that already have a REFERENCE.md and that an earlier stage
+  # changed, so it never widens a session to repos it had no other reason
+  # to touch (see the 'only_changed' task parameter).
+  $listed_stages = $session_opts['stages']
+  $implicit_reference_md = ($listed_stages =~ Array and
+    'git_commit_changes' in $listed_stages and !('generate_reference_md' in $listed_stages))
+  $opts = $implicit_reference_md ? {
+    true    => $session_opts + { 'stages' => $listed_stages + ['generate_reference_md'] },
+    default => $session_opts,
+  }
 
   # Dynamic inventory (simp/puppetsync#55): when the repolist file defines
   # `puppetsync::repos_source`, build the repo list from the GitHub API and
@@ -537,7 +552,8 @@ plan puppetsync(
       '_catch_errors'  => true,
     ) |$repo| {
       {
-        'repo_path' => $repo.vars['repo_path'],
+        'repo_path'    => $repo.vars['repo_path'],
+        'only_changed' => $implicit_reference_md,
       }
     }
   }
