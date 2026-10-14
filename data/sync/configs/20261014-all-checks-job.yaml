@@ -1,0 +1,62 @@
+---
+# Add the 'All checks' aggregate job to the pupmod PR Tests workflow.
+#
+# GitHub only blocks a merge on status checks that branch protection lists
+# by name, so a job can fail without stopping a merge. The new `all-checks`
+# job needs every other job in pr_tests.yml and fails unless all of them
+# succeeded, giving branch protection one check to require in every repo.
+#
+# pr_tests.yml (merge_github_workflows): the repo's own `jobs.acceptance`
+# block is kept as-is. A module with no acceptance job keeps having none,
+# and the merge drops `acceptance` from all-checks' `needs:` there.
+#
+# Run this after the 20261003-gate-ruby-style PRs merge. Before that, these
+# PRs would also carry the Ruby Style gating change.
+#
+# After the PRs merge, require the 'All checks' status check in each repo's
+# branch protection. Requiring it before the job exists leaves every PR
+# waiting on a check that never reports.
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - pr_tests.yml
+          preserve_blocks:
+            - jobs.acceptance
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20261014-all-checks-job
+    commit_message: |
+      [puppetsync] Add an 'All checks' job to PR Tests
+
+      GitHub only blocks a merge on status checks that branch protection
+      lists by name. This patch adds an `all-checks` job that needs every
+      other PR Tests job and fails unless all of them succeeded, so branch
+      protection can require that single check.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+    approval_message: ':+1: :ghost:'

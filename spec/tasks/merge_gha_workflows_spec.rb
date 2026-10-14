@@ -359,6 +359,56 @@ describe 'task: merge_gha_workflows' do
       expect(JSON.parse(stdout)['changed']).to be false
     end
 
+    it "drops a removed job from other jobs' needs" do
+      with_needs = template.sub("  acceptance:\n", <<~YAML.gsub(/^/, '  ') + "  acceptance:\n")
+        flow:
+          needs: [spec, acceptance]
+        block:
+          needs:
+            - spec
+            - acceptance
+        only:
+          needs: acceptance
+        only_list:
+          needs: [acceptance]
+      YAML
+      File.write(@wf, "name: PR Tests\njobs:\n  spec:\n    steps:\n      - uses: actions/checkout@v5\n")
+
+      stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => with_needs }],
+                                         preserve_blocks: ['jobs.acceptance'])
+
+      expect(status).to be_success, stderr
+      jobs = Psych.safe_load(File.read(@wf))['jobs']
+      expect(jobs.keys).to eq(%w[spec flow block only only_list])
+      expect(jobs['flow']).to eq('needs' => ['spec'])
+      expect(jobs['block']).to eq('needs' => ['spec'])
+      expect(jobs['only']).to be_nil      # `needs:` removed; the job is now empty
+      expect(jobs['only_list']).to be_nil
+    end
+
+    it "keeps a needs: entry for a job the repo has" do
+      File.write(@wf, real_template)
+
+      stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => real_template }],
+                                         preserve_blocks: ['jobs.acceptance'])
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)['changed']).to be false
+      expect(Psych.safe_load(File.read(@wf))['jobs']['all-checks']['needs']).to include('acceptance')
+    end
+
+    it 'gives a module without acceptance suites a valid aggregate job' do
+      File.write(@wf, real_template.sub(/^  acceptance:.*\z/m, ''))
+
+      stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => real_template }],
+                                         preserve_blocks: ['jobs.acceptance'])
+
+      expect(status).to be_success, stderr
+      jobs = Psych.safe_load(File.read(@wf))['jobs']
+      expect(jobs.keys).not_to include('acceptance')
+      expect(jobs['all-checks']['needs']).to eq(jobs.keys - ['all-checks'])
+    end
+
     it 'is idempotent' do
       existing = template
                  .sub('name: PR Tests', 'name: Old Name')

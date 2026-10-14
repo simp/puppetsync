@@ -28,7 +28,10 @@
 # block it is appended to the parent; and when the EXISTING file lacks it,
 # the template's block is REMOVED — the template must not introduce a
 # repo-owned section (an acceptance job would be dead weight on a module
-# with no acceptance suites).
+# with no acceptance suites). A removed job is also dropped from every
+# other job's `needs:`, since GitHub rejects a workflow whose `needs:`
+# names a job that doesn't exist (the template's aggregate check job
+# needs every job, acceptance included).
 
 require 'fileutils'
 require 'json'
@@ -105,6 +108,7 @@ end
 # key.start_line ... value.end_line, exclusive)
 def preserve_existing_blocks(template, existing_text, paths)
   preserved = []
+  removed = []
   existing_lines = existing_text.split("\n", -1)
   existing_root = root_mapping(existing_text)
 
@@ -120,6 +124,7 @@ def preserve_existing_blocks(template, existing_text, paths)
       next if template_pair.nil?
 
       template_lines[template_pair[0].start_line...template_pair[1].end_line] = []
+      removed << path
     elsif template_pair
       block = existing_lines[existing_pair[0].start_line...existing_pair[1].end_line]
       next if template_lines[template_pair[0].start_line...template_pair[1].end_line] == block
@@ -137,11 +142,52 @@ def preserve_existing_blocks(template, existing_text, paths)
     template = template_lines.join("\n")
   end
 
-  [template, preserved]
+  [template, preserved, removed]
+end
+
+# Drop the named jobs from every job's `needs:` (a scalar, a flow sequence
+# on one line, or a block sequence with one item per line), removing the
+# `needs:` key entirely when nothing is left. One edit per pass, re-parsing
+# after each so line/column positions stay valid.
+def prune_needs(template, job_names)
+  return template if job_names.empty?
+
+  loop do
+    jobs = (root = root_mapping(template)) && node_at_path(root, 'jobs')
+    return template unless jobs && jobs[1].is_a?(Psych::Nodes::Mapping)
+
+    lines = template.split("\n", -1)
+    edit = jobs[1].children.each_slice(2).lazy.map { |_name, job|
+      needs = job.is_a?(Psych::Nodes::Mapping) && node_at_path(job, 'needs')
+      next unless needs
+
+      key, value = needs
+      names = value.is_a?(Psych::Nodes::Sequence) ? value.children.map(&:value) : [value.value]
+      kept = names - job_names
+      next if kept == names
+
+      if kept.empty?
+        # A one-line value ends on the key's own line
+        lines[key.start_line...[value.end_line, key.start_line + 1].max] = []
+      elsif value.is_a?(Psych::Nodes::Sequence) && value.style == Psych::Nodes::Sequence::BLOCK
+        drop = value.children.reject { |item| kept.include?(item.value) }.map(&:start_line)
+        lines = lines.reject.with_index { |_l, i| drop.include?(i) }
+      else
+        line = lines[value.start_line]
+        lines[value.start_line] = line[0...value.start_column] + "[#{kept.join(', ')}]" + line[value.end_column..]
+      end
+      lines.join("\n")
+    }.find(&:itself)
+    return template if edit.nil? || edit == template
+
+    template = edit
+  end
 end
 
 def merge_workflow(template, existing_text, keys, blocks)
-  template, preserved_blocks = preserve_existing_blocks(template, existing_text, blocks)
+  template, preserved_blocks, removed_blocks = preserve_existing_blocks(template, existing_text, blocks)
+  removed_jobs = removed_blocks.filter_map { |path| path.delete_prefix('jobs.') if path.match?(/\Ajobs\.[^.]+\z/) }
+  template = prune_needs(template, removed_jobs)
   existing = existing_values(existing_text, keys)
   lines = template.split("\n", -1)
   updated = []
