@@ -82,6 +82,46 @@ describe 'task: generate_reference_md' do
     expect(stderr).to include('no REFERENCE.md')
   end
 
+  context 'with only_changed' do
+    let(:bundler) { fake_bundler('[ "$1" = "exec" ] && echo "new reference" > REFERENCE.md; exit 0') }
+
+    it 'regenerates REFERENCE.md when an earlier stage changed the repo' do
+      File.write(File.join(@repo, 'metadata.json'), "{}\n")
+
+      stdout, stderr, status = run_task('generate_reference_md.rb',
+                                        { 'repo_path' => @repo, 'only_changed' => true },
+                                        { 'BUNDLER_EXE' => bundler })
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)).to eq('changed' => true)
+      expect(File.read(File.join(@repo, 'REFERENCE.md'))).to eq("new reference\n")
+    end
+
+    it 'leaves a repo with no other changes alone' do
+      stdout, stderr, status = run_task('generate_reference_md.rb',
+                                        { 'repo_path' => @repo, 'only_changed' => true },
+                                        { 'BUNDLER_EXE' => bundler })
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)).to eq('changed' => false, 'skipped' => 'no other changes')
+      expect(git('status', '--porcelain')).to be_empty
+    end
+
+    it 'does not create a REFERENCE.md in a module without one' do
+      git('rm', '-q', 'REFERENCE.md')
+      git('commit', '-q', '-m', 'drop REFERENCE.md')
+      File.write(File.join(@repo, 'metadata.json'), "{}\n")
+
+      stdout, stderr, status = run_task('generate_reference_md.rb',
+                                        { 'repo_path' => @repo, 'only_changed' => true },
+                                        { 'BUNDLER_EXE' => bundler })
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)).to eq('changed' => false, 'skipped' => 'no REFERENCE.md')
+      expect(File.exist?(File.join(@repo, 'REFERENCE.md'))).to be(false)
+    end
+  end
+
   it 'fails when repo_path is missing' do
     _stdout, _stderr, status = run_task('generate_reference_md.rb', {})
     expect(status).not_to be_success
