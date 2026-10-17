@@ -2,7 +2,8 @@
 #         NOTICE: **This file is maintained with puppetsync**
 #
 # This file is automatically updated as part of a puppet module baseline.
-# The next baseline sync will overwrite any local changes made to this file.
+# Baseline syncs add gems missing from the template and remove retired ones,
+# but leave other local changes (added gems, version constraints) alone.
 # ------------------------------------------------------------------------------
 gem_sources = ENV.fetch('GEM_SERVERS', 'https://rubygems.org').split(%r{[, ]+})
 
@@ -34,6 +35,7 @@ group :test do
   gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 6.2')
   # renovate: datasource=rubygems versioning=ruby
   gem 'simp-rspec-puppet-facts', ENV.fetch('SIMP_RSPEC_PUPPET_FACTS_VERSION', '~> 4.0.0')
+  gem 'observer', require: false
   gem 'syslog', require: false
 end
 
