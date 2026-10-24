@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1.334.0
         with:
           # Match the Ruby bundled with openbolt, which runs the tasks in production
           ruby-version: '3.2.11'
