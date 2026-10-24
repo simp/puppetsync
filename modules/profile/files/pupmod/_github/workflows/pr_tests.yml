@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: 'Install Ruby'
-        uses: ruby/setup-ruby@v1  # ruby/setup-ruby@ec106b438a1ff6ff109590de34ddc62c540232e0
+        uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: '4.0.9'
           bundler-cache: true
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: 'Install Ruby'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: '4.0.9'
           bundler-cache: true
@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: 'Install Ruby'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: '4.0.9'
           bundler-cache: true
@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: 'Install Ruby'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: '4.0.9'
           bundler-cache: true
@@ -75,7 +75,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: 'Install Ruby'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: '4.0.9'
           bundler-cache: true
@@ -88,7 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: 'Install Ruby'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: '4.0.9'
           bundler-cache: true
@@ -126,7 +126,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: 'Install Ruby ${{matrix.puppet.ruby_version}}'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: ${{matrix.puppet.ruby_version}}
           bundler-cache: true
@@ -173,7 +173,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v7
       - name: 'Install Ruby'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: '4.0.9'
       - name: bundle install

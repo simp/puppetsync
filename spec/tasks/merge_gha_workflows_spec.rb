@@ -13,9 +13,10 @@ describe 'task: merge_gha_workflows' do
     end
   end
 
-  def run_merge(workflows, preserve_blocks: nil)
+  def run_merge(workflows, preserve_blocks: nil, refresh_identities: nil)
     params = { 'workflows' => workflows }
     params['preserve_blocks'] = preserve_blocks if preserve_blocks
+    params['refresh_identities'] = refresh_identities if refresh_identities
     run_task('merge_gha_workflows.rb', params)
   end
 
@@ -249,6 +250,112 @@ describe 'task: merge_gha_workflows' do
     expect(status).to be_success, stderr
     expect(JSON.parse(stdout)['changed']).to be false
     expect(File.read(@wf)).to eq(first_pass)
+  end
+
+  context 'with refresh_identities' do
+    let(:template) do
+      <<~YAML
+        jobs:
+          build:
+            steps:
+              - uses: actions/checkout@v7
+              - uses: ruby/setup-ruby@v1.334.0
+          test:
+            steps:
+              - uses: ruby/setup-ruby@v1.334.0
+                with:
+                  ruby-version: '4.0.9'
+      YAML
+    end
+
+    let(:existing) do
+      <<~YAML
+        jobs:
+          build:
+            steps:
+              - uses: actions/checkout@3d3c42e0f0d4c8a1e9f6c2b5a7d8e9f0a1b2c3d4 # v7
+              - uses: ruby/setup-ruby@v1  # ruby/setup-ruby@ec106b438a1ff6ff109590de34ddc62c540232e0
+          test:
+            steps:
+              - uses: ruby/setup-ruby@v1
+                with:
+                  ruby-version: '4.0.8'
+      YAML
+    end
+
+    it "takes the template's value for every occurrence of a refreshed identity" do
+      File.write(@wf, existing)
+
+      stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => template }], refresh_identities: ['ruby/setup-ruby'])
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)['files'][@wf]['changed']).to be true
+      merged = File.read(@wf)
+      expect(merged.scan('uses: ruby/setup-ruby@v1.334.0').size).to eq(2)
+      expect(merged).not_to include('ec106b438a') # the repo's trailing comment goes with its value
+    end
+
+    it "keeps the repo's other Renovate-managed values" do
+      File.write(@wf, existing)
+
+      _stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => template }], refresh_identities: ['ruby/setup-ruby'])
+
+      expect(status).to be_success, stderr
+      merged = File.read(@wf)
+      expect(merged).to include('actions/checkout@3d3c42e0f0d4c8a1e9f6c2b5a7d8e9f0a1b2c3d4 # v7')
+      expect(merged).to include("ruby-version: '4.0.8'")
+    end
+
+    it "keeps the repo's value for that identity without the option" do
+      File.write(@wf, existing)
+
+      _stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => template }])
+
+      expect(status).to be_success, stderr
+      expect(File.read(@wf)).to eq(existing)
+    end
+
+    it 'refreshes the identity inside preserved blocks too' do
+      template_with_acceptance = template + <<~YAML.gsub(/^/, '  ')
+        acceptance:
+          steps:
+            - uses: ruby/setup-ruby@v1.334.0
+      YAML
+      repo_with_blocks = existing + <<~YAML.gsub(/^/, '  ')
+        acceptance:
+          steps:
+            - uses: ruby/setup-ruby@v1
+              with:
+                ruby-version: '3.2.11'
+        repo_only:
+          steps:
+            - uses: ruby/setup-ruby@v1
+      YAML
+      File.write(@wf, repo_with_blocks)
+
+      _stdout, stderr, status = run_merge(
+        [{ 'path' => @wf, 'template' => template_with_acceptance }],
+        preserve_blocks: ['jobs.acceptance', 'jobs.repo_only'],
+        refresh_identities: ['ruby/setup-ruby'],
+      )
+
+      expect(status).to be_success, stderr
+      merged = File.read(@wf)
+      expect(merged).not_to match(%r{ruby/setup-ruby@v1$})
+      expect(merged.scan('uses: ruby/setup-ruby@v1.334.0').size).to eq(4)
+      expect(merged).to include("ruby-version: '3.2.11'") # the rest of the preserved block is untouched
+    end
+
+    it 'moves the fleet off the setup-ruby branch ref against the real template' do
+      fleet = real_template.gsub(/ruby\/setup-ruby@v1\.334\.0/, 'ruby/setup-ruby@v1')
+      raise 'munge failed' if fleet == real_template
+      File.write(@wf, fleet)
+
+      _stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => real_template }], refresh_identities: ['ruby/setup-ruby'])
+
+      expect(status).to be_success, stderr
+      expect(File.read(@wf)).to eq(real_template)
+    end
   end
 
   context 'with preserve_blocks' do

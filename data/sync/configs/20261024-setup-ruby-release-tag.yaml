@@ -1,0 +1,64 @@
+---
+# Reference ruby/setup-ruby by a release tag instead of `@v1`.
+#
+# In ruby/setup-ruby, `v1` is a branch, not a tag. Renovate can't resolve
+# a branch to a commit, so `@v1` can be neither pinned to a digest nor held
+# back by the shared preset's minimumReleaseAge. A release tag gives
+# Renovate a version to pin, age and update; the shared ruby.json preset
+# groups those updates with the Ruby patch updates.
+#
+# merge_github_workflows normally preserves each repo's `uses:` values, so
+# `refresh_identities` makes the template's ruby/setup-ruby ref win for
+# this session only. Every other Renovate-managed value is preserved as
+# usual.
+#
+# Run this after simp/renovate-config#9 merges. Without it, every
+# setup-ruby release opens its own immediate PR in every repo, instead of
+# joining the grouped Ruby PR after a 2-day wait.
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - pr_tests.yml
+            - tag_deploy.yml
+          preserve_blocks:
+            - jobs.acceptance
+          refresh_identities:
+            - ruby/setup-ruby
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20261024-setup-ruby-release-tag
+    commit_message: |
+      [puppetsync] Reference ruby/setup-ruby by a release tag
+
+      `ruby/setup-ruby@v1` follows a branch, which Renovate can't pin or
+      hold back with a minimum release age. Reference the v1.334.0 release
+      tag instead, so Renovate pins it and proposes setup-ruby updates
+      together with the Ruby updates that need them.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+    approval_message: ':+1: :ghost:'

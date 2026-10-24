@@ -32,6 +32,14 @@
 # other job's `needs:`, since GitHub rejects a workflow whose `needs:`
 # names a job that doesn't exist (the template's aggregate check job
 # needs every job, acceptance included).
+#
+# `refresh_identities` names identities (e.g. 'ruby/setup-ruby') whose values
+# come from the template even when the repo already has one, including inside
+# `preserve_blocks`: the way a session deliberately changes a preserved value,
+# such as moving an action from a branch ref to a release tag, without
+# touching the repo's other Renovate-managed values. An occurrence the
+# template has no counterpart for (e.g. in a repo-owned block) takes the
+# template's first value for that identity.
 
 require 'fileutils'
 require 'json'
@@ -184,7 +192,19 @@ def prune_needs(template, job_names)
   end
 end
 
-def merge_workflow(template, existing_text, keys, blocks)
+# The template's values for a refreshed identity at this [path, key,
+# identity], or its first value for the identity anywhere when this context
+# only exists in the repo (a preserved block the template lacks)
+def template_refresh(template_values, id)
+  list = template_values.fetch(id, [])
+  return list unless list.empty?
+
+  template_values.select { |(_path, _key, ident), _values| ident == id[2] }.values.flatten.first(1)
+end
+
+def merge_workflow(template, existing_text, keys, blocks, refresh = [])
+  # Read before preserve_blocks splices repo content into the template
+  template_values = refresh.empty? ? {} : existing_values(template, keys)
   template, preserved_blocks, removed_blocks = preserve_existing_blocks(template, existing_text, blocks)
   removed_jobs = removed_blocks.filter_map { |path| path.delete_prefix('jobs.') if path.match?(/\Ajobs\.[^.]+\z/) }
   template = prune_needs(template, removed_jobs)
@@ -197,12 +217,13 @@ def merge_workflow(template, existing_text, keys, blocks)
   # differences (distinct versions per job, trailing comments) survive
   # verbatim. Template entries with no counterpart in the existing file
   # (a genuinely new or restored step) keep the template's value.
+  # Refreshed identities take the template's values instead.
   counters = Hash.new(0)
   preserved_scalars(Psych.parse(template), keys).each do |path, key, node|
     next unless node.start_line == node.end_line
 
     id = [path, key, identity(node.value)]
-    list = existing[id]
+    list = refresh.include?(id[2]) ? template_refresh(template_values, id) : existing[id]
     value = list[counters[id]] || list.last
     counters[id] += 1
     next if value.nil?
@@ -217,7 +238,7 @@ def merge_workflow(template, existing_text, keys, blocks)
   [lines.join("\n"), updated, preserved_blocks]
 end
 
-def merge_gha_workflows(workflows, keys, blocks)
+def merge_gha_workflows(workflows, keys, blocks, refresh = [])
   results = {}
   workflows.each do |wf|
     path = wf.fetch('path')
@@ -232,7 +253,7 @@ def merge_gha_workflows(workflows, keys, blocks)
     end
 
     existing_text = File.read(path)
-    merged, updated, preserved_blocks = merge_workflow(template, existing_text, keys, blocks)
+    merged, updated, preserved_blocks = merge_workflow(template, existing_text, keys, blocks, refresh)
 
     if merged == existing_text
       results[path] = { 'changed' => false }
@@ -252,5 +273,6 @@ workflows = params['workflows']
 raise('No workflows given') unless workflows.is_a?(Array)
 keys = params.fetch('preserve_keys', nil) || DEFAULT_PRESERVE_KEYS
 blocks = params.fetch('preserve_blocks', nil) || []
+refresh = params.fetch('refresh_identities', nil) || []
 
-puts JSON.generate(merge_gha_workflows(workflows, keys, blocks))
+puts JSON.generate(merge_gha_workflows(workflows, keys, blocks, refresh))

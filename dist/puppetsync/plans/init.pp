@@ -344,10 +344,14 @@ plan puppetsync(
           default => Hash({ 'path' => "${wf_dir}/${f}", 'template' => file::read($template_path) }),
         }
       }.filter |$wf| { $wf =~ NotUndef }
+      # Optional: identities (e.g. 'ruby/setup-ruby') whose values come from
+      # the template this session, overriding the repo's preserved value.
+      # puppetsync.plans.sync.merge_github_workflows.refresh_identities
       Hash({
-        'workflows'       => $workflows,
-        'preserve_keys'   => $opts.dig('merge_github_workflows', 'preserve_keys'),
-        'preserve_blocks' => $opts.dig('merge_github_workflows', 'preserve_blocks'),
+        'workflows'          => $workflows,
+        'preserve_keys'      => $opts.dig('merge_github_workflows', 'preserve_keys'),
+        'preserve_blocks'    => $opts.dig('merge_github_workflows', 'preserve_blocks'),
+        'refresh_identities' => $opts.dig('merge_github_workflows', 'refresh_identities'),
       })
     }
   }

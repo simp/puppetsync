@@ -77,7 +77,7 @@ jobs:
           echo "build_command=$GEM_BUILD_COMMAND" | tee -a "$GITHUB_OUTPUT"
           echo "pkg_dir=$GEM_PKG_DIR" | tee -a "$GITHUB_OUTPUT"
           echo "release_command=$GEM_RELEASE_COMMAND" | tee -a "$GITHUB_OUTPUT"
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1.334.0
         with:
           ruby-version: 2.7
           bundler-cache: true
