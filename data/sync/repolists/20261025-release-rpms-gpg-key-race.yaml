@@ -1,0 +1,40 @@
+---
+# Repolist for the 20261025-release-rpms-gpg-key-race session: every repo
+# that carries release_rpms.yml.
+#
+# The github-org dynamic inventory (see github-org.yaml for the selection
+# rule) covers the module repos. Of the rubygems only rubygem-simp-cli
+# carries release_rpms.yml, and the packaging repos below aren't matched by
+# github-org's include globs at all.
+#
+# merge_github_workflows CREATES a workflow that a repo lacks, so every repo
+# selected here must already have release_rpms.yml. Hence no `rubygem-*`
+# glob, and pupmod-simp-ufw (not yet released) is excluded.
+puppetsync::repos_source:
+  org: simp
+  include:
+    - 'pupmod-*'
+    - 'puppet-*'
+    - rubygem-simp-cli
+    # Packaging repos that carry release_rpms.yml
+    - pkg-r10k
+    - simp-adapter
+    - simp-doc
+    - simp-environment-skeleton
+    - simp-gpgkeys
+    - simp-rsync-skeleton
+    - simp-selinux-policy
+    - simp-utils
+  exclude:
+    # Held out of every session; see github-org.yaml
+    - pupmod-voxpupuli-selinux
+    - pupmod-simp-haveged
+    # Its release_rpms.yml and tag_deploy.yml predate the run-once/matrix
+    # split: tag_deploy dispatches release_rpms once per OS with a
+    # build_container_os input (for centos7/centos8). Merging only
+    # release_rpms.yml would leave tag_deploy sending an input that no
+    # longer exists. It has missed every sync since 2026-09-03, so it needs
+    # its own catch-up session.
+    - pupmod-simp-compliance_markup
+    # No release_rpms.yml yet (initial release still in review)
+    - pupmod-simp-ufw

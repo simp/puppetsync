@@ -1,0 +1,82 @@
+---
+# Roll out the release_rpms.yml GPG key upload fix to every repo that
+# carries it.
+#
+# Every OS leg of the build matrix signs with the same key and produces the
+# same RPM-GPG-KEY-SIMP-UNSTABLE-2.pub.asc, and every leg clobbered and
+# re-uploaded it. Run in parallel, those uploads race, so a leg fails with
+# 'already_exists' or 'Not Found' and cancels the others. During the
+# 2026-10-14 module releases many runs reported failure this way, even
+# though every release ended up with all of its assets. Only the first OS
+# in build_container_oses attaches the key now.
+#
+# release_rpms.yml (merge_github_workflows, scoped to that one file): the
+# template is shared by every project type, so the merge is widened from the
+# pupmod default to rubygem (rubygem-simp-cli) and simp_unknown (the
+# packaging repos). The template's header now says "standardized asset
+# baseline", like the other shared templates, instead of "puppet module
+# baseline". In the module repos that header line changes too; in
+# simp-adapter, simp-doc and simp-utils it already matches.
+#
+# Expected result (checked against every repo's current release_rpms.yml):
+# one PR in each of the 80 selected repos, changing only the key-upload
+# lines and, in the module repos, the header comment. merge_github_workflows
+# creates a workflow that a repo lacks, so the repolist selects only repos
+# that already have release_rpms.yml, and it excludes compliance_markup
+# (see the comment there).
+#
+# No version bump: .github/ changes don't affect release artifacts.
+#
+# Run with `repolist=20261025-release-rpms-gpg-key-race`.
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+      - rubygem
+      - simp_unknown
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - release_rpms.yml
+          project_types:
+            - pupmod
+            - pupmod_skeleton
+            - rubygem
+            - simp_unknown
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20261025-release-rpms-gpg-key-race
+    commit_message: |
+      [puppetsync] release_rpms: attach the GPG public key from one OS leg
+
+      Every OS leg of the build matrix signs with the same key and produces
+      the same RPM-GPG-KEY-SIMP-UNSTABLE-2.pub.asc, and every leg clobbered
+      and re-uploaded it. Run in parallel, those uploads raced, failing a
+      leg with 'already_exists' or 'Not Found' and cancelling the others,
+      even though the release usually ended up with all of its assets.
+
+      Only the first OS in build_container_oses attaches the key now.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+    approval_message: ':+1: :ghost:'
