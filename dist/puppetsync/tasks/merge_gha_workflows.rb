@@ -32,6 +32,13 @@
 # other job's `needs:`, since GitHub rejects a workflow whose `needs:`
 # names a job that doesn't exist (the template's aggregate check job
 # needs every job, acceptance included).
+#
+# `template_steps` hands named steps back to the template inside those
+# preserved blocks: a preserved job's steps with these names are replaced by
+# the template's steps of the same names, in template order, at the first
+# one's position. A preserved job with none of them keeps its steps, so a
+# baseline fix to shared steps (e.g. the Vagrant setup) reaches every repo
+# that has them without touching each repo's own matrix and suites.
 
 require 'fileutils'
 require 'json'
@@ -102,11 +109,55 @@ def node_at_path(root, path)
   [key_node, node]
 end
 
+# The steps of a job mapping as [name, start_line, end_line, column] (end
+# exclusive, trailing blank lines left out, column of the step's first key).
+# An item ends where the next one starts; the last ends with the sequence.
+def job_steps(job, lines)
+  steps = job.is_a?(Psych::Nodes::Mapping) && node_at_path(job, 'steps')
+  return [] unless steps && steps[1].is_a?(Psych::Nodes::Sequence)
+
+  items = steps[1].children
+  items.each_with_index.map do |item, i|
+    name = item.is_a?(Psych::Nodes::Mapping) && node_at_path(item, 'name')
+    stop = i + 1 < items.size ? items[i + 1].start_line : item.end_line
+    stop -= 1 while stop > item.start_line + 1 && lines[stop - 1].strip.empty?
+    [name && name[1].respond_to?(:value) ? name[1].value : nil, item.start_line, stop, item.start_column]
+  end
+end
+
+# Within a preserved job block, make the template authoritative for the
+# steps named in `names`: the block's steps with those names are replaced
+# by the template's, in template order, where the first of them was. A
+# block with none of them is returned unchanged, so a job set up some other
+# way (podman instead of Vagrant, say) doesn't gain them.
+def graft_template_steps(block, block_start, existing_lines, existing_job, template_lines, template_job, names)
+  existing = job_steps(existing_job, existing_lines).select { |name, _start, _stop, _col| names.include?(name) }
+  return block if existing.empty?
+
+  template_steps = job_steps(template_job, template_lines).select { |name, _start, _stop, _col| names.include?(name) }
+  shift = template_steps.empty? ? 0 : existing.first[3] - template_steps.first[3]
+  replacement = template_steps.flat_map { |_name, start, stop, _col| template_lines[start...stop] }.map do |line|
+    next line if line.strip.empty?
+
+    shift >= 0 ? (' ' * shift) + line : line.sub(/\A {0,#{-shift}}/, '')
+  end
+
+  drop = existing.flat_map { |_name, start, stop, _col| ((start - block_start)...(stop - block_start)).to_a }
+  first = existing.first[1] - block_start
+  block.each_with_index.flat_map do |line, i|
+    next replacement if i == first
+    next [] if drop.include?(i)
+
+    [line]
+  end
+end
+
 # Make the existing file authoritative for whole blocks: splice its version
 # over the template's, append it when the template lacks it, or remove the
 # template's when the existing file has none (Psych spans:
-# key.start_line ... value.end_line, exclusive)
-def preserve_existing_blocks(template, existing_text, paths)
+# key.start_line ... value.end_line, exclusive). Steps named in
+# `template_steps` stay the template's inside a preserved job block.
+def preserve_existing_blocks(template, existing_text, paths, template_steps = [])
   preserved = []
   removed = []
   existing_lines = existing_text.split("\n", -1)
@@ -127,6 +178,10 @@ def preserve_existing_blocks(template, existing_text, paths)
       removed << path
     elsif template_pair
       block = existing_lines[existing_pair[0].start_line...existing_pair[1].end_line]
+      unless template_steps.empty?
+        block = graft_template_steps(block, existing_pair[0].start_line, existing_lines, existing_pair[1],
+                                     template_lines, template_pair[1], template_steps)
+      end
       next if template_lines[template_pair[0].start_line...template_pair[1].end_line] == block
 
       template_lines[template_pair[0].start_line...template_pair[1].end_line] = block
@@ -184,8 +239,8 @@ def prune_needs(template, job_names)
   end
 end
 
-def merge_workflow(template, existing_text, keys, blocks)
-  template, preserved_blocks, removed_blocks = preserve_existing_blocks(template, existing_text, blocks)
+def merge_workflow(template, existing_text, keys, blocks, steps = [])
+  template, preserved_blocks, removed_blocks = preserve_existing_blocks(template, existing_text, blocks, steps)
   removed_jobs = removed_blocks.filter_map { |path| path.delete_prefix('jobs.') if path.match?(/\Ajobs\.[^.]+\z/) }
   template = prune_needs(template, removed_jobs)
   existing = existing_values(existing_text, keys)
@@ -217,7 +272,7 @@ def merge_workflow(template, existing_text, keys, blocks)
   [lines.join("\n"), updated, preserved_blocks]
 end
 
-def merge_gha_workflows(workflows, keys, blocks)
+def merge_gha_workflows(workflows, keys, blocks, steps)
   results = {}
   workflows.each do |wf|
     path = wf.fetch('path')
@@ -232,7 +287,7 @@ def merge_gha_workflows(workflows, keys, blocks)
     end
 
     existing_text = File.read(path)
-    merged, updated, preserved_blocks = merge_workflow(template, existing_text, keys, blocks)
+    merged, updated, preserved_blocks = merge_workflow(template, existing_text, keys, blocks, steps)
 
     if merged == existing_text
       results[path] = { 'changed' => false }
@@ -252,5 +307,6 @@ workflows = params['workflows']
 raise('No workflows given') unless workflows.is_a?(Array)
 keys = params.fetch('preserve_keys', nil) || DEFAULT_PRESERVE_KEYS
 blocks = params.fetch('preserve_blocks', nil) || []
+steps = params.fetch('template_steps', nil) || []
 
-puts JSON.generate(merge_gha_workflows(workflows, keys, blocks))
+puts JSON.generate(merge_gha_workflows(workflows, keys, blocks, steps))

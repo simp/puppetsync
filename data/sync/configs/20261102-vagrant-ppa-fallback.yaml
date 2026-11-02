@@ -1,0 +1,66 @@
+---
+# Make the pupmod acceptance jobs survive Launchpad PPA outages
+# (simp/puppetsync#122).
+#
+# The acceptance job's "Setup libvirt for Vagrant" step installed vagrant
+# and vagrant-libvirt from ppa:evgeni/vagrant alone, so a Launchpad outage
+# failed every acceptance job and, through 'All checks', blocked merges.
+# The step now restores the PPA's .debs from the Actions cache, retries the
+# PPA with backoff, and falls back to HashiCorp's apt repository and
+# `vagrant plugin install vagrant-libvirt`.
+#
+# pr_tests.yml (merge_github_workflows): each repo's `jobs.acceptance` block
+# is kept as-is, except for the Vagrant setup steps named in
+# template_steps, which are replaced with the template's. Modules whose
+# acceptance job uses podman, and modules with no acceptance job, are left
+# unchanged.
+puppetsync::plan_config:
+  puppetsync:
+    permitted_project_types:
+      - pupmod
+      - pupmod_skeleton
+    plans:
+      sync:
+        github_api_delay_seconds: 1
+        merge_github_workflows:
+          files:
+            - pr_tests.yml
+          preserve_blocks:
+            - jobs.acceptance
+          template_steps:
+            - Choose the Vagrant packages
+            - Restore the cached Vagrant packages
+            - Setup libvirt for Vagrant
+            - Cache the Vagrant packages
+        stages:
+          - install_gems
+          - checkout_git_feature_branch_in_each_repo
+          - merge_github_workflows
+          - git_commit_changes
+          - ensure_github_fork
+          - ensure_git_remote
+          - git_push_to_remote
+          - ensure_github_pr
+
+      approve_github_prs:
+        stages:
+          - approve_github_pr_for_each_repo
+
+      merge_github_prs:
+        stages:
+          - merge_github_pr_for_each_repo
+
+  git:
+    feature_branch: puppetsync/20261102-vagrant-ppa-fallback
+    commit_message: |
+      [puppetsync] Survive Launchpad PPA outages in acceptance
+
+      The acceptance job installed Vagrant and vagrant-libvirt from
+      ppa:evgeni/vagrant alone, so a Launchpad outage failed every
+      acceptance run. The setup now installs the PPA's packages from the
+      Actions cache when it can, retries the PPA with backoff, and falls
+      back to HashiCorp's Vagrant and the vagrant-libvirt plugin.
+
+  github:
+    pr_user: silug  # This should be the account that *submitted* the PRs
+    approval_message: ':+1: :ghost:'

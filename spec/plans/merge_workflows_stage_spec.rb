@@ -93,6 +93,12 @@ describe 'plan: puppetsync (merge_github_workflows stage)' do
     expect(params['preserve_blocks']).to eq(['jobs.acceptance'])
   end
 
+  it 'passes the session-configured template_steps through to the task' do
+    params = run_merge_stage('merge_github_workflows' => { 'template_steps' => ['Setup libvirt for Vagrant'] })
+
+    expect(params['template_steps']).to eq(['Setup libvirt for Vagrant'])
+  end
+
   it 'classifies a repo with a gemspec as a rubygem, excluding it from the merge' do
     # A gem can carry a pupmod-shaped metadata.json (compliance_engine does);
     # the gemspec must win or the gem's custom workflows get flattened
