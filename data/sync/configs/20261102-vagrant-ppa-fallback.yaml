@@ -5,15 +5,22 @@
 # The acceptance job's "Setup libvirt for Vagrant" step installed vagrant
 # and vagrant-libvirt from ppa:evgeni/vagrant alone, so a Launchpad outage
 # failed every acceptance job and, through 'All checks', blocked merges.
-# The step now restores the PPA's .debs from the Actions cache, retries the
-# PPA with backoff, and falls back to HashiCorp's apt repository and
-# `vagrant plugin install vagrant-libvirt`.
+# The step now uses simp/github-action-setup-vagrant-libvirt, which
+# installs from the Actions cache, then the PPA (with retries), then
+# HashiCorp's apt repository.
+#
+# A pull request can only restore caches saved from the default branch (or
+# its own ref or base branch), so each repo also gets
+# vagrant_package_cache.yml, which saves the PPA's packages from the
+# default branch on push and twice a week.
+#
+# Run it with repolist=pupmods_vagrant_acceptance: ensure_files adds
+# vagrant_package_cache.yml to every repo in the session, and modules whose
+# acceptance job uses podman, or that have none, don't need it.
 #
 # pr_tests.yml (merge_github_workflows): each repo's `jobs.acceptance` block
-# is kept as-is, except for the Vagrant setup steps named in
-# template_steps, which are replaced with the template's. Modules whose
-# acceptance job uses podman, and modules with no acceptance job, are left
-# unchanged.
+# is kept as-is, except for the step named in template_steps, which is
+# replaced with the template's.
 puppetsync::plan_config:
   puppetsync:
     permitted_project_types:
@@ -25,13 +32,13 @@ puppetsync::plan_config:
         merge_github_workflows:
           files:
             - pr_tests.yml
+            - vagrant_package_cache.yml
+          ensure_files:
+            - vagrant_package_cache.yml
           preserve_blocks:
             - jobs.acceptance
           template_steps:
-            - Choose the Vagrant packages
-            - Restore the cached Vagrant packages
             - Setup libvirt for Vagrant
-            - Cache the Vagrant packages
         stages:
           - install_gems
           - checkout_git_feature_branch_in_each_repo
@@ -57,9 +64,12 @@ puppetsync::plan_config:
 
       The acceptance job installed Vagrant and vagrant-libvirt from
       ppa:evgeni/vagrant alone, so a Launchpad outage failed every
-      acceptance run. The setup now installs the PPA's packages from the
-      Actions cache when it can, retries the PPA with backoff, and falls
-      back to HashiCorp's Vagrant and the vagrant-libvirt plugin.
+      acceptance run. The setup step now uses
+      simp/github-action-setup-vagrant-libvirt, which installs the PPA's
+      packages from the Actions cache when it can, retries the PPA, and
+      falls back to HashiCorp's Vagrant and the vagrant-libvirt plugin.
+      The new 'Vagrant package cache' workflow keeps the packages cached
+      from the default branch, where pull requests can restore them.
 
   github:
     pr_user: silug  # This should be the account that *submitted* the PRs

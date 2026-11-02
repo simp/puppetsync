@@ -34,11 +34,13 @@
 # needs every job, acceptance included).
 #
 # `template_steps` hands named steps back to the template inside those
-# preserved blocks: a preserved job's steps with these names are replaced by
-# the template's steps of the same names, in template order, at the first
-# one's position. A preserved job with none of them keeps its steps, so a
-# baseline fix to shared steps (e.g. the Vagrant setup) reaches every repo
-# that has them without touching each repo's own matrix and suites.
+# preserved blocks: each of a preserved job's steps with one of these names
+# is replaced in place by the template's step of that name, and named steps
+# the job lacks go in next to their template neighbours. A preserved job
+# with none of them keeps its steps, so a baseline fix to shared steps
+# (e.g. the Vagrant setup) reaches every repo that has them without
+# touching each repo's own matrix, suites and steps. A name the template
+# lacks is an error rather than a deletion.
 
 require 'fileutils'
 require 'json'
@@ -110,8 +112,9 @@ def node_at_path(root, path)
 end
 
 # The steps of a job mapping as [name, start_line, end_line, column] (end
-# exclusive, trailing blank lines left out, column of the step's first key).
-# An item ends where the next one starts; the last ends with the sequence.
+# exclusive, column of the step's first key). An item ends where the next
+# one starts, or the last with the sequence, less any trailing blank lines
+# and comments outdented from its keys: those belong to whatever follows.
 def job_steps(job, lines)
   steps = job.is_a?(Psych::Nodes::Mapping) && node_at_path(job, 'steps')
   return [] unless steps && steps[1].is_a?(Psych::Nodes::Sequence)
@@ -120,32 +123,65 @@ def job_steps(job, lines)
   items.each_with_index.map do |item, i|
     name = item.is_a?(Psych::Nodes::Mapping) && node_at_path(item, 'name')
     stop = i + 1 < items.size ? items[i + 1].start_line : item.end_line
-    stop -= 1 while stop > item.start_line + 1 && lines[stop - 1].strip.empty?
+    while stop > item.start_line + 1
+      line = lines[stop - 1]
+      break unless line.strip.empty? || (line.lstrip.start_with?('#') && line[/\A */].size <= item.start_column)
+
+      stop -= 1
+    end
     [name && name[1].respond_to?(:value) ? name[1].value : nil, item.start_line, stop, item.start_column]
   end
 end
 
 # Within a preserved job block, make the template authoritative for the
-# steps named in `names`: the block's steps with those names are replaced
-# by the template's, in template order, where the first of them was. A
-# block with none of them is returned unchanged, so a job set up some other
-# way (podman instead of Vagrant, say) doesn't gain them.
+# steps named in `names`. Each of the block's steps with one of those names
+# is replaced in place by the template's step of that name; a named step
+# the block lacks goes in next to the template step before it (or after
+# it), so the block's own steps keep their positions. A block with none of
+# the named steps is returned unchanged, so a job set up some other way
+# (podman instead of Vagrant, say) doesn't gain them.
 def graft_template_steps(block, block_start, existing_lines, existing_job, template_lines, template_job, names)
   existing = job_steps(existing_job, existing_lines).select { |name, _start, _stop, _col| names.include?(name) }
   return block if existing.empty?
 
   template_steps = job_steps(template_job, template_lines).select { |name, _start, _stop, _col| names.include?(name) }
-  shift = template_steps.empty? ? 0 : existing.first[3] - template_steps.first[3]
-  replacement = template_steps.flat_map { |_name, start, stop, _col| template_lines[start...stop] }.map do |line|
-    next line if line.strip.empty?
+  missing = names - template_steps.map(&:first)
+  # Replacing with nothing would silently delete the repo's steps
+  raise "template_steps not in the template's job: #{missing.join(', ')}" unless missing.empty?
 
-    shift >= 0 ? (' ' * shift) + line : line.sub(/\A {0,#{-shift}}/, '')
+  shift = existing.first[3] - template_steps.first[3]
+  text = template_steps.to_h do |name, start, stop, _col|
+    lines = template_lines[start...stop].map do |line|
+      next line if line.strip.empty?
+
+      shift >= 0 ? (' ' * shift) + line : line.sub(/\A {0,#{-shift}}/, '')
+    end
+    [name, lines]
   end
 
+  # Each existing named step's span is replaced by a chunk of template
+  # steps: its own, plus any the block lacks that follow it in the template
+  # (or, before the first one the block has, precede it)
+  have = existing.map(&:first)
+  chunks = Hash.new { |h, k| h[k] = [] }
+  anchor = nil
+  pending = []
+  template_steps.each do |name, *|
+    if have.include?(name)
+      chunks[name].concat(pending.flat_map { |n| text[n] }, text[name])
+      pending = []
+      anchor = name
+    elsif anchor
+      chunks[anchor].concat(text[name])
+    else
+      pending << name
+    end
+  end
+
+  starts = existing.to_h { |name, start, _stop, _col| [start - block_start, name] }
   drop = existing.flat_map { |_name, start, stop, _col| ((start - block_start)...(stop - block_start)).to_a }
-  first = existing.first[1] - block_start
   block.each_with_index.flat_map do |line, i|
-    next replacement if i == first
+    next chunks[starts[i]] if starts.key?(i)
     next [] if drop.include?(i)
 
     [line]

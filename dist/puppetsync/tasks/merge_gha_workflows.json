@@ -15,7 +15,7 @@
       "type": "Optional[Array[String[1]]]"
     },
     "template_steps": {
-      "description": "Names of steps the template stays authoritative for inside preserved_blocks: a preserved job's steps with these names are replaced by the template's steps of the same names, in template order, where the first of them was. A preserved job with none of them is left alone",
+      "description": "Names of steps the template stays authoritative for inside preserved_blocks: each of a preserved job's steps with one of these names is replaced in place by the template's step of that name, and named steps the job lacks go in next to their template neighbours. A preserved job with none of them is left alone. Fails if the template's job lacks a name",
       "type": "Optional[Array[String[1]]]"
     }
   }

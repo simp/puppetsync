@@ -1,0 +1,113 @@
+---
+# pupmod repos whose acceptance job runs Beaker on Vagrant with libvirt
+# ("Setup libvirt for Vagrant" in pr_tests.yml), as of 2026-11-02.
+# The rest of pupmods.yaml run acceptance on podman or have none.
+puppetsync::repos_config:
+
+  https://github.com/simp/pupmod-simp-acpid:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-aide:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-auditd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-autofs:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-ds389:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-fips:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-gdm:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-ima:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-issue:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-libreswan:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-logrotate:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-mozilla:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-nfs:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-oath:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-oddjob:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-pam:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-pki:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-pupmod:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-rsync:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-rsyslog:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-selinux:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_apache:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_ds389:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_gitlab:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_nfs:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_rsyslog:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_snmpd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-ssh:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-sssd:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-stunnel:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-sudo:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-svckill:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-swap:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-tlog:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-vsftpd:
+    branch: master
