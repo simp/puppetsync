@@ -5,8 +5,8 @@
 # The acceptance job's "Setup libvirt for Vagrant" step installed vagrant
 # and vagrant-libvirt from ppa:evgeni/vagrant alone, so a Launchpad outage
 # failed every acceptance job and, through 'All checks', blocked merges.
-# The step now uses simp/github-action-setup-vagrant-libvirt, which
-# installs from the Actions cache, then the PPA (with retries), then
+# The step now uses the setup-vagrant-libvirt action in simp/gha-workflows,
+# which installs from the Actions cache, then the PPA (with retries), then
 # HashiCorp's apt repository.
 #
 # A pull request can only restore caches saved from the default branch (or
@@ -64,9 +64,9 @@ puppetsync::plan_config:
 
       The acceptance job installed Vagrant and vagrant-libvirt from
       ppa:evgeni/vagrant alone, so a Launchpad outage failed every
-      acceptance run. The setup step now uses
-      simp/github-action-setup-vagrant-libvirt, which installs the PPA's
-      packages from the Actions cache when it can, retries the PPA, and
+      acceptance run. The setup step now uses the setup-vagrant-libvirt
+      action from simp/gha-workflows, which installs the PPA's packages
+      from the Actions cache when it can, retries the PPA, and
       falls back to HashiCorp's Vagrant and the vagrant-libvirt plugin.
       The new 'Vagrant package cache' workflow keeps the packages cached
       from the default branch, where pull requests can restore them.

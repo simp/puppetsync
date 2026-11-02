@@ -497,7 +497,7 @@ describe 'task: merge_gha_workflows' do
       expect(merged).not_to include('ppa:evgeni/vagrant')
       expect(merged).not_to include('the next line is part of the script')
       # The blank line and the next step's comment stay with the next step
-      expect(merged).to include("@v1.0.0\n\n      # Run the custom suite; see #123\n      - name: beaker\n")
+      expect(merged).to include("setup-vagrant-libvirt@v1.1.0\n\n      # Run the custom suite; see #123\n      - name: beaker\n")
     end
 
     it 'is idempotent' do
