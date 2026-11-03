@@ -13,6 +13,10 @@
     "preserve_blocks": {
       "description": "Dot-paths of mapping blocks the EXISTING file is authoritative for (e.g. ['jobs.acceptance']): its block replaces the template's, is appended when the template lacks it, and the template's block is removed when the existing file has none",
       "type": "Optional[Array[String[1]]]"
+    },
+    "template_steps": {
+      "description": "Names of steps the template stays authoritative for inside preserved_blocks: each of a preserved job's steps with one of these names is replaced in place by the template's step of that name, and named steps the job lacks go in next to their template neighbours. A preserved job with none of them is left alone. Fails if the template's job lacks a name",
+      "type": "Optional[Array[String[1]]]"
     }
   }
 }

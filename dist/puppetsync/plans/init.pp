@@ -348,6 +348,7 @@ plan puppetsync(
         'workflows'       => $workflows,
         'preserve_keys'   => $opts.dig('merge_github_workflows', 'preserve_keys'),
         'preserve_blocks' => $opts.dig('merge_github_workflows', 'preserve_blocks'),
+        'template_steps'  => $opts.dig('merge_github_workflows', 'template_steps'),
       })
     }
   }

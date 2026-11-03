@@ -13,9 +13,10 @@ describe 'task: merge_gha_workflows' do
     end
   end
 
-  def run_merge(workflows, preserve_blocks: nil)
+  def run_merge(workflows, preserve_blocks: nil, template_steps: nil)
     params = { 'workflows' => workflows }
     params['preserve_blocks'] = preserve_blocks if preserve_blocks
+    params['template_steps'] = template_steps if template_steps
     run_task('merge_gha_workflows.rb', params)
   end
 
@@ -440,6 +441,195 @@ describe 'task: merge_gha_workflows' do
       expect(status).to be_success, stderr
       expect(JSON.parse(stdout)['files'][@wf]['changed']).to be false
       expect(File.read(@wf)).to eq(existing)
+    end
+  end
+
+  context 'with template_steps' do
+    # The deployed fleet's acceptance job before the setup action: its own
+    # step names, matrix and suites, and the one-step PPA install
+    let(:fleet_acceptance) do
+      <<~YAML.gsub(/^(?=.)/, '  ')
+        acceptance:
+          runs-on:
+            - ubuntu-latest
+          strategy:
+            matrix:
+              node:
+                - oraclelinux8
+          steps:
+            - name: checkout repo
+              uses: actions/checkout@v7
+            - name: Setup libvirt for Vagrant
+              run: |
+                sudo add-apt-repository ppa:evgeni/vagrant
+                # the next line is part of the script
+                sudo apt-get update
+
+            # Run the custom suite; see #123
+            - name: beaker
+              run: |
+                bundle exec rake beaker:suites[custom,${{ matrix.node }}]
+      YAML
+    end
+
+    def merge_acceptance(existing, template: real_template, names: ['Setup libvirt for Vagrant'])
+      File.write(@wf, template.sub(/^  acceptance:.*\z/m, existing))
+      run_merge([{ 'path' => @wf, 'template' => template }],
+                preserve_blocks: ['jobs.acceptance'], template_steps: names)
+    end
+
+    def acceptance_steps
+      Psych.safe_load(File.read(@wf))['jobs']['acceptance']['steps']
+    end
+
+    it "replaces the named step with the template's, keeping the rest of the job" do
+      stdout, stderr, status = merge_acceptance(fleet_acceptance)
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)['files'][@wf]['changed']).to be true
+      expect(acceptance_steps.map { |s| s['name'] }).to eq(['checkout repo', 'Setup libvirt for Vagrant', 'beaker'])
+      template_step = Psych.safe_load(real_template)['jobs']['acceptance']['steps']
+                           .find { |s| s['name'] == 'Setup libvirt for Vagrant' }
+      expect(acceptance_steps[1]).to eq(template_step)
+      merged = File.read(@wf)
+      expect(merged).to include("        node:\n          - oraclelinux8\n")
+      expect(merged).to include('beaker:suites[custom,${{ matrix.node }}]')
+      expect(merged).not_to include('ppa:evgeni/vagrant')
+      expect(merged).not_to include('the next line is part of the script')
+      # The blank line and the next step's comment stay with the next step
+      expect(merged).to include("setup-vagrant-libvirt@v1.1.0\n\n      # Run the custom suite; see #123\n      - name: beaker\n")
+    end
+
+    it 'is idempotent' do
+      merge_acceptance(fleet_acceptance)
+      first_pass = File.read(@wf)
+
+      stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => real_template }],
+                                         preserve_blocks: ['jobs.acceptance'],
+                                         template_steps: ['Setup libvirt for Vagrant'])
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)['changed']).to be false
+      expect(File.read(@wf)).to eq(first_pass)
+    end
+
+    it "leaves a job that doesn't have the named steps alone" do
+      podman = fleet_acceptance.sub(/- name: Setup libvirt.*?\n\n/m, <<~YAML.gsub(/^/, '      ').lstrip)
+        - name: Setup podman
+          run: |
+            systemctl start --user podman.socket
+
+      YAML
+      stdout, stderr, status = merge_acceptance(podman)
+
+      expect(status).to be_success, stderr
+      expect(JSON.parse(stdout)['files'][@wf]['changed']).to be false
+      expect(acceptance_steps.map { |s| s['name'] }).to eq(['checkout repo', 'Setup podman', 'beaker'])
+    end
+
+    it 'reindents the template steps to match the job' do
+      # Steps indented two spaces less than the template's
+      stdout, stderr, status = merge_acceptance(fleet_acceptance.gsub(/^(      )(.*)/) { "    #{Regexp.last_match(2)}" })
+
+      expect(status).to be_success, stderr
+      expect(acceptance_steps.map { |s| s['name'] }).to eq(['checkout repo', 'Setup libvirt for Vagrant', 'beaker'])
+      expect(File.read(@wf)).to include("\n    - name: Setup libvirt for Vagrant\n      uses: simp/")
+    end
+
+    it 'fails rather than delete steps the template lacks' do
+      # A typo, or a per-repo template without the step
+      stdout, stderr, status = merge_acceptance(fleet_acceptance,
+                                                names: ['Setup libvirt for Vagrant', 'Setup libvirt for Vagrnt'])
+
+      expect(status).not_to be_success, stdout
+      expect(stderr).to include("template_steps not in the template's job: Setup libvirt for Vagrnt")
+    end
+
+    it 'fails rather than replace two steps that share a name' do
+      # Both would become the template's step, losing what told them apart
+      twice = fleet_acceptance.sub("      - name: beaker\n", <<~YAML.gsub(/^/, '      ') + "      - name: beaker\n")
+        - name: Setup libvirt for Vagrant
+          if: matrix.node == 'oraclelinux8'
+          run: sudo apt-get install -y qemu-system-x86
+      YAML
+      stdout, stderr, status = merge_acceptance(twice)
+
+      expect(status).not_to be_success, stdout
+      expect(stderr).to include('template_steps name more than one step in a job: Setup libvirt for Vagrant')
+    end
+
+    it "replaces a step's trailing commented-out keys with it" do
+      commented = fleet_acceptance.sub("        sudo apt-get update\n", <<~YAML.gsub(/^/, '        '))
+          sudo apt-get update
+        # with:
+        #   retries: 3
+      YAML
+      stdout, stderr, status = merge_acceptance(commented)
+
+      expect(status).to be_success, stderr
+      merged = File.read(@wf)
+      expect(merged).not_to include('retries: 3')
+      expect(merged).to include("setup-vagrant-libvirt@v1.1.0\n\n      # Run the custom suite; see #123\n      - name: beaker\n")
+    end
+
+    it "keeps the repo's tag on a grafted step (preserve_keys)" do
+      # Renovate bumped the repo past the template's tag; the next sync must not
+      # roll it back
+      merge_acceptance(fleet_acceptance)
+      File.write(@wf, File.read(@wf).sub('setup-vagrant-libvirt@v1.1.0', 'setup-vagrant-libvirt@v1.2.0'))
+
+      _stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => real_template }],
+                                          preserve_blocks: ['jobs.acceptance'],
+                                          template_steps: ['Setup libvirt for Vagrant'])
+
+      expect(status).to be_success, stderr
+      expect(File.read(@wf)).to include('setup-vagrant-libvirt@v1.2.0')
+    end
+
+    context 'with several named steps' do
+      let(:names) { %w[one two three] }
+      let(:template) do
+        <<~YAML
+          jobs:
+            acceptance:
+              steps:
+                - name: checkout
+                  uses: actions/checkout@v7
+                - name: one
+                  run: echo 1
+                - name: two
+                  run: echo 2
+                - name: three
+                  run: echo 3
+                - name: beaker
+                  run: rake beaker
+        YAML
+      end
+
+      def existing_with(*steps)
+        "  acceptance:\n    steps:\n" + steps.map { |name, run| "      - name: #{name}\n        run: #{run}\n" }.join
+      end
+
+      it "keeps the repo's own steps where they are" do
+        existing = existing_with(%w[checkout old], %w[one old], ['custom', 'repo step'], %w[two old],
+                                 %w[three old], %w[beaker old])
+        stdout, stderr, status = merge_acceptance(existing, template: template, names: names)
+
+        expect(status).to be_success, stderr
+        expect(JSON.parse(stdout)['files'][@wf]['changed']).to be true
+        expect(acceptance_steps.map { |s| [s['name'], s['run']] }).to eq(
+          [%w[checkout old], ['one', 'echo 1'], ['custom', 'repo step'], ['two', 'echo 2'],
+           ['three', 'echo 3'], %w[beaker old]],
+        )
+      end
+
+      it 'adds the steps the job lacks next to their template neighbours' do
+        existing = existing_with(%w[checkout old], ['custom', 'repo step'], %w[two old], %w[beaker old])
+        stdout, stderr, status = merge_acceptance(existing, template: template, names: names)
+
+        expect(status).to be_success, stderr
+        expect(acceptance_steps.map { |s| s['name'] }).to eq(%w[checkout custom one two three beaker])
+      end
     end
   end
 
