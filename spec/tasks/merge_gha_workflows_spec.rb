@@ -545,6 +545,47 @@ describe 'task: merge_gha_workflows' do
       expect(stderr).to include("template_steps not in the template's job: Setup libvirt for Vagrnt")
     end
 
+    it 'fails rather than replace two steps that share a name' do
+      # Both would become the template's step, losing what told them apart
+      twice = fleet_acceptance.sub("      - name: beaker\n", <<~YAML.gsub(/^/, '      ') + "      - name: beaker\n")
+        - name: Setup libvirt for Vagrant
+          if: matrix.node == 'oraclelinux8'
+          run: sudo apt-get install -y qemu-system-x86
+      YAML
+      stdout, stderr, status = merge_acceptance(twice)
+
+      expect(status).not_to be_success, stdout
+      expect(stderr).to include('template_steps name more than one step in a job: Setup libvirt for Vagrant')
+    end
+
+    it "replaces a step's trailing commented-out keys with it" do
+      commented = fleet_acceptance.sub("        sudo apt-get update\n", <<~YAML.gsub(/^/, '        '))
+          sudo apt-get update
+        # with:
+        #   retries: 3
+      YAML
+      stdout, stderr, status = merge_acceptance(commented)
+
+      expect(status).to be_success, stderr
+      merged = File.read(@wf)
+      expect(merged).not_to include('retries: 3')
+      expect(merged).to include("setup-vagrant-libvirt@v1.1.0\n\n      # Run the custom suite; see #123\n      - name: beaker\n")
+    end
+
+    it "keeps the repo's tag on a grafted step (preserve_keys)" do
+      # Renovate bumped the repo past the template's tag; the next sync must not
+      # roll it back
+      merge_acceptance(fleet_acceptance)
+      File.write(@wf, File.read(@wf).sub('setup-vagrant-libvirt@v1.1.0', 'setup-vagrant-libvirt@v1.2.0'))
+
+      _stdout, stderr, status = run_merge([{ 'path' => @wf, 'template' => real_template }],
+                                          preserve_blocks: ['jobs.acceptance'],
+                                          template_steps: ['Setup libvirt for Vagrant'])
+
+      expect(status).to be_success, stderr
+      expect(File.read(@wf)).to include('setup-vagrant-libvirt@v1.2.0')
+    end
+
     context 'with several named steps' do
       let(:names) { %w[one two three] }
       let(:template) do

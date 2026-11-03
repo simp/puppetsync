@@ -15,7 +15,14 @@
 # default branch, so the cache is saved here, from the default branch. The
 # runner must be on an Ubuntu series the PPA publishes for, and the
 # scheduled runs keep the entry from being evicted after seven days unused.
-# See simp/puppetsync#122.
+# On push it runs only when this file changes, which seeds the cache when
+# the workflow lands without adding a run (that fails while Launchpad is
+# down) to every merge.
+#
+# Only modules whose acceptance job uses Vagrant have this file, so it isn't
+# in the pupmod baseline's present_action_files: a sync session adds it with
+# merge_github_workflows' ensure_files, and later syncs refresh it where it
+# exists. See simp/puppetsync#122.
 #
 ---
 name: 'Vagrant package cache'
@@ -23,6 +30,7 @@ name: 'Vagrant package cache'
 'on':
   push:
     branches: [master, main]
+    paths: ['.github/workflows/vagrant_package_cache.yml']
   schedule:
     - cron: '17 6 * * 1,4'
   workflow_dispatch: {}

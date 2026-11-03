@@ -40,7 +40,15 @@
 # with none of them keeps its steps, so a baseline fix to shared steps
 # (e.g. the Vagrant setup) reaches every repo that has them without
 # touching each repo's own matrix, suites and steps. A name the template
-# lacks is an error rather than a deletion.
+# lacks is an error rather than a deletion, and so is a name that more than
+# one step in a job has, since replacing both would drop whatever made them
+# differ (an `if:`, say).
+#
+# `preserve_keys` still applies after the graft, so a grafted step keeps
+# the repo's value for those keys: a `uses:` tag Renovate has bumped past
+# the template's survives the next sync. A template change that needs a new
+# tag together with new inputs therefore reaches each repo as the inputs
+# now and the tag through that repo's Renovate PR.
 
 require 'fileutils'
 require 'json'
@@ -115,6 +123,7 @@ end
 # exclusive, column of the step's first key). An item ends where the next
 # one starts, or the last with the sequence, less any trailing blank lines
 # and comments outdented from its keys: those belong to whatever follows.
+# Comments at the keys' column (commented-out keys) stay with the step.
 def job_steps(job, lines)
   steps = job.is_a?(Psych::Nodes::Mapping) && node_at_path(job, 'steps')
   return [] unless steps && steps[1].is_a?(Psych::Nodes::Sequence)
@@ -125,7 +134,7 @@ def job_steps(job, lines)
     stop = i + 1 < items.size ? items[i + 1].start_line : item.end_line
     while stop > item.start_line + 1
       line = lines[stop - 1]
-      break unless line.strip.empty? || (line.lstrip.start_with?('#') && line[/\A */].size <= item.start_column)
+      break unless line.strip.empty? || (line.lstrip.start_with?('#') && line[/\A */].size < item.start_column)
 
       stop -= 1
     end
@@ -148,6 +157,12 @@ def graft_template_steps(block, block_start, existing_lines, existing_job, templ
   missing = names - template_steps.map(&:first)
   # Replacing with nothing would silently delete the repo's steps
   raise "template_steps not in the template's job: #{missing.join(', ')}" unless missing.empty?
+
+  # Two steps with one name can't both become the template's step
+  [existing, template_steps].each do |steps|
+    dups = steps.map(&:first).tally.select { |_name, count| count > 1 }.keys
+    raise "template_steps name more than one step in a job: #{dups.join(', ')}" unless dups.empty?
+  end
 
   shift = existing.first[3] - template_steps.first[3]
   text = template_steps.to_h do |name, start, stop, _col|

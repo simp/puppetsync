@@ -1,7 +1,8 @@
 ---
 # pupmod repos whose acceptance job runs Beaker on Vagrant with libvirt
-# ("Setup libvirt for Vagrant" in pr_tests.yml), as of 2026-11-02.
-# The rest of pupmods.yaml run acceptance on podman or have none.
+# ("Setup libvirt for Vagrant" in pr_tests.yml), as of 2026-11-03.
+# The rest of pupmods.yaml run acceptance on podman or have none;
+# pupmod-simp-rngd and pupmod-simp-simp_authselect aren't in pupmods.yaml.
 puppetsync::repos_config:
 
   https://github.com/simp/pupmod-simp-acpid:
@@ -58,6 +59,9 @@ puppetsync::repos_config:
   https://github.com/simp/pupmod-simp-pupmod:
     branch: master
 
+  https://github.com/simp/pupmod-simp-rngd:
+    branch: main
+
   https://github.com/simp/pupmod-simp-rsync:
     branch: master
 
@@ -71,6 +75,9 @@ puppetsync::repos_config:
     branch: master
 
   https://github.com/simp/pupmod-simp-simp_apache:
+    branch: master
+
+  https://github.com/simp/pupmod-simp-simp_authselect:
     branch: master
 
   https://github.com/simp/pupmod-simp-simp_ds389:
