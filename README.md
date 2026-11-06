@@ -214,6 +214,13 @@ puppetsync:
         - ensure_github_pr
 ```
 
+A session whose stages include `git_commit_changes` also runs
+`generate_reference_md` even when it isn't listed, so PRs don't fail the
+pupmod REFERENCE.md freshness check when an openvox-strings release
+changes the generated output. Run this way, it only regenerates
+REFERENCE.md in modules that already have one and that an earlier stage
+changed. Listing the stage regenerates it in every pupmod in the session.
+
 
 ## Reference
 
