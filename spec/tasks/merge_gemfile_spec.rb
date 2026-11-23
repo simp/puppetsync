@@ -42,8 +42,8 @@ describe 'task: merge_gemfile' do
     it 'never touches an existing gem version constraint' do
       # Simulate Renovate having bumped a pinned constraint
       munged = real_template.sub(
-        "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 6.2')",
         "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 7.0')",
+        "gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 8.0')",
       )
       raise 'munge failed' if munged == real_template
       File.write(@gemfile, munged)
@@ -52,7 +52,7 @@ describe 'task: merge_gemfile' do
 
       expect(status).to be_success, stderr
       expect(JSON.parse(stdout)['changed']).to be false
-      expect(File.read(@gemfile)).to include("'~> 7.0'")
+      expect(File.read(@gemfile)).to include("'~> 8.0'")
     end
 
     it 'adds a template gem missing from its group, at the end of that group' do
